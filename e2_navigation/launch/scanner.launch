@@ -1,0 +1,16 @@
+<launch>
+
+
+  <!-- Fake Laser Standalone nodelet-->
+  <node pkg="nodelet" type="nodelet" name="vrep_laser" args="standalone pointcloud_to_laserscan/CloudToScan" respawn="true">
+
+  <param name="output_frame_id" value="/laser_scan"/>
+  <param name="min_height" value="0.10"/>
+  <param name="max_height" value="0.20"/>
+  <param name="range_min" value="0.45"/>
+  <param name="range_max" value="15.0"/>
+
+
+  </node> 
+
+</launch>

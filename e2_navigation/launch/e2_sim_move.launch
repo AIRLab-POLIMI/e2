@@ -1,0 +1,24 @@
+<launch>
+
+	<!-- Publish odom -->
+  	<node pkg="e2_simulator" type="e2_fake_odom" name="e2_fake_odom"/> 
+	
+	<!-- Static Transform -->
+	<node pkg="tf" type="static_transform_publisher" name="odom_to_map"
+    	args="0.0 0 0 0 0 0  /map /odom 100" />	
+	
+        <!-- Add Scanner Info -->
+        <include file="$(find e2_navigation)/launch/scanner.launch" />
+
+	<!-- Run the map server -->
+    	<node name="map_server" pkg="map_server" type="map_server" args="$(find e2_navigation)/map/fiera_final.yaml"/>
+
+	<!-- Run AMCL -->
+  <!-- 	<include file="$(find e2_navigation)/launch/amcl_e2.launch" /> -->
+
+	<!-- Run Move Base -->
+	<include file="$(find e2_navigation)/launch/move_base.launch" />
+
+  <!--	<param name="TrajectoryPlannerROS/path_distance_bias" value="5.0" /> -->
+
+</launch>

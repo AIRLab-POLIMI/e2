@@ -1,0 +1,9 @@
+<launch>
+  
+  <!-- Recognition Nodes -->
+  <node name="face_recognition_server" pkg="face_recognition" type="Fserver" respawn="false" output="screen"/>
+
+<!--  <node name="face_recognition_client" pkg="face_recognition" type="Fclient" respawn="false" output="screen"/> -->
+ 
+
+</launch>
