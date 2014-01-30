@@ -1,0 +1,21 @@
+<package>
+  <description brief="face_recognition">
+  	Face recognition node. 
+  </description>
+  <author>Lorenzo Ripani</author>
+  <license>Attribution-NonCommercial 3.0</license>
+  <review status="unreviewed" notes=""/>
+  <url></url>
+  <depend package="actionlib"/>
+  <depend package="roscpp"/>
+  <depend package="rospy"/>
+  <depend package="roslib"/>
+  <depend package="std_msgs"/>
+  <depend package="actionlib_msgs"/>
+  <depend package="opencv2"/>
+  <depend package="cv_bridge"/>
+  <depend package="image_transport"/>
+
+</package>
+
+
