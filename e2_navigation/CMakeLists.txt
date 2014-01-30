@@ -22,8 +22,8 @@ rosbuild_genmsg()
 rosbuild_add_executable(e2_navigator src/e2_navigator.cpp)
 rosbuild_add_executable(e2_localization src/e2_localization.cpp)
 rosbuild_add_executable(e2_brian src/e2_brain.cpp)
+rosbuild_add_executable(e2_nav_simple src/e2_navigator_simple.cpp)
 
-rosbuild_add_executable(e2_nav_test src/e2_navigator_new.cpp)
-target_link_libraries(e2_nav_test yaml-cpp)
-
+target_link_libraries(e2_nav_simple yaml-cpp)
 target_link_libraries(e2_localization yaml-cpp)
+target_link_libraries(e2_navigator yaml-cpp)
