@@ -73,7 +73,7 @@ class ROSnode
   public:
 
     double RunPeriod;
-    move_base_msgs::MoveBaseGoal rnd_pos[2],goal,starting_position,last_user_detection;
+    move_base_msgs::MoveBaseGoal rnd_pos[3],goal,starting_position,last_user_detection;
 
     void Prepare(void);
     void Shutdown(void);
@@ -161,8 +161,8 @@ void ROSnode::RunPeriodically(float Period)
   rnd_pos[2].target_pose.pose.orientation.w = 0.7;
 
   //Set random goal
-  srand ( time(NULL) );
-  int goal_number = rand() % 2+1;
+  //srand ( time(NULL) );
+ // int goal_number = rand() % 2+1;
   goal = rnd_pos[0];
 
 

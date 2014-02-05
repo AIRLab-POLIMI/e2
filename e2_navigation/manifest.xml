@@ -1,8 +1,6 @@
 <package>
   <description brief="e2_navigation">
-  	This node provide basic launch file and nodes for E-2 (an exhibition robot) navigation. The package provide 
-  	a user detection system and reconization for user backtracking.
-  	and recognization for 
+  	This node provide basic launchfiles and nodes for navigation system of an exhibition robot.  
   </description>
   <author>Lorenzo Ripani</author>
   <license>BSD</license>
@@ -13,9 +11,8 @@
   <depend package="std_msgs"/>
   <depend package="roslib"/>
   <depend package="face_recognition"/>
-  <depend package="ar_track_alvar"/>
-  <depend package="mrbrian"/>
   <depend package="common_rosdeps" /> 
+  <depend package="mrbrian"/>
 
 	<export>
 	    <cpp cflags="-I${prefix}/msg/cpp"/>
