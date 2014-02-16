@@ -26,5 +26,6 @@ rosbuild_genmsg()
 #uncomment if you have defined services
 #rosbuild_gensrv()
 rosbuild_add_executable(FRServer src/face_recognition.cpp)
+rosbuild_add_executable(FRClient src/face_rec_client.cpp)
 #SET_TARGET_PROPERTIES(Fserver PROPERTIES OUTPUT_NAME image_view)
 
