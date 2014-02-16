@@ -20,8 +20,6 @@
 	<include file="$(find e2_navigation)/launch/move_base.launch" />
 	
 	<!-- Face Recognition Node -->
-	<include file="$(find e2_navigation)/launch/face_recognition.launch" />
-		
-  <!--	<param name="TrajectoryPlannerROS/path_distance_bias" value="5.0" /> -->
+	<include file="$(find face_recognition)/launch/face_recognition.launch" />
 
 </launch>
