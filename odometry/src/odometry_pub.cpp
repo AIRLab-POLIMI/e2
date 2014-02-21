@@ -17,7 +17,7 @@
 #include "geometry_msgs/Twist.h"
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 
-#define ROS_NODE_RATE	500
+#define ROS_NODE_RATE	5
 #define ROS_NODE_NAME	"odometry_pub"
 
 float tanSpeed = 0.0;
@@ -45,6 +45,7 @@ int main(int argc, char **argv)
 	  ros::NodeHandle nh;
 
 	  //Messages subscribers
+	  tf::TransformBroadcaster broadcaster;
 	  ros::Subscriber initialpose = nh.subscribe("initialpose", 100, getInitialPose);
 	  ros::Subscriber subWheelData = nh.subscribe("cmd_vel", 100, getWheelData);
 	  ros::Publisher odom_pub =  nh.advertise<nav_msgs::Odometry>("odom", 1000);
@@ -59,7 +60,36 @@ int main(int argc, char **argv)
 	  {
 
 		  odom->ComputeOdometry(tanSpeed,rotSpeed);
-		  odom_pub.publish(odom->getOdometryMsg());
+
+		  // Publish odom information
+		  tf::Quaternion quaternion;
+		  quaternion.setX(odom->odom_quat.x);
+		  quaternion.setY(odom->odom_quat.y);
+		  quaternion.setZ(odom->odom_quat.z);
+		  quaternion.setW(odom->odom_quat.w);
+
+		  broadcaster.sendTransform(tf::StampedTransform(tf::Transform(quaternion, tf::Vector3(odom->x, odom->y, 0.0)),ros::Time::now(), "odom","base_footprint"));
+
+		  nav_msgs::Odometry msg;
+
+		  msg.header.stamp = odom->current_time;
+		  msg.header.frame_id = "odom";
+
+		  //set the position
+		  msg.pose.pose.position.x = odom->x;
+		  msg.pose.pose.position.y = odom->y;
+		  msg.pose.pose.position.z = 0.0;
+		  msg.pose.pose.orientation.x=quaternion.getX();
+		  msg.pose.pose.orientation.y=quaternion.getY();
+		  msg.pose.pose.orientation.z=quaternion.getZ();
+		  msg.pose.pose.orientation.w=quaternion.getW();
+		  //set the velocity
+		  msg.child_frame_id = "base_footprint";
+		  msg.twist.twist.linear.x = odom->vx;
+		  msg.twist.twist.linear.y = 0;
+		  msg.twist.twist.angular.z = odom->vr;
+
+		  odom_pub.publish(msg);
 
 		  ros::spinOnce();
 		  r.sleep();

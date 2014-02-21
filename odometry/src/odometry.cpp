@@ -21,6 +21,11 @@ Odometry::Odometry()
 	y = 0.0;
 	th = 0.0;
 
+	odom_quat.x=0;
+	odom_quat.y=0;
+	odom_quat.z=0;
+	odom_quat.w=1;
+
 	// Initial time
 	last_time=ros::Time::now();
 	current_time=ros::Time::now();
@@ -31,6 +36,8 @@ Odometry::Odometry(geometry_msgs::Pose pose)
 	// Initialize Odometry position
 	x = pose.position.x;
 	y = pose.position.y;
+
+	odom_quat = pose.orientation;
 	th = tf::getYaw(pose.orientation);
 
 	// Initial time
@@ -43,9 +50,12 @@ Odometry::Odometry(geometry_msgs::Pose pose)
 
 Odometry::~Odometry()
 {
+	x = 0.0;
+	y = 0.0;
+	th = 0.0;
+
 	vx = 0.0;
-	vy = 0.0;
-	vth = 0.0;
+	vr = 0.0;
 };
 
 //==================================================================
@@ -54,65 +64,62 @@ Odometry::~Odometry()
 
 void Odometry::ComputeOdometry(float tanSpeed, float rotSpeed)
 {
+
 	current_time=ros::Time::now();
-
-	vx = tanSpeed;
-	vy = tanSpeed;
-	vth = rotSpeed;
-
-    double dt = (current_time - last_time).toSec();
-    double delta_x = (vx * cos(th) - vy * sin(th)) * dt;
-    double delta_y = (vx * sin(th) + vy * cos(th)) * dt;
-    double delta_th = vth * dt;
-
-    x += delta_x;
-    y += delta_y;
-    th += delta_th;
-
-    //since all odometry is 6DOF we'll need a quaternion created from yaw
-    odom_quat = tf::createQuaternionMsgFromYaw(th);
-
-    //first, we'll publish the transform over tf
-    geometry_msgs::TransformStamped odom_trans;
-    odom_trans.header.stamp = current_time;
-    odom_trans.header.frame_id = "odom";
-    odom_trans.child_frame_id = "base_footprint";
-
-    odom_trans.transform.translation.x = x;
-    odom_trans.transform.translation.y = y;
-    odom_trans.transform.translation.z = 0.0;
-    odom_trans.transform.rotation = odom_quat;
-
-    //send the transform
-    odom_broadcaster.sendTransform(odom_trans);
-
+	double elapsed = (current_time - last_time).toSec();
 	last_time=current_time;
 
+	double d_left = 0.0;
+	double d_right = 0.0;
+
+	// To Do... Use encoder data - just for simulation test
+	double LeftMotorSpeed;
+	double RightMotorSpeed;
+	LeftMotorSpeed = tanSpeed - rotSpeed * 0.5/2;
+	RightMotorSpeed = tanSpeed + rotSpeed * 0.5/2;
+
+	//vx = tanSpeed;
+	//vth = rotSpeed;
+
+	// Calculate motor velocity
+	d_left = LeftMotorSpeed * elapsed;
+	d_right = RightMotorSpeed * elapsed;
+
+	// Distance travelled
+	double d = (d_left + d_right) / 2;
+	double d_th = (d_right - d_left) / ROBOT_WIDTH;
+
+	// Set velocity from calculated data
+	vx = d / elapsed ;
+	vr =d_th / elapsed ;
+	double d_x,d_y;
+
+	if( d != 0 )
+	{
+		d_x = cos(d_th) * d ;
+		d_y = -sin(d_th) * d ;
+
+		x = x + (cos(th) * d_x - sin(th) * d_y ) ;
+		y = y + (sin(th) * d_x + cos(th) * d_y ) ;
+	}
+	if(d_th != 0)
+		th = th + d_th ;
+
+	odom_quat.x = 0;
+	odom_quat.y = 0;
+	odom_quat.z = sin(th/2);
+	odom_quat.w = cos(th/2);
+
+	ROS_INFO("-----------------------------------------------------------------------");
+	ROS_INFO("[Odom]:: ----- Received lin %f - rot %f",tanSpeed,rotSpeed);
+	ROS_INFO("[Odom]:: ----- Time passed from last calculation %f",elapsed);
+	ROS_INFO("[Odom]:: ----- Distance Travelled right %f",d_right);
+	ROS_INFO("[Odom]:: ----- Distance Travelled left %f",d_left);
+	ROS_INFO("[Odom]:: ----- Distance Travelled %f",d);
+	ROS_INFO("[Odom]:: ----- Linear Velocity %f m/s",vx);
+	ROS_INFO("[Odom]:: ----- Angular Velocity %f rad/s",vr);
+	ROS_INFO("[Odom]:: ----- Delta X %f",d_x);
+	ROS_INFO("[Odom]:: ----- Delta Y %f",d_y);
+	ROS_INFO("[Odom]:: ----- Delta TH %f",d_th);
+	ROS_INFO("-----------------------------------------------------------------------");
 };
-
-//==================================================================
-//		Generate a ros message with odometry data
-//==================================================================
-
-nav_msgs::Odometry Odometry::getOdometryMsg()
-{
-
-	nav_msgs::Odometry msg;
-
-	msg.header.stamp = current_time;
-	msg.header.frame_id = "odom";
-
-    //set the position
-	msg.pose.pose.position.x = x;
-	msg.pose.pose.position.y = y;
-	msg.pose.pose.position.z = 0.0;
-	msg.pose.pose.orientation = odom_quat;
-
-    //set the velocity
-	msg.child_frame_id = "base_footprint";
-	msg.twist.twist.linear.x = vx;
-    msg.twist.twist.linear.y = vy;
-    msg.twist.twist.angular.z = vth;
-
-	return msg;
-}
