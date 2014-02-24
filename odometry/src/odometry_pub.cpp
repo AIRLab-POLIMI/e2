@@ -1,7 +1,7 @@
 /*
  * odometry_pub.cpp - AIRLab (Politecnico di Milano)
- * 
- * description
+ *
+ *	 This node will print odometry information using encoders info from robot wheels
  *
  *  Author:  Lorenzo Ripani 
  *  Email: ripani.lorenzo@gmail.com
@@ -17,7 +17,7 @@
 #include "geometry_msgs/Twist.h"
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 
-#define ROS_NODE_RATE	5
+#define ROS_NODE_RATE	50
 #define ROS_NODE_NAME	"odometry_pub"
 
 float tanSpeed = 0.0;
@@ -50,7 +50,6 @@ int main(int argc, char **argv)
 	  ros::Subscriber subWheelData = nh.subscribe("cmd_vel", 100, getWheelData);
 	  ros::Publisher odom_pub =  nh.advertise<nav_msgs::Odometry>("odom", 1000);
 
-
 	  ROS_INFO("[Odom]:: Node started");
 	  ros::Rate r(ROS_NODE_RATE);
 
@@ -58,7 +57,7 @@ int main(int argc, char **argv)
 
 	  while(ros::ok())	//ROS LOOP
 	  {
-
+		  // Update Odometry information - TODO Remove wheel velocity with encoder's informations
 		  odom->ComputeOdometry(tanSpeed,rotSpeed);
 
 		  // Publish odom information
@@ -68,6 +67,7 @@ int main(int argc, char **argv)
 		  quaternion.setZ(odom->odom_quat.z);
 		  quaternion.setW(odom->odom_quat.w);
 
+		  // Broadcasting transformations between odom frame and robot base
 		  broadcaster.sendTransform(tf::StampedTransform(tf::Transform(quaternion, tf::Vector3(odom->x, odom->y, 0.0)),ros::Time::now(), "odom","base_footprint"));
 
 		  nav_msgs::Odometry msg;
@@ -97,6 +97,3 @@ int main(int argc, char **argv)
 
 	  return 0;
 }
-
-
-

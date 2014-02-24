@@ -51,9 +51,6 @@ class Odometry
 		 *  @param rotSpeed rotational speed
 		 */
 		void ComputeOdometry(float tanSpeed,float rotSpeed);
-
-
 };
-
 
 #endif /* ODOMETRY_H_ */
