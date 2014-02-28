@@ -17,7 +17,7 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
 #uncomment if you have defined messages
-#rosbuild_genmsg()
+rosbuild_genmsg()
 #uncomment if you have defined services
 #rosbuild_gensrv()
 
@@ -28,6 +28,6 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 #rosbuild_link_boost(${PROJECT_NAME} thread)
 rosbuild_add_executable(base_controller src/base_controller.cpp)
 rosbuild_add_executable(e2_fake_odom src/e2_fake_odom.cpp)
-rosbuild_add_executable(e2_sim_teleop src/e2_sim_teleop.cpp)
+rosbuild_add_executable(e2_fake_encoder src/e2_fake_encoder.cpp)
 
 #target_link_libraries(example ${PROJECT_NAME})
