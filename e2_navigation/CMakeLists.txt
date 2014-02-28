@@ -19,6 +19,7 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 rosbuild_genmsg()
 
 rosbuild_add_executable(e2_brian src/e2_brain.cpp)
+rosbuild_add_executable(e2_joystick src/e2_joystick.cpp)
 rosbuild_add_executable(e2_navigator src/e2_navigator.cpp)
 rosbuild_add_executable(e2_nav_simple src/e2_navigator_simple.cpp)
 
