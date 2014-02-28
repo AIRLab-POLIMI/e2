@@ -58,31 +58,17 @@ Odometry::~Odometry()
 
 	vx = 0.0;
 	vr = 0.0;
-	odom_quat = NULL;
 };
 
 //==================================================================
 //		Calculate odometry data based on robot velocity - TODO use encoder data
 //==================================================================
-void Odometry::ComputeOdometry(float tanSpeed, float rotSpeed)
+void Odometry::ComputeOdometry(float d_left, float d_right)
 {
 
 	current_time=ros::Time::now();
 	double elapsed = (current_time - last_time).toSec();
 	last_time=current_time;
-
-	double d_left = 0.0;
-	double d_right = 0.0;
-
-	// To Do... Use encoder data - just for simulation test
-	double LeftMotorSpeed;
-	double RightMotorSpeed;
-	LeftMotorSpeed = tanSpeed - rotSpeed * 0.5/2;
-	RightMotorSpeed = tanSpeed + rotSpeed * 0.5/2;
-
-	// Calculate motor velocity
-	d_left = LeftMotorSpeed * elapsed;
-	d_right = RightMotorSpeed * elapsed;
 
 	// Distance travelled
 	double d = (d_left + d_right) / 2;
@@ -110,7 +96,6 @@ void Odometry::ComputeOdometry(float tanSpeed, float rotSpeed)
 	odom_quat.w = cos(th/2);
 
 	ROS_DEBUG("-----------------------------------------------------------------------");
-	ROS_DEBUG("[Odom]:: ----- Received lin %f - rot %f",tanSpeed,rotSpeed);
 	ROS_DEBUG("[Odom]:: ----- Time passed from last calculation %f",elapsed);
 	ROS_DEBUG("[Odom]:: ----- Distance Travelled right %f",d_right);
 	ROS_DEBUG("[Odom]:: ----- Distance Travelled left %f",d_left);

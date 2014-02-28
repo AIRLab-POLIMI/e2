@@ -16,17 +16,14 @@
 #include <geometry_msgs/Pose.h>
 #include <tf/transform_broadcaster.h>
 
-#define ROBOT_WIDTH 0.5
+#define ROBOT_WIDTH 0.6
 
 class Odometry
 {
 	private:
 
-		float tanSpeed;
-		float rotSpeed;
+		float d_left,d_right;
 		tf::TransformBroadcaster odom_broadcaster;
-
-
 
 	public:
 
@@ -50,7 +47,7 @@ class Odometry
 		 *  @param tanSpeed	linear speed of robot
 		 *  @param rotSpeed rotational speed
 		 */
-		void ComputeOdometry(float tanSpeed,float rotSpeed);
+		void ComputeOdometry(float d_left,float d_right);
 };
 
 #endif /* ODOMETRY_H_ */

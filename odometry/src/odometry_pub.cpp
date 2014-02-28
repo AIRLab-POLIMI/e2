@@ -14,21 +14,21 @@
 #include "ros/package.h"
 #include "odometry.h"
 
+#include "odometry/Encoder.h"
 #include "geometry_msgs/Twist.h"
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 
 #define ROS_NODE_RATE	50
 #define ROS_NODE_NAME	"odometry_pub"
 
-float tanSpeed = 0.0;
-float rotSpeed = 0.0;
+float d_left = 0.0;
+float d_right = 0.0;
 Odometry *odom ;
 
-void getWheelData(const geometry_msgs::TwistConstPtr &msg)
+void getWheelData(const odometry::Encoder::ConstPtr& msg)
 {
-	ROS_INFO("[Odom]:: Velocity command");
-	tanSpeed = msg->linear.x;
-	rotSpeed = msg->angular.z;
+	d_left = msg->d_left;
+	d_right = msg->d_right;
 }
 void getInitialPose(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg )
 {
@@ -47,7 +47,7 @@ int main(int argc, char **argv)
 	  //Messages subscribers
 	  tf::TransformBroadcaster broadcaster;
 	  ros::Subscriber initialpose = nh.subscribe("initialpose", 100, getInitialPose);
-	  ros::Subscriber subWheelData = nh.subscribe("cmd_vel", 100, getWheelData);
+	  ros::Subscriber subWheelData = nh.subscribe("enc", 100, getWheelData);
 	  ros::Publisher odom_pub =  nh.advertise<nav_msgs::Odometry>("odom", 1000);
 
 	  ROS_INFO("[Odom]:: Node started");
@@ -57,8 +57,11 @@ int main(int argc, char **argv)
 
 	  while(ros::ok())	//ROS LOOP
 	  {
-		  // Update Odometry information - TODO Remove wheel velocity with encoder's informations
-		  odom->ComputeOdometry(tanSpeed,rotSpeed);
+
+		  // Update Odometry information
+		  odom->ComputeOdometry(d_left,d_right);
+		  d_left = 0.0;
+		  d_right = 0.0;
 
 		  // Publish odom information
 		  tf::Quaternion quaternion;
