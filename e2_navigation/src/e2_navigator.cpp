@@ -153,7 +153,7 @@ void Navigation::Prepare()
 	object_detected=false;
 
 	user_interested = true;
-	user_face_saved= true;					// true not to train in simulation
+	user_face_saved= true;				// true not to train in simulation
 
 	ros::NodeHandle HandleP("~");
 	HandleP.param<std::string>("stand_map", stand_map, ros::package::getPath("e2_navigation")+"/config/stand_map.yaml");
