@@ -20,6 +20,7 @@
 using namespace std;
 
 bool quit;
+E2_Pololu_Interface* pE2PololuInterface ;
 
 void NeckCb(neck_api::NeckAction::ConstPtr &msg);
 
@@ -32,7 +33,8 @@ void menuChoice6( E2_Pololu_Interface* e2PololuInterface );
 void menuChoice7( E2_Pololu_Interface* e2PololuInterface );
 void menuChoice8( E2_Pololu_Interface* e2PololuInterface );
 void menuChoice9( E2_Pololu_Interface* e2PololuInterface );
-E2_Pololu_Interface* pE2PololuInterface ;
+
+
 //=====================================
 // Main Code
 //=====================================
