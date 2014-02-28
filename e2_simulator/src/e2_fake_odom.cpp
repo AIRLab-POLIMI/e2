@@ -46,7 +46,8 @@ int main(int argc, char** argv){
 	ros::init(argc, argv, "odometry_publisher");
 
 	ros::NodeHandle n;
-	ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("odom", 50);
+	//ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("/e2/fake_odom", 50);
+	ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("/odom", 50);
 	ros::Subscriber pose_sub = n.subscribe("/e2/pose", 1000, poseCallback);
 	ros::Subscriber twist_sub = n.subscribe("/e2/twist", 1000, twistCallback);
 
@@ -97,7 +98,7 @@ int main(int argc, char** argv){
 
 
 		// Set the velocity
-		odom.child_frame_id = "base_link";
+		odom.child_frame_id = "base_footprint";
 		odom.twist.twist=e2_twist.twist;
 
 		// Publish the message
