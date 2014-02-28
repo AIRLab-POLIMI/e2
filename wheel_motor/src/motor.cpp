@@ -9,10 +9,10 @@
 #include "ros/package.h"
 
 //Ros Messages
-//#include "robot_brain/WheelData.h"
 #include "geometry_msgs/Twist.h"
 #include "std_msgs/String.h"
 
+#define RATE 1
 
 using namespace std;
 
@@ -21,9 +21,6 @@ using namespace std;
 //==============================================================================
 float rotSpeed;;
 float tanSpeed;
-
-//motor::Tilt kinectTiltMSG;
-
 
 //Control Variables
 
@@ -55,22 +52,19 @@ int main(int argc, char **argv)
   //SerialCommunication
   MotorExpert* me = new MotorExpert();
   ROS_INFO("[MOTOR]::Opening Serial communication");
-  ros::Rate r(500);
+  ros::Rate r(RATE);
 	while(ros::ok())	//ROS LOOP
   {
-
+		ROS_INFO("*********************************************************************");
 		ROS_INFO("[MOTOR]::Sending data to motor  TanSpeed:%f  -- RotSpeed:%f",  tanSpeed, rotSpeed);
+
 		me->actuations((float)tanSpeed, (float)rotSpeed);		
-		me->getOdometryData();
-
-		//me->actuations(0, 0);
-
+    //me->actuations(0, 0);
+		//me->getOdometryData();
 		
+		ROS_INFO("*********************************************************************");
+		ROS_INFO("*********************************************************************");
 		//Send messages
-		//kinectTiltMSG.kinectPoint.data = 0.0;
-		//i++;
-		//if (i > 29.0) i = -30.0;
-		//pubKinectTilt.publish(kinectTiltMSG);
 		ros::spinOnce();
 		r.sleep();
 	}    
@@ -87,8 +81,8 @@ void getWheelData(const geometry_msgs::TwistConstPtr &msg)
   //tanSpeed = (int)wheelDataMSG.tanSpeed.data;
 
 
-  rotSpeed = msg->angular.z;
-  tanSpeed = msg->linear.x;
+  rotSpeed = (int)msg->angular.z;
+  tanSpeed = (int)msg->linear.x;
 
   ROS_INFO("[MOTOR]:: Get velocity command [lin,rot] : %f , %f",tanSpeed,rotSpeed);
 

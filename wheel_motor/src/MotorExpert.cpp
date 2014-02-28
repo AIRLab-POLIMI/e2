@@ -26,8 +26,11 @@ MotorExpert::~MotorExpert()
 //==================================================================
 void MotorExpert::actuations(int tanSpeed, int rotSpeed)
 {
+		printf("[MOTOR]:: Compute Actuation");
     ComputeActuations((float)tanSpeed, (float)rotSpeed);
+    printf("[MOTOR]:: Write Actuation");
     WriteActuations();
+    //printf("[MOTOR]:: Read Encoders");
     //ReadEncoders();
     //ComputeOdometry();
 };

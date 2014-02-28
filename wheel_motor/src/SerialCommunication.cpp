@@ -96,7 +96,7 @@ void SerialCommunication::InitCommunication(void)
   tcsetattr(fd,TCSANOW,&newtio);
   
   // terminal settings done, now handle input
-  
+  printf("Terminal Started");
 }
 
 

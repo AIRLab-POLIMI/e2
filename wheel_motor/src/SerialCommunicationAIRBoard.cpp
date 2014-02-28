@@ -11,7 +11,7 @@
 
 using namespace std;
 
-const int WRITING_DELAY = 0;
+const int WRITING_DELAY = 1000;
 
 SerialCommunicationAIRBoard::SerialCommunicationAIRBoard()
 {
@@ -20,7 +20,7 @@ SerialCommunicationAIRBoard::SerialCommunicationAIRBoard()
 #else
   mBaudRate = B115200;
 #endif
-  mModemDevice = strdup("/dev/ttyS0");
+  mModemDevice = strdup("/dev/ttyS1");
   mHardwareFlowControl = false;
   InitCommunication();
   StartMotors();
@@ -53,12 +53,12 @@ void SerialCommunicationAIRBoard::WriteActuations()
 {
   Write("a2\r");
   SetMotorsSpeed(mActuationValues[SPEED_MOTOR_SX],mActuationValues[SPEED_MOTOR_DX]);
-
-  if (mActuationValues.find(KICK) != mActuationValues.end())
-    {
-      usleep(WRITING_DELAY);
-      Kick(mActuationValues[KICK]);
-    }
+	printf("[MOTOR]:: Actuation command send");
+ // if (mActuationValues.find(KICK) != mActuationValues.end())
+ //   {
+ //     usleep(WRITING_DELAY);
+ //     Kick(mActuationValues[KICK]);
+ //   }
 
 }
 
@@ -69,21 +69,23 @@ void SerialCommunicationAIRBoard::ReadEncoders()
 
   usleep(WRITING_DELAY);
   Write(READ_SPEEDS);
+  printf("[MOTOR]:: Lettura dati encoder");
   ReadNumber(&n);
+  printf("[MOTOR]:: Letto valore ");
   mEncoderValues[SPEED_MOTOR_SX] = n;
-  //printf( "\nlettura: mEncoderValues[SPEED_MOTOR_SX] = %d", mEncoderValues[SPEED_MOTOR_SX] );
+  printf( "\nlettura: mEncoderValues[SPEED_MOTOR_SX] = %d", mEncoderValues[SPEED_MOTOR_SX] );
   ReadNumber(&n);
   mEncoderValues[SPEED_MOTOR_DX] = n;
-  //printf( "\nlettura: mEncoderValues[SPEED_MOTOR_DX] = %d", mEncoderValues[SPEED_MOTOR_DX] );
+  printf( "\nlettura: mEncoderValues[SPEED_MOTOR_DX] = %d", mEncoderValues[SPEED_MOTOR_DX] );
 
   usleep(WRITING_DELAY);
   Write(READ_ENCODERS);
   ReadNumber(&n);
   mEncoderValues[ENCODER_MOTOR_SX] = n;
-  //printf( "\nlettura: mEncoderValues[ENCODER_MOTOR_SX] = %d", mEncoderValues[ENCODER_MOTOR_SX] );
+  printf( "\nlettura: mEncoderValues[ENCODER_MOTOR_SX] = %d", mEncoderValues[ENCODER_MOTOR_SX] );
   ReadNumber(&n);
   mEncoderValues[ENCODER_MOTOR_DX] = n;
-  //printf( "\nlettura: mEncoderValues[ENCODER_MOTOR_DX] = %d", mEncoderValues[ENCODER_MOTOR_DX] );
+  printf( "\nlettura: mEncoderValues[ENCODER_MOTOR_DX] = %d", mEncoderValues[ENCODER_MOTOR_DX] );
 }
 
 void SerialCommunicationAIRBoard::SetMotorsSpeed(int speed_motor_0, int speed_motor_1)

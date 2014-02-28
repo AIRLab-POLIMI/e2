@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <math.h>
 
-//#define K_FACTOR 0.75
-#define K_FACTOR 0.25 // Differential k_factor should be wheel_distance / 2
+#define K_FACTOR 0.75
+//#define K_FACTOR 0.25 // Differential k_factor should be wheel_distance / 2
 
 GianoActuationManager::GianoActuationManager()
 {}
@@ -23,7 +23,7 @@ void GianoActuationManager::ComputeActuations(float tanSpeed, float rotSpeed)
   float sx = (tan_speed + rot_speed);  
 
   float max_speed = max(fabs(dx),fabs(sx));
-  //printf("### - MAX/Sx/Dx:%f-%f-%f\n", max_speed,sx,dx);
+  printf("### - MAX/Sx/Dx:%f-%f-%f\n", max_speed,sx,dx);
   if (max_speed > 100.0)
   {
     dx = dx*100.0/max_speed;
@@ -51,14 +51,14 @@ void GianoActuationManager::ComputeActuations(float tanSpeed, float rotSpeed)
   mActuationValues[SPEED_MOTOR_DX] = (int)(-sx);
   mActuationValues[SPEED_MOTOR_SX] = (int)(-dx);
 
-  //printf("\n%$# - MAX/Sx/Dx:%f-%f-%f\n", max_speed,sx,dx);
-  //printf("\n%$# - T/R:%f-%f\n",  mCommandData[TAN_SPEED] , mCommandData[ROT_SPEED] );
-  //printf("\n%$# - S/D:%d-%d\n",  mActuationValues[SPEED_MOTOR_SX] , mActuationValues[SPEED_MOTOR_DX] );
+  printf("\n%$# - MAX/Sx/Dx:%f-%f-%f\n", max_speed,sx,dx);
+  printf("\n%$# - T/R:%f-%f\n",  mCommandData[TAN_SPEED] , mCommandData[ROT_SPEED] );
+  printf("\n%$# - S/D:%d-%d\n",  mActuationValues[SPEED_MOTOR_SX] , mActuationValues[SPEED_MOTOR_DX] );
  
-  if (mCommandData.find(KICK) != mCommandData.end())
-    {
-      mActuationValues[KICK] = (int)mCommandData[KICK];
-    }
+  //if (mCommandData.find(KICK) != mCommandData.end())
+  //  {
+  //    mActuationValues[KICK] = (int)mCommandData[KICK];
+  //  }
 	
 }
 
