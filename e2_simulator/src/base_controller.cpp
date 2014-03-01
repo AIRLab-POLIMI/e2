@@ -61,6 +61,9 @@ void controllerCallback(const geometry_msgs::Twist::ConstPtr& msg){
 	LeftMotorSpeed = msg->linear.x - msg->angular.z * (ROBOT_WIDTH/2);
 	RightMotorSpeed = msg->linear.x + msg->angular.z * (ROBOT_WIDTH/2);
 
+	LeftMotorSpeed *=20;
+	RightMotorSpeed *=20;
+
 	motorSpeeds.handles.data.push_back(leftMotorHandle);
 	motorSpeeds.handles.data.push_back(rightMotorHandle);
 	motorSpeeds.setModes.data.push_back(2); // 2 is the speed mode
