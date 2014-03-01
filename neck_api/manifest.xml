@@ -10,11 +10,6 @@
   <url>https://github.com/boottp/e2</url>
   <depend package="roscpp"/>
 
-
-	<export>
-	    <cpp cflags="-I${prefix}/msg/cpp"/>
-	</export>
-
 </package>
 
 
