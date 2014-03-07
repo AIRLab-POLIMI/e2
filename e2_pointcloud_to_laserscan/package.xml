@@ -1,25 +1,25 @@
 <?xml version="1.0"?>
 <package>
   <name>e2_pointcloud_to_laserscan</name>
-  <version>0.0.0</version>
+  <version>0.0.1</version>
   <description>The e2_pointcloud_to_laserscan package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="jackal@todo.todo">jackal</maintainer>
+  <maintainer email="ripani.lorenzo@gmail.com">Lorenzo Ripani</maintainer>
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->
   <!-- Commonly used license strings: -->
   <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
-  <license>TODO</license>
+  <license>BSD</license>
 
 
   <!-- Url tags are optional, but mutiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/e2_pointcloud_to_laserscan</url> -->
+  <url type="website">http://github.com/boottp/e2/</url>
 
 
   <!-- Author tags are optional, mutiple are allowed, one per tag -->
