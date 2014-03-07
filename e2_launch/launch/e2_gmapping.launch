@@ -2,7 +2,7 @@
 
 
     <!-- Add Scanner Info -->
-    <include file="$(find e2_navigation)/launch/scanner.launch" />
+    <include file="$(find e2_launch)/launch/scanner.launch" />
 	 
     <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
         <!--remap from="scan" to="base_scan"/-->

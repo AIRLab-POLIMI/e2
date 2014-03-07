@@ -6,7 +6,7 @@
 
 	
     <!-- Kinect launch and scanner info -->
-	<include file="$(find e2_navigation)/launch/scanner.launch" />
+	<include file="$(find e2_launch)/launch/scanner.launch" />
 
 	<!-- Odom & Tf -->
 <!--	<node name="odom" pkg="e2_odometry" type="e2_odometry_node" respawn="true" output="screen"/>	-->
@@ -16,13 +16,13 @@
     <node name="map_server" pkg="map_server" type="map_server" args="$(find e2_navigation)/map/fiera_final.yaml"/>
 
 	<!-- Run AMCL -->
-  	<include file="$(find e2_navigation)/launch/amcl_diff.launch" />
+  	<include file="$(find e2_launch)/launch/amcl_diff.launch" />
 
 	<!-- Run Move Base -->
-	<include file="$(find e2_navigation)/launch/move_base.launch" />
+	<include file="$(find e2_launch)/launch/move_base.launch" />
 	
 	<!-- Face Recognition Node -->
-	<include file="$(find face_recognition)/launch/face_recognition.launch" />
+	<include file="$(find e2_launch)/launch/face_recognition.launch" />
 		
 
 </launch>

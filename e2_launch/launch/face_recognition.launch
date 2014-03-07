@@ -1,0 +1,6 @@
+<launch>
+  
+  <!-- Recognition Nodes -->
+  <node name="face_recognition" pkg="face_recognition" type="face_recognition_node" respawn="false" output="screen"/>
+
+</launch>

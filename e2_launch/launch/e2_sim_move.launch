@@ -8,18 +8,18 @@
     	args="0.0 0 0 0 0 0  /map /odom 100" />	
 	
     <!-- Add Scanner Info -->
-    <include file="$(find e2_navigation)/launch/scanner.launch" />
+    <include file="$(find e2_launch)/launch/scanner.launch" />
 
 	<!-- Run the map server -->
     <node name="map_server" pkg="map_server" type="map_server" args="$(find e2_navigation)/map/fiera_final.yaml"/>
 
 	<!-- Run AMCL -->
-  	<!-- 	<include file="$(find e2_navigation)/launch/amcl_e2.launch" /> -->
+  	<!-- 	<include file="$(find e2_launch)/launch/amcl_e2.launch" /> -->
 
 	<!-- Run Move Base -->
-	<include file="$(find e2_navigation)/launch/move_base.launch" />
+	<include file="$(find e2_launch)/launch/move_base.launch" />
 	
 	<!-- Face Recognition Node -->
-	<include file="$(find face_recognition)/launch/face_recognition.launch" />
+	<include file="$(find e2_launch)/launch/face_recognition.launch" />
 
 </launch>

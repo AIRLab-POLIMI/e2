@@ -1,6 +1,0 @@
-<launch>
-  
-  <!-- Recognition Nodes -->
-  <node name="face_recognition" pkg="face_recognition" type="FRServer" respawn="false" output="screen"/>
-
-</launch>
