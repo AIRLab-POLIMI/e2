@@ -1,9 +1,0 @@
-#Goal definition
-int32 rotSpeed
-int32 tanSpeed
----
-#Result definition
-int32 status
----
-#Feedback definition
-uint8 feedback
