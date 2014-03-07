@@ -5,18 +5,18 @@
     	args="0.0 0 0 0 0 0  /map /odom 100" /> -->
 
 	
-        <!-- Kinect launch and scanner info -->
+    <!-- Kinect launch and scanner info -->
 	<include file="$(find e2_navigation)/launch/scanner.launch" />
 
 	<!-- Odom & Tf -->
-<!--	<node name="odom" pkg="odometry" type="odom_pub" respawn="true" output="screen"/>	-->
-	<node name="transform" pkg="odometry" type="tf_pub" respawn="false" output="screen"/>
+<!--	<node name="odom" pkg="e2_odometry" type="e2_odometry_node" respawn="true" output="screen"/>	-->
+<!--	<node name="transform" pkg="e2_odometry" type="e2_tf_node" respawn="false" output="screen"/>	-->
 
 	<!-- Run the map server -->
-    	<node name="map_server" pkg="map_server" type="map_server" args="$(find e2_navigation)/map/fiera_final.yaml"/>
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find e2_navigation)/map/fiera_final.yaml"/>
 
 	<!-- Run AMCL -->
-  	<include file="$(find e2_navigation)/launch/amcl_e2.launch" />
+  	<include file="$(find e2_navigation)/launch/amcl_diff.launch" />
 
 	<!-- Run Move Base -->
 	<include file="$(find e2_navigation)/launch/move_base.launch" />

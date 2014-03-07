@@ -40,8 +40,8 @@ int main(int argc, char **argv)
     string speech_config;
 
     nh.param<string>("neck_topic", neck_topic, "/e2/neck");
-	nh.param("marker_config", marker_config, ros::package::getPath("navigation")+"/config/marker_config.yaml");
-	nh.param("speech_config", speech_config, ros::package::getPath("navigation")+"/config/speech_config.yaml");
+	nh.param("marker_config", marker_config, ros::package::getPath("e2_navigation")+"/config/marker_config.yaml");
+	nh.param("speech_config", speech_config, ros::package::getPath("e2_navigation")+"/config/speech_config.yaml");
 
 	// Suscribers && Publishers for input messages
     ros::Subscriber odom_sub= nh.subscribe("/odom", 10,OdometryCb);
