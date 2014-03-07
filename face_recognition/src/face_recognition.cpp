@@ -52,8 +52,8 @@ public:
 			ROS_INFO("Alert: Database is not updated, You better (re)train from images!");
 		}
 		//subscribe to video stream through image transport class
-		//image_sub_ = it_.subscribe("/camera/image_raw", 1,&FaceRecognition::imageCB, this); 		// Simulation topic
-		image_sub_ = it_.subscribe("/camera/rgb/image_raw", 1,&FaceRecognition::imageCB, this);			// Kinect topic
+		image_sub_ = it_.subscribe("/camera/image_raw", 1,&FaceRecognition::imageCB, this); 		// Simulation topic
+		//image_sub_ = it_.subscribe("/camera/rgb/image_raw", 1,&FaceRecognition::imageCB, this);			// Kinect topic
 	}
 
 	~FaceRecognition(void) {

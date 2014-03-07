@@ -1,0 +1,47 @@
+- id: train
+  text: "Per favore, resta immobile mentre memorizzo il tuo volto. Non ci vorrà molto."
+  duration: 150
+
+- id: train_success
+  text: "Perfetto. Possiamo andare"
+  duration: 150
+
+- id: train_failed
+  text: "Non sono riuscito a memorizzare il tuo volto."
+  duration: 150
+
+- id: joke_1
+  text: "Squilla il telefono, un robot si avvicina e chiede: Che cosa parla?"
+  duration: 150
+
+- id: joke_2
+  text: "Sapete perché la neve cade a fiocchi e non a nodi? Perché se cadesse a nodi farebbe molta più fatica a sciogliersi!"
+  duration: 150
+
+- id: joke_3
+  text: "Va bene, va bene! Lo capisco che non sono accettato dal fatto che non sanguino."
+  duration: 150
+
+- id: joke_4
+  text: "Ero andato a comprare dei chiodi di garofano. Devo piantare la mia fidanzata e volevo dirglielo con i fiori."
+  duration: 150
+
+- id: joke_5
+  text: "Cadono tutte ai tuoi piedi! Ma cosa ci fai alle donne? Lo sgambetto?"
+  duration: 150
+
+- id: joke_6
+  text: "La vita è breve come la pipì di una farfalla."
+  duration: 150
+
+- id: joke_7
+  text: "Due maiali vanno ad un telequiz e dicono al presentatore: Avete delle domande da porci?"
+  duration: 150
+
+- id: joke_8
+  text: "Signorina, credete nell amore a prima vista? Altrimenti possiamo spegnere la luce."
+  duration: 150
+
+- id: joke_9
+  text: "L ossigeno fu scoperto solo nel 1874. Non ci si spiega come la gente potesse respirare, prima."
+  duration: 150
