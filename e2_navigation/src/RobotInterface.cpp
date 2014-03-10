@@ -15,25 +15,35 @@ using namespace std;
 //=================================================================
 // Class Constructor
 //=================================================================
-RobotInterface::RobotInterface()
+RobotInterface::RobotInterface(bool enable_neck)
 {
 	recognized_user = "none";
-	ac = new MoveBaseClient("move_base", true);
-	ac_fr = new FRClient("face_recognition", true);
+	neck_enabled = enable_neck;
 
-	while (!ac->waitForServer(ros::Duration(5.0)))
+	ac_mb = new MoveBaseClient("move_base", true);
+	ac_fr = new FRClient("face_recognition", true);
+	ac_nc =new NeckClient("e2_neck_controller",true);
+
+	while (!ac_mb->waitForServer(ros::Duration(5.0)))
 		ROS_INFO("[IRobot]:: Waiting for the move_base action server to come up");
 
 	while (!ac_fr->waitForServer(ros::Duration(5.0)))
 		ROS_INFO("[IRobot]:: Waiting for the face_recognition action server to come up");
 
+	while (!ac_nc->waitForServer(ros::Duration(5.0)))
+		ROS_INFO("[IRobot]:: Waiting for the neck_controller action server to come up");
+
 	ROS_INFO("[IRobot]:: Base ready");
+
+
+
 }
 
 RobotInterface::~RobotInterface()
 {
-	ac = NULL;
 	ac_fr = NULL;
+	ac_nc = NULL;
+	ac_mb = NULL;
 
 	ROS_INFO("[IRobot]:: Base disabled");
 }
@@ -44,7 +54,7 @@ RobotInterface::~RobotInterface()
 void RobotInterface::setGoal(MBGoal goal)
 {
 	ROS_INFO	("[IRobot]:: Received new goal: %f , %f , %f ",goal.target_pose.pose.position.x,goal.target_pose.pose.position.y,goal.target_pose.pose.position.z);
-	ac->sendGoal(goal);
+	ac_mb->sendGoal(goal);
 }
 
 //=================================================================
@@ -53,7 +63,7 @@ void RobotInterface::setGoal(MBGoal goal)
 void RobotInterface::CancelAllGoals()
 {
 	ROS_DEBUG("[IRobot]:: All goal cancelled ");
-	ac->cancelAllGoals();
+	ac_mb->cancelAllGoals();
 }
 //=================================================================
 // Get current goal status
@@ -62,7 +72,7 @@ bool RobotInterface::getBaseGoalStatus()
 {
 
 	// Check if the robot succeded it's task
-	if (ac->getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+	if (ac_mb->getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
 	{
 		ROS_INFO("[IRobot]:: Hooray, we reached the Goal ! ");
 		return true;
@@ -85,8 +95,8 @@ void RobotInterface::RotateBase(char *direction,float angle)
 	current.target_pose.pose.orientation.z = sin(angle/2); // TODO - Check Rotation
 	current.target_pose.pose.orientation.w = cos(angle/2);
 
-	ROS_INFO("[IRobot]:: Rotation quat [%f,%f,%f]",current.target_pose.pose.orientation.x,current.target_pose.pose.orientation.y,current.target_pose.pose.orientation.z);
-	ac->sendGoal(current);
+	ROS_INFO("[IRobot::Base]:: Rotation quat [%f,%f,%f]",current.target_pose.pose.orientation.x,current.target_pose.pose.orientation.y,current.target_pose.pose.orientation.z);
+	ac_mb->sendGoal(current);
 
 	/*
 	if(strcmp(direction,"RIGHT") == 0)
@@ -108,8 +118,24 @@ void RobotInterface::RotateBase(char *direction,float angle)
 //=================================================================
 void RobotInterface::StopBase()
 {
-	ROS_DEBUG("[IRobot]:: Robot Stopped ");
+	ROS_DEBUG("[IRobot::Base]:: Robot Stopped ");
 	CancelAllGoals();
+}
+
+//=================================================================
+//
+//=================================================================
+void RobotInterface::NeckAction(int id_action)
+{
+	if(neck_enabled)
+	{
+		e2_neck_controller::NeckGoal n_goal;
+		n_goal.action_id=id_action;
+		ac_nc->sendGoal(n_goal);
+
+	}
+	else
+		ROS_INFO("[IRobot::Neck]:: Neck is not enabled. No action taken. ");
 }
 
 //=================================================================
@@ -147,7 +173,7 @@ void RobotInterface::SpeechTalk(string text)
 char *RobotInterface::getBatteryStatus()
 {
 	// TODO - Read Battery status from somewhere.
-	return "GOOD";
+	return const_cast<char *>("GOOD");
 }
 
 //=================================================================

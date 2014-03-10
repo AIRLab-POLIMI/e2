@@ -94,8 +94,8 @@ void Navigation::Controller()
 		else
 		{	/* Looking for user */
 			//NewTask();
-
-			irobot.RotateBase(const_cast<char *>("LEFT"),3.14);
+			irobot.NeckAction(1);
+			//irobot.RotateBase(const_cast<char *>("LEFT"),3.14);
 			usleep(1000000000);
 		}
 

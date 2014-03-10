@@ -18,6 +18,7 @@
 #include "tf/tf.h"
 #include "common.h"
 #include <actionlib/client/simple_action_client.h>
+#include <e2_neck_controller/NeckAction.h>
 #include <face_recognition/FaceRecognitionAction.h>
 #include <face_recognition/FaceRecognitionFeedback.h>
 #include <face_recognition/FaceRecognitionActionResult.h>
@@ -26,11 +27,12 @@
 typedef move_base_msgs::MoveBaseGoal MBGoal;
 typedef actionlib::SimpleActionClient<face_recognition::FaceRecognitionAction> FRClient;
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
+typedef actionlib::SimpleActionClient<e2_neck_controller::NeckAction> NeckClient;
 
 class RobotInterface
 {
 	public:
-		RobotInterface();
+		RobotInterface(bool enable_neck=true);
 		~RobotInterface();
 
 		void CancelAllGoals();
@@ -40,6 +42,7 @@ class RobotInterface
 		void StopBase();
 		void RotateNeck(char *direction);
 		void RotateBase(char *direction,float angle = BASE_ROTATION_ANGLE);
+		void NeckAction(int id_action);
 
 		char *getBatteryStatus();
 		void SpeechTalk(string text);
@@ -51,9 +54,13 @@ class RobotInterface
 		void setRobotPose(geometry_msgs::Pose pose);
 
 	private:
+
 		MBGoal current;
 		FRClient * ac_fr; 														// Face recognition
-		MoveBaseClient *ac;
+		NeckClient *ac_nc;
+		MoveBaseClient *ac_mb;
+
+		bool neck_enabled;
 
 		string recognized_user;
 		geometry_msgs::Pose robot_pose;

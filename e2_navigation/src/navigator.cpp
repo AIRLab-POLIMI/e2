@@ -10,7 +10,6 @@
 
 #include "ros/ros.h"
 #include "Navigation.h"
-#include "e2_neck_controller/NeckAction.h"
 #include "nav_msgs/Odometry.h"
 
 // Face recognition
@@ -45,7 +44,6 @@ int main(int argc, char **argv)
 
 	// Suscribers && Publishers for input messages
     ros::Subscriber odom_sub= nh.subscribe("/odom", 10,OdometryCb);
-    //ros::Publisher neck_pub =nh.advertise<neck_api::NeckAction>(neck_topic.c_str(), 1);
 
 	ROS_INFO("["ROS_NODE_NAME"]:: Node Started");
 
