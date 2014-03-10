@@ -11,18 +11,14 @@
  */
 
 #include "ros/ros.h"
-#include "e2_neck_controller/NeckAction.h"
+#include "NeckInterface.h"
 #include "E2_Pololu_Interface.h"
 
-#define ROS_NODE_RATE	1
-#define ROS_NODE_NAME	"neck"
+#define ROS_NODE_NAME	"e2_neck_controller"
 
 using namespace std;
 
-bool quit;
 E2_Pololu_Interface* pE2PololuInterface ;
-
-void NeckCb(e2_neck_controller::NeckAction::ConstPtr &msg);
 
 void menuChoice1( E2_Pololu_Interface* e2PololuInterface );
 void menuChoice2( E2_Pololu_Interface* e2PololuInterface );
@@ -41,30 +37,23 @@ void menuChoice9( E2_Pololu_Interface* e2PololuInterface );
 int main(int argc, char **argv)
 {
 	ros::init(argc, argv, ROS_NODE_NAME);
-	ros::NodeHandle nh("~");
 
-	ros::Rate r(ROS_NODE_RATE);
+    //pE2PololuInterface = new E2_Pololu_Interface();
 
-	string neck_topic;
-
-    nh.param<string>("neck_topic", neck_topic, "/e2/neck");							// Default neck topic
-
-    pE2PololuInterface = new E2_Pololu_Interface();
-
-	ROS_INFO("["ROS_NODE_NAME"]:: Suscribed to node topic %s' ", neck_topic.c_str());
 	ROS_INFO("["ROS_NODE_NAME"]:: Node Started");
 
-	while(ros::ok() && !exit)
-	{
-		ros::spinOnce();
-		r.sleep();
-	}
+	// Initialize main  class
+	NeckInterface neck(ros::this_node::getName());
+
+	ros::spin();
+
 	delete pE2PololuInterface;
+	return 0;
+
+
 }
 
-// ========================================================================
-// Retrieve Neck actions to be executed
-// ========================================================================
+/*
 void NeckCb(e2_neck_controller::NeckAction::ConstPtr &msg)
 {
 	int choice= msg->action_id;
@@ -104,6 +93,7 @@ void NeckCb(e2_neck_controller::NeckAction::ConstPtr &msg)
 			break;
 	}
 }
+*/
 
 // ========================================================================
 // Menu Choices (examples of how to call E2_Pololu_Interface's functions)

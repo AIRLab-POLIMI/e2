@@ -1,6 +1,20 @@
-# This contains the action to be executed by neck
-uint8 action_id
+#goal definition
+uint8   action_id 
+---
+#result definition
+uint8   action_id
+string  result
+---
+#feedback
+uint8   action_id
+string  status
 
+
+
+
+
+
+################# action_id
 #	"1 - Reach Straight Neck Position"
 #	"2 - Invitation Left"
 #	"3 - Invitation Right"

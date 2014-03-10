@@ -6,7 +6,9 @@ project(e2_neck_controller)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
-  message_generation
+  roslib
+  actionlib
+  actionlib_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -43,10 +45,9 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
- add_message_files(
-   FILES
-   NeckAction.msg
- )
+# add_message_files(
+#   FILES
+# )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -56,16 +57,17 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate actions in the 'action' folder
-# add_action_files(
-#   FILES
-#   Action1.action
-#   Action2.action
-# )
+ add_action_files(
+   DIRECTORY action
+   FILES
+   Neck.action
+ )
 
 ## Generate added messages and services with any dependencies listed here
  generate_messages(
    DEPENDENCIES
- #  std_msgs  # Or other packages containing msgs
+   actionlib_msgs
+   std_msgs
  )
 
 ###################################
@@ -80,8 +82,8 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES e2_neck_controller
-  CATKIN_DEPENDS roscpp message_runtime
-  DEPENDS system_lib
+  CATKIN_DEPENDS roscpp actionlib_msgs
+  #DEPENDS system_lib
 )
 
 ###########
@@ -104,7 +106,7 @@ include_directories(
  )
 
 ## Declare a cpp executable
- add_executable(e2_neck_controller_node src/neck.cpp)
+ add_executable(e2_neck_controller_node src/neck.cpp src/NeckInterface.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
