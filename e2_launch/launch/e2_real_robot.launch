@@ -23,6 +23,8 @@
 	
 	<!-- Face Recognition Node -->
 	<include file="$(find e2_launch)/launch/face_recognition.launch" />
-		
+	
+	<!-- Neck Controller Node -->
+	<include file="$(find e2_launch)/launch/neck_controller.launch" />	
 
 </launch>
