@@ -12,11 +12,6 @@
 #include "Navigation.h"
 #include "nav_msgs/Odometry.h"
 
-// Face recognition
-#include <face_recognition/FaceRecognitionAction.h>
-#include <face_recognition/FaceRecognitionActionResult.h>
-#include <face_recognition/FaceRecognitionFeedback.h>
-
 #define ROS_NODE_RATE	1
 #define ROS_NODE_NAME	"navigator"
 
@@ -57,6 +52,6 @@ int main(int argc, char **argv)
 //=====================================
 void OdometryCb(const nav_msgs::Odometry::ConstPtr& msg)
 {
-	ROS_INFO("[Odometry]:: Odometry pose x,y,z: [%f,%f,%f]: ", msg->pose.pose.position.x,msg->pose.pose.position.y,msg->pose.pose.position.z);
+	ROS_DEBUG("[Odometry]:: Odometry pose x,y,z: [%f,%f,%f]: ", msg->pose.pose.position.x,msg->pose.pose.position.y,msg->pose.pose.position.z);
 	navigation->UpdateRobotPose(msg->pose.pose);
 }

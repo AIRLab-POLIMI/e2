@@ -57,14 +57,12 @@ class Navigation
 	    bool user_recognized;
 
 	    int node_rate;
+	    int marker_size,speech_size;
 
 		ros::Time initial_time;
 
 		Marker *markers;
 		Speech *speechs;
-
-		int marker_size,speech_size;
-
 		RobotInterface irobot;
 
 	    ros::NodeHandle *Handle;

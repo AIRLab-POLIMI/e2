@@ -30,13 +30,18 @@ RobotInterface::RobotInterface(bool enable_neck)
 	while (!ac_fr->waitForServer(ros::Duration(5.0)))
 		ROS_INFO("[IRobot]:: Waiting for the face_recognition action server to come up");
 
-	while (!ac_nc->waitForServer(ros::Duration(5.0)))
+	ros::Time init_time = ros::Time::now();
+	while (!ac_nc->waitForServer(ros::Duration(1.0)) && neck_enabled)
+	{
 		ROS_INFO("[IRobot]:: Waiting for the neck_controller action server to come up");
-
+		double elapsed = (ros::Time::now() - init_time).toSec();
+		if(elapsed > 5.0)
+		{
+			ROS_INFO("[IRobot]:: No neck interface found. Disabled");
+			neck_enabled=false;
+		}
+	}
 	ROS_INFO("[IRobot]:: Base ready");
-
-
-
 }
 
 RobotInterface::~RobotInterface()
@@ -58,28 +63,28 @@ void RobotInterface::setGoal(MBGoal goal)
 }
 
 //=================================================================
-// Delete all base goal
+// Delete all robot goal
 //=================================================================
 void RobotInterface::CancelAllGoals()
 {
 	ROS_DEBUG("[IRobot]:: All goal cancelled ");
 	ac_mb->cancelAllGoals();
+	ac_nc->cancelAllGoals();
+	ac_fr->cancelAllGoals();
 }
+
 //=================================================================
 // Get current goal status
 //=================================================================
 bool RobotInterface::getBaseGoalStatus()
 {
-
 	// Check if the robot succeded it's task
 	if (ac_mb->getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
 	{
 		ROS_INFO("[IRobot]:: Hooray, we reached the Goal ! ");
 		return true;
 	}
-
 	return false;
-
 }
 
 //=================================================================
@@ -89,27 +94,25 @@ void RobotInterface::RotateBase(char *direction,float angle)
 {
 	ROS_INFO("[IRobot]:: Rotating %s of %f ",direction,angle);
 
+	double th = tf::getYaw(robot_pose.orientation);
+	double th_new;
+
+	if(strcmp(direction,"RIGHT") == 0)
+		th_new = th - angle;
+	else
+		th_new = th + angle;
+
 	current.target_pose.header.frame_id = "map";
 	current.target_pose.pose = robot_pose;
+	current.target_pose.pose.orientation.z = sin(th_new/2);
+	current.target_pose.pose.orientation.w = cos(th_new/2);
 
-	current.target_pose.pose.orientation.z = sin(angle/2); // TODO - Check Rotation
-	current.target_pose.pose.orientation.w = cos(angle/2);
-
-	ROS_INFO("[IRobot::Base]:: Rotation quat [%f,%f,%f]",current.target_pose.pose.orientation.x,current.target_pose.pose.orientation.y,current.target_pose.pose.orientation.z);
 	ac_mb->sendGoal(current);
 
-	/*
-	if(strcmp(direction,"RIGHT") == 0)
-	{
-		current.target_pose.pose.orientation.z = robot_pose.orientation.z + rad_rotation; // TODO - Check Rotation
-		ac->sendGoal(current);
-	}
-	else
-	{
-		current.target_pose.pose.orientation.z = robot_pose.orientation.z - rad_rotation; // TODO - Check Rotation
-		ac->sendGoal(current);
-	}
-*/
+	//ROS_INFO("[IRobot::Base]:: Get th %f ",th);
+	//ROS_INFO("[IRobot::Base]:: New th %f ",th_new);
+	//ROS_INFO("[IRobot::Base]:: Current Pose [%f,%f,%f] Orientation[%f,%f]",robot_pose.position.x,robot_pose.position.y,robot_pose.position.z,robot_pose.orientation.z,robot_pose.orientation.w);
+	//ROS_INFO("[IRobot::Base]:: New Pose      [%f,%f,%f] Orientation[%f,%f]",current.target_pose.pose.position.x,current.target_pose.pose.position.y,current.target_pose.pose.position.z,current.target_pose.pose.orientation.z,current.target_pose.pose.orientation.w);
 
 }
 
@@ -123,16 +126,28 @@ void RobotInterface::StopBase()
 }
 
 //=================================================================
-//
+//	Send an action to neck controller
+//	action_id
+//	"1 - Reach Straight Neck Position"
+//	"2 - Invitation Left"
+//	"3 - Invitation Right"
+//	"4 - Give a Bow"
+//	"5 - Surprise Expression"
+//	"6 - Bend Forward"
+//	"7 - Bend Back"
+//	"8 - Bend Left"
+//	"9 - Bend Right"
 //=================================================================
 void RobotInterface::NeckAction(int id_action)
 {
 	if(neck_enabled)
 	{
+		ROS_INFO("[IRobot::Neck]:: Received Neck action %d",id_action);
+
 		e2_neck_controller::NeckGoal n_goal;
 		n_goal.action_id=id_action;
-		ac_nc->sendGoal(n_goal);
 
+		ac_nc->sendGoal(n_goal);
 	}
 	else
 		ROS_INFO("[IRobot::Neck]:: Neck is not enabled. No action taken. ");
@@ -153,8 +168,7 @@ geometry_msgs::Pose RobotInterface::getRobotPose()
 void RobotInterface::setRobotPose(geometry_msgs::Pose pose)
 {
 	robot_pose = pose;
-	ROS_INFO("[IRobot]:: Update robot pose [x,y][%f,%f] - [z][%f]",robot_pose.position.x,robot_pose.position.y,robot_pose.orientation.z);
-
+	ROS_DEBUG("[IRobot]:: Update robot pose [x,y][%f,%f] - [z][%f]",robot_pose.position.x,robot_pose.position.y,robot_pose.orientation.z);
 }
 
 //=================================================================
@@ -163,7 +177,7 @@ void RobotInterface::setRobotPose(geometry_msgs::Pose pose)
 void RobotInterface::SpeechTalk(string text)
 {
 	string command=SPEECH_COMMAND" "SPEECH_PARAM" '"+text+"'";
-	//system(command.c_str()); // TODO - Enable me
+	system(command.c_str()); // TODO - Enable me
 	ROS_INFO("[IRobot]:: Robot say: %s",text.c_str());
 }
 
@@ -181,7 +195,6 @@ char *RobotInterface::getBatteryStatus()
 //=================================================================
 bool RobotInterface::TrainUserFace(void)
 {
-	SpeechTalk("train");
 	/*
 	face_recognition::FaceRecognitionGoal goal; //Goal message
 
@@ -225,7 +238,7 @@ bool RobotInterface::TrainUserFace(void)
 }
 
 //=====================================
-//
+//	Send Request to facerecognition to check user
 //=====================================
 bool RobotInterface::CheckFace(string guest_user)
 {
