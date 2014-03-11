@@ -47,10 +47,10 @@ class RobotInterface
 		char *getBatteryStatus();
 		void SpeechTalk(string text);
 
-		geometry_msgs::Pose getRobotPose();
-
-		bool TrainUserFace();
+		bool TrainUserFace(string user_name);
 		bool CheckFace(string guest_user);
+
+		geometry_msgs::Pose getRobotPose();
 		void setRobotPose(geometry_msgs::Pose pose);
 
 	private:
@@ -61,6 +61,8 @@ class RobotInterface
 		MoveBaseClient *ac_mb;
 
 		bool neck_enabled;
+		bool voice_enabled;
+		bool train_face_enabled;
 
 		string recognized_user;
 		geometry_msgs::Pose robot_pose;

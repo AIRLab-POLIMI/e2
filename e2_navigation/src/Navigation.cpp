@@ -117,7 +117,7 @@ void Navigation::NewTask()
 	irobot.SpeechTalk(getSpeechById("train"));
 
 	// Save new user face
-	if(irobot.TrainUserFace())
+	if(irobot.TrainUserFace(guest_name))
 	{
 		active_task = true;
 		irobot.SpeechTalk(getSpeechById("train_success"));

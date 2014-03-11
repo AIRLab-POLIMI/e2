@@ -19,6 +19,8 @@ RobotInterface::RobotInterface(bool enable_neck)
 {
 	recognized_user = "none";
 	neck_enabled = enable_neck;
+	voice_enabled = true;							// Voice enabled
+	train_face_enabled = false;				// Force train new face before start navigation task
 
 	ac_mb = new MoveBaseClient("move_base", true);
 	ac_fr = new FRClient("face_recognition", true);
@@ -109,11 +111,6 @@ void RobotInterface::RotateBase(char *direction,float angle)
 
 	ac_mb->sendGoal(current);
 
-	//ROS_INFO("[IRobot::Base]:: Get th %f ",th);
-	//ROS_INFO("[IRobot::Base]:: New th %f ",th_new);
-	//ROS_INFO("[IRobot::Base]:: Current Pose [%f,%f,%f] Orientation[%f,%f]",robot_pose.position.x,robot_pose.position.y,robot_pose.position.z,robot_pose.orientation.z,robot_pose.orientation.w);
-	//ROS_INFO("[IRobot::Base]:: New Pose      [%f,%f,%f] Orientation[%f,%f]",current.target_pose.pose.position.x,current.target_pose.pose.position.y,current.target_pose.pose.position.z,current.target_pose.pose.orientation.z,current.target_pose.pose.orientation.w);
-
 }
 
 //=================================================================
@@ -148,6 +145,7 @@ void RobotInterface::NeckAction(int id_action)
 		n_goal.action_id=id_action;
 
 		ac_nc->sendGoal(n_goal);
+
 	}
 	else
 		ROS_INFO("[IRobot::Neck]:: Neck is not enabled. No action taken. ");
@@ -176,9 +174,14 @@ void RobotInterface::setRobotPose(geometry_msgs::Pose pose)
 //=================================================================
 void RobotInterface::SpeechTalk(string text)
 {
-	string command=SPEECH_COMMAND" "SPEECH_PARAM" '"+text+"'";
-	system(command.c_str()); // TODO - Enable me
-	ROS_INFO("[IRobot]:: Robot say: %s",text.c_str());
+	if(voice_enabled)
+	{
+		string command=SPEECH_COMMAND" "SPEECH_PARAM" '"+text+"'";	// TODO - Fix voice command
+		system(command.c_str());
+		ROS_INFO("[IRobot]:: Robot say: %s",text.c_str());
+	}
+	else
+		ROS_INFO("[IRobot]:: Robot can't talk. Enable voice support");
 }
 
 //=================================================================
@@ -193,48 +196,54 @@ char *RobotInterface::getBatteryStatus()
 //=================================================================
 // Train user face to be used during backtrack
 //=================================================================
-bool RobotInterface::TrainUserFace(void)
+bool RobotInterface::TrainUserFace(string user_name)
 {
-	/*
-	face_recognition::FaceRecognitionGoal goal; //Goal message
+	if(train_face_enabled)
+	{
 
-	ac_fr->waitForServer();
+		face_recognition::FaceRecognitionGoal goal;
 
-    goal.order_id = 5;
-    goal.order_argument = user_name;
+		ac_fr->waitForServer();
 
-    ac_fr->sendGoal(goal);
-    ac_fr->waitForResult(ros::Duration(5.0));
+		// Clean old face data
+	    goal.order_id = 5;
+	    goal.order_argument = user_name;
 
-    goal.order_id = 2;
-    goal.order_argument = user_name;
+	    ac_fr->sendGoal(goal);
+	    ac_fr->waitForResult(ros::Duration(5.0));
 
-    ac_fr->sendGoal(goal);
+	    goal.order_id = 2;
+	    goal.order_argument = user_name;
 
-    //wait for the action to return
-    bool finished_before_timeout = ac_ROS_DEBUGfr->waitForResult(ros::Duration(30.0));
+	    ac_fr->sendGoal(goal);
 
-    if (finished_before_timeout)
-    {
-    	ROS_INFO(" * Face saved.");
+	    //wait for the action to return
+	    bool finished_before_timeout = ac_fr->waitForResult(ros::Duration(30.0));
 
-       goal.order_id = 3;
-       goal.order_argument = user_name;
+	    if (finished_before_timeout)
+	    {
+	    	ROS_INFO("[IRobot]:: New face saved.");
 
-       ac_fr->sendGoal(goal);
+	       goal.order_id = 3;
+	       goal.order_argument = user_name;
 
-	   user_face_saved = true;
+	       ac_fr->sendGoal(goal);
+	       ac_fr->waitForResult(ros::Duration(10.0));
 
-	   ROS_INFO(" * Database updated");
-	   return true;
-    }
-    else
-    {
-    	ROS_INFO(" * Problem saving new face...timeout occurred");
-    	return false;
-    }
-*/
-	return true;
+	       ROS_INFO("[IRobot]:: Face Database Updated.");
+		   return true;
+	    }
+	    else
+	    {
+	    	ROS_INFO("[IRobot]:: Problem saving new face...timeout occurred.");
+	    	return false;
+	    }
+
+	}
+	else
+		return true;
+
+	return false;
 }
 
 //=====================================
