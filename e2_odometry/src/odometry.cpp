@@ -57,13 +57,15 @@ Odometry::~Odometry()
 	th = 0.0;
 
 	vx = 0.0;
+	vy = 0.0;
 	vr = 0.0;
+
 };
 
 //==================================================================
-//		Calculate odometry data based on robot velocity - TODO use encoder data
+//		Calculate odometry data based on robot velocity
 //==================================================================
-void Odometry::ComputeOdometry(float d_left, float d_right)
+void Odometry::UpdateOdometryMovement(float d_left, float d_right)
 {
 
 	current_time=ros::Time::now();
@@ -95,15 +97,73 @@ void Odometry::ComputeOdometry(float d_left, float d_right)
 	odom_quat.z = sin(th/2);
 	odom_quat.w = cos(th/2);
 
-	ROS_DEBUG("-----------------------------------------------------------------------");
-	ROS_DEBUG("[Odom]:: ----- Time passed from last calculation %f",elapsed);
-	ROS_DEBUG("[Odom]:: ----- Distance Travelled right %f",d_right);
-	ROS_DEBUG("[Odom]:: ----- Distance Travelled left %f",d_left);
-	ROS_DEBUG("[Odom]:: ----- Distance Travelled %f",d);
-	ROS_DEBUG("[Odom]:: ----- Linear Velocity %f m/s",vx);
-	ROS_DEBUG("[Odom]:: ----- Angular Velocity %f rad/s",vr);
-	ROS_DEBUG("[Odom]:: ----- Delta X %f",d_x);
-	ROS_DEBUG("[Odom]:: ----- Delta Y %f",d_y);
-	ROS_DEBUG("[Odom]:: ----- Delta TH %f",d_th);
-	ROS_DEBUG("-----------------------------------------------------------------------");
 };
+
+
+//==================================================================
+//		Calculate odometry data based on robot velocity
+//==================================================================
+void Odometry::UpdateOdometryVelocity()
+{
+
+	current_time=ros::Time::now();
+	double elapsed = (current_time - last_time).toSec();
+	last_time=current_time;
+
+	vx = linear_velocity;
+	vy = 0.0;
+	vr = angular_velocity;
+
+    //compute odometry in a typical way given the velocities of the robot
+    double delta_x = (vx * cos(th) - vy * sin(th)) * elapsed;
+    double delta_y = (vx * sin(th) + vy * cos(th)) * elapsed;
+    double delta_th = vr * elapsed;
+
+    x += delta_x;
+    y += delta_y;
+    th += delta_th;
+
+    // Update odom quaternion
+	odom_quat.x = 0;
+	odom_quat.y = 0;
+	odom_quat.z = sin(th/2);
+	odom_quat.w = cos(th/2);
+
+    // Flush odom data
+    flush();
+
+};
+
+//==================================================================
+//	Clear old odometry data
+//==================================================================
+void Odometry::flush()
+{
+	vx = 0.0;
+	vr = 0.0;
+
+	d_left  = 0.0 ;
+	d_right = 0.0;
+
+	linear_velocity = 0.0;
+	angular_velocity = 0.0;
+}
+
+
+//==================================================================
+//	Publish odometry data on console (DEBUG INFO)
+//==================================================================
+void Odometry::getOdometryInfo()
+{
+	ROS_INFO("-----------------------------------------------------------------------");
+	//ROS_INFO("[Odom]:: ----- Time passed from last calculation %f",elapsed);
+	//ROS_INFO("[Odom]:: ----- Distance Travelled right %f",d_right);
+	//ROS_INFO("[Odom]:: ----- Distance Travelled left %f",d_left);
+	//ROS_INFO("[Odom]:: ----- Distance Travelled %f",d);
+	//ROS_INFO("[Odom]:: ----- Linear Velocity %f m/s",vx);
+	//ROS_INFO("[Odom]:: ----- Angular Velocity %f rad/s",vr);
+	//ROS_INFO("[Odom]:: ----- Delta X %f",d_x);
+	//ROS_INFO("[Odom]:: ----- Delta Y %f",d_y);
+	//ROS_INFO("[Odom]:: ----- Delta TH %f",d_th);
+	ROS_INFO("-----------------------------------------------------------------------");
+}

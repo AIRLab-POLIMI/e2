@@ -9,8 +9,7 @@
 	<include file="$(find e2_launch)/launch/scanner.launch" />
 
 	<!-- Odom & Tf -->
-<!--	<node name="odom" pkg="e2_odometry" type="e2_odometry_node" respawn="true" output="screen"/>	-->
-<!--	<node name="transform" pkg="e2_odometry" type="e2_tf_node" respawn="false" output="screen"/>	-->
+	<include file="$(find e2_odometry)/launch/odometry.launch" /> 
 
 	<!-- Run the map server -->
     <node name="map_server" pkg="map_server" type="map_server" args="$(find e2_navigation)/map/fiera_final.yaml"/>
@@ -25,6 +24,6 @@
 	<include file="$(find e2_launch)/launch/face_recognition.launch" />
 	
 	<!-- Neck Controller Node -->
-	<include file="$(find e2_launch)/launch/neck_controller.launch" />	
+<!--	<include file="$(find e2_launch)/launch/neck_controller.launch" /> -->	
 
 </launch>

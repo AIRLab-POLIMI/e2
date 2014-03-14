@@ -17,6 +17,7 @@
 #include <tf/transform_broadcaster.h>
 
 #define ROBOT_WIDTH 0.6
+//#define ROBOT_WHEEL ?
 
 class Odometry
 {
@@ -27,15 +28,20 @@ class Odometry
 
 	public:
 
-		double x ;
-		double y ;
-		double th ;
+		double x ;	// X position of the robot
+		double y ;	// Y position of the robot
+		double th ; // Angular orientation of the robot
 
-		double vx;
-		double vr ;
+		double vx; // linear velocity along x
+		double vy; // linear velocity along y (Default 0.0 -not used)
 
-		geometry_msgs::Quaternion odom_quat;
+		double vr ; // angular velocity
+
+		double linear_velocity;
+		double angular_velocity;
+
 		ros::Time current_time, last_time;
+		geometry_msgs::Quaternion odom_quat;
 
 		// Constructor
 		Odometry();
@@ -43,11 +49,32 @@ class Odometry
 		~Odometry();
 
 		/*
-		 * Compute odometry based on robot speeds
-		 *  @param tanSpeed	linear speed of robot
-		 *  @param rotSpeed rotational speed
+		 * Print odometry data on console
 		 */
-		void ComputeOdometry(float d_left,float d_right);
+		void getOdometryInfo();
+
+		/*
+		 * Compute odometry based on robot encoder
+		 */
+		void UpdateOdometryEncoder();
+
+		/*
+		 * Compute odometry based on robot velocity
+		 */
+		void UpdateOdometryVelocity();
+
+		/*
+		 * Compute odometry based on robot movement
+		 *  @param d_left	 left wheel movement
+		 *  @param d_right right wheel movement
+		 */
+		void UpdateOdometryMovement(float d_left,float d_right);
+
+
+		/*
+		 * Clear old odometry data
+		 */
+		void flush();
 };
 
 #endif /* ODOMETRY_H_ */
