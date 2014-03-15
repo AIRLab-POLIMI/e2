@@ -2,7 +2,7 @@
    
   <!-- Odometry Node -->
   <node name="odom" pkg="e2_odometry" type="e2_odometry_node" respawn="true" output="screen">
-  	<param name="odom_type" type="string" value="encoder" />
+  	<param name="odom_type" type="string" value="velocity" />
   	<param name="vel_topic" type="string" value="/triskar/velocity" />
   	<param name="enc_1" type="string" value="/triskar/encoder1" />
   	<param name="enc_2" type="string" value="/triskar/encoder2" />

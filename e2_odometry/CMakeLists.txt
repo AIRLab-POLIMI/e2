@@ -7,8 +7,7 @@ project(e2_odometry)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   roslib
-  tf
-  message_generation
+  tf  
 )
 
 ## System dependencies are found with CMake's conventions
@@ -45,11 +44,12 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
- add_message_files(
-   FILES
-   Encoder.msg
-   EncoderStamped.msg
- )
+# add_message_files(
+#   FILES
+#   Encoder.msg
+#   EncoderStamped.msg
+#   Velocity.msg
+# )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -66,11 +66,11 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
- generate_messages(
-   DEPENDENCIES
-   std_msgs  # Or other packages containing msgs
-   geometry_msgs
- )
+# generate_messages(
+#   DEPENDENCIES
+#   std_msgs  # Or other packages containing msgs
+#   geometry_msgs
+# )
 
 ###################################
 ## catkin specific configuration ##
@@ -84,7 +84,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES e2_odometry
-  CATKIN_DEPENDS roscpp roslib tf message_runtime
+  CATKIN_DEPENDS roscpp roslib tf
   DEPENDS system_lib
 )
 
@@ -111,7 +111,7 @@ include_directories(
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
- add_dependencies(e2_odometry_node e2_odometry_generate_messages_cpp)
+# add_dependencies(e2_odometry_node e2_odometry_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
  target_link_libraries(e2_odometry_node

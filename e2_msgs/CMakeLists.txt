@@ -1,18 +1,10 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(e2_simulator)
+project(e2_msgs)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS
-  actionlib
-  move_base_msgs
-  nav_msgs
-  roscpp
-  message_generation
-  tf
-  e2_msgs
-)
+find_package(catkin REQUIRED std_msgs message_generation)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -48,11 +40,12 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Encoder.msg
-#   Message2.msg
-# )
+ add_message_files(
+   FILES
+   Encoder.msg
+   EncoderStamped.msg
+   Velocity.msg
+ )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -69,11 +62,10 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   move_base_msgs
-#   e2_msgs
-# )
+ generate_messages(
+   DEPENDENCIES
+   std_msgs  # Or other packages containing msgs
+ )
 
 ###################################
 ## catkin specific configuration ##
@@ -85,10 +77,10 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES e2_simulator
-  CATKIN_DEPENDS actionlib move_base_msgs nav_msgs roscpp message_runtime tf e2_msgs
-  DEPENDS system_lib
+#  INCLUDE_DIRS include
+#  LIBRARIES e2_msgs
+  CATKIN_DEPENDS std_msgs message_runtime
+#  DEPENDS system_lib
 )
 
 ###########
@@ -98,36 +90,29 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
-include_directories(
-  ${catkin_INCLUDE_DIRS}
-)
 
 ## Declare a cpp library
-# add_library(e2_simulator
-#   src/${PROJECT_NAME}/e2_simulator.cpp
+# add_library(e2_msgs
+#   src/${PROJECT_NAME}/e2_msgs.cpp
 # )
 
 ## Declare a cpp executable
-add_executable(base_controller src/base_controller.cpp)
-add_executable(e2_fake_odom src/e2_fake_odom.cpp)
-add_executable(e2_fake_encoder src/e2_fake_encoder.cpp)
+# add_executable(e2_msgs_node src/e2_msgs_node.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(e2_fake_odom e2_msgs_generate_messages_cpp)
-add_dependencies(e2_fake_encoder e2_msgs_generate_messages_cpp)
+# add_dependencies(e2_msgs_node e2_msgs_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(base_controller ${catkin_LIBRARIES} )
-target_link_libraries(e2_fake_odom ${catkin_LIBRARIES} )
-target_link_libraries(e2_fake_encoder ${catkin_LIBRARIES} )
+# target_link_libraries(e2_msgs_node
+#   ${catkin_LIBRARIES}
+# )
 
 #############
 ## Install ##
 #############
 
 # all install targets should use catkin DESTINATION variables
-# See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
@@ -137,7 +122,7 @@ target_link_libraries(e2_fake_encoder ${catkin_LIBRARIES} )
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS e2_simulator e2_simulator_node
+# install(TARGETS e2_msgs e2_msgs_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -162,7 +147,7 @@ target_link_libraries(e2_fake_encoder ${catkin_LIBRARIES} )
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_e2_simulator.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_e2_msgs.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

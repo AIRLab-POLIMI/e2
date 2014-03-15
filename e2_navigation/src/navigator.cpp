@@ -29,11 +29,9 @@ int main(int argc, char **argv)
 	ros::init(argc, argv, ROS_NODE_NAME);
 	ros::NodeHandle nh("~");
 
-    string neck_topic;
     string marker_config;
     string speech_config;
 
-    nh.param<string>("neck_topic", neck_topic, "/e2/neck");
 	nh.param("marker_config", marker_config, ros::package::getPath("e2_navigation")+"/config/marker_config.yaml");
 	nh.param("speech_config", speech_config, ros::package::getPath("e2_navigation")+"/config/speech_config.yaml");
 

@@ -20,6 +20,10 @@ Odometry::Odometry()
 	y = 0.0;
 	th = 0.0;
 
+	vx = 0.0;
+	vy = 0.0;
+	vr = 0.0;
+
 	odom_quat.x=0;
 	odom_quat.y=0;
 	odom_quat.z=0;
@@ -38,6 +42,10 @@ Odometry::Odometry(geometry_msgs::Pose pose)
 	// Initialize Odometry position
 	x = pose.position.x;
 	y = pose.position.y;
+
+	vx = 0.0;
+	vy = 0.0;
+	vr = 0.0;
 
 	odom_quat = pose.orientation;
 	th = tf::getYaw(pose.orientation);
@@ -63,11 +71,11 @@ Odometry::~Odometry()
 };
 
 //==================================================================
-//		Calculate odometry data based on robot velocity
+//		Calculate odometry data based on robot wheel velocity from encoders (Triskar base)
 //==================================================================
-void Odometry::UpdateOdometryMovement(float d_left, float d_right)
+void Odometry::UpdateOdometryEncoder()
 {
-
+	// TODO
 	current_time=ros::Time::now();
 	double elapsed = (current_time - last_time).toSec();
 	last_time=current_time;
@@ -110,10 +118,6 @@ void Odometry::UpdateOdometryVelocity()
 	double elapsed = (current_time - last_time).toSec();
 	last_time=current_time;
 
-	vx = linear_velocity;
-	vy = 0.0;
-	vr = angular_velocity;
-
     //compute odometry in a typical way given the velocities of the robot
     double delta_x = (vx * cos(th) - vy * sin(th)) * elapsed;
     double delta_y = (vx * sin(th) + vy * cos(th)) * elapsed;
@@ -140,13 +144,12 @@ void Odometry::UpdateOdometryVelocity()
 void Odometry::flush()
 {
 	vx = 0.0;
+	vy = 0.0;
 	vr = 0.0;
 
 	d_left  = 0.0 ;
 	d_right = 0.0;
 
-	linear_velocity = 0.0;
-	angular_velocity = 0.0;
 }
 
 

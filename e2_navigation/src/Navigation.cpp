@@ -97,7 +97,6 @@ void Navigation::Controller()
 			//NewTask();
 			//irobot.NeckAction(1);
 
-			usleep(19000000);
 		}
 
 		r.sleep();

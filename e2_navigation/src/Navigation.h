@@ -50,8 +50,6 @@ class Navigation
 		string guest_name;
 
 	private:
-	    //bool user_interested;
-	    //bool user_face_saved;
 	    bool active_task;
 	    bool path_planned;
 	    bool user_recognized;

@@ -11,8 +11,8 @@
  */
 
 #include <ros/ros.h>
-#include <e2_simulator/Encoder.h>
 
+#include <e2_msgs/Encoder.h>
 #include <nav_msgs/Odometry.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TwistStamped.h>
@@ -83,7 +83,7 @@ int main(int argc, char** argv){
 
 	ros::NodeHandle n;
 
-	ros::Publisher enc_pub = n.advertise<e2_simulator::Encoder>("enc", 50); // TODO
+	ros::Publisher enc_pub = n.advertise<e2_msgs::Encoder>("enc", 50); // TODO
 	ros::Subscriber fake_odom_sub = n.subscribe("/e2/fake_odom", 1000, odomCallback);
 
 	last_time = ros::Time::now() - ros::Duration(1);
@@ -101,9 +101,9 @@ int main(int argc, char** argv){
 		ros::spinOnce();
 		updateEncoder();
 
-		e2_simulator::Encoder msg;
-		msg.d_left = l_distance;
-		msg.d_right = r_distance;
+		e2_msgs::Encoder msg;
+		//msg.d_left = l_distance;
+		//msg.d_right = r_distance;
 
 		// Publish the message
 		enc_pub.publish(msg);

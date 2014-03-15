@@ -13,6 +13,7 @@
 #include "ros/ros.h"
 #include "odometry.h"
 
+#include "e2_odometry/Velocity.h"
 #include "geometry_msgs/Twist.h"
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 
@@ -21,7 +22,7 @@
 
 Odometry *odom ;
 
-void getRobotVelocity(const geometry_msgs::TwistConstPtr& msg);
+void getRobotVelocity(const e2_odometry::VelocityConstPtr& msg);
 void getInitialPose(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg );
 
 using namespace std;
@@ -34,13 +35,12 @@ int main(int argc, char **argv)
 	  string enc_1,enc_2,enc_3;
 	  string odometry_type,vel_topic;
 
-	  nh.param<string>("odom_type", odometry_type, "velocity");
-
-	  nh.param<string>("vel_topic", vel_topic, "/cmd_vel");
-
 	  nh.param<string>("enc_1", enc_1, "Encoder1");
 	  nh.param<string>("enc_2", enc_2, "Encoder2");
 	  nh.param<string>("enc_3", enc_3, "Encoder3");
+
+	  nh.param<string>("vel_topic", vel_topic, "/cmd_vel");
+	  nh.param<string>("odom_type", odometry_type, "velocity");
 
 	  bool encoder = false;
 
@@ -87,7 +87,7 @@ int main(int argc, char **argv)
 
 		  // Update Odometry information
 		  if(encoder)
-			  odom->UpdateOdometryVelocity();
+			  odom->UpdateOdometryEncoder();
 		  else
 			  odom->UpdateOdometryVelocity();
 
@@ -144,9 +144,10 @@ void getInitialPose(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg 
 //======================================================
 //	Get Robot velocity data
 //======================================================
-void getRobotVelocity(const geometry_msgs::TwistConstPtr& msg)
+void getRobotVelocity(const e2_odometry::VelocityConstPtr& msg)
 {
 	ROS_INFO("[Odom]:: Received new robot velocity.");
-	odom->linear_velocity = msg->linear.x;
-	odom->angular_velocity = msg->angular.z;
+	odom->vx = msg->x;
+	odom->vy = msg->y;
+	odom->vr = msg->w;
 }
