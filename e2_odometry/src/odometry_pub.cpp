@@ -13,7 +13,7 @@
 #include "ros/ros.h"
 #include "odometry.h"
 
-#include "e2_odometry/Velocity.h"
+#include "e2_msgs/Velocity.h"
 #include "geometry_msgs/Twist.h"
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 
@@ -22,7 +22,7 @@
 
 Odometry *odom ;
 
-void getRobotVelocity(const e2_odometry::VelocityConstPtr& msg);
+void getRobotVelocity(const e2_msgs::VelocityConstPtr& msg);
 void getInitialPose(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg );
 
 using namespace std;
@@ -144,7 +144,7 @@ void getInitialPose(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg 
 //======================================================
 //	Get Robot velocity data
 //======================================================
-void getRobotVelocity(const e2_odometry::VelocityConstPtr& msg)
+void getRobotVelocity(const e2_msgs::VelocityConstPtr& msg)
 {
 	ROS_INFO("[Odom]:: Received new robot velocity.");
 	odom->vx = msg->x;
