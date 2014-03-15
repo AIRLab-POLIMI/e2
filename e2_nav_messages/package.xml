@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<package>
+  <name>e2_nav_messages</name>
+  <version>0.0.1</version>
+  <description>The e2_nav_messages package</description>
+
+  <maintainer email="ripani.lorenzo@gmail.com">Lorenzo Ripani</maintainer>
+
+  <license>BSD</license>
+
+  <url type="website">http://github.com/boottp/e2/</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>e2_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>roscpp</build_depend>
+  <run_depend>e2_msgs</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>roscpp</run_depend>
+
+
+  <!-- The export tag contains other, unspecified, tags -->
+  <export>
+    <!-- You can specify that this package is a metapackage here: -->
+    <!-- <metapackage/> -->
+
+    <!-- Other tools can request additional information be placed here -->
+
+  </export>
+</package>
