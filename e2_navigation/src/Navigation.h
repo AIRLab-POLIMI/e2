@@ -23,7 +23,7 @@ class Navigation
 {
 
 	public:
-		Navigation(ros::NodeHandle *nh, string marker_config,string speech_config,int rate);
+		Navigation(ros::NodeHandle *nh, string marker_config,string speech_config,int rate,bool en_neck,bool en_voice,bool en_train);
 		~Navigation();
 
 		void loadSpeakData(YAML::Node& doc);
@@ -33,6 +33,7 @@ class Navigation
 	    MBGoal getMarkerById(string name);
 
 	    void NewTask();
+	    void AbortTask();
 	    void AbortTask(const ros::TimerEvent& e);
 
 	    void Controller();

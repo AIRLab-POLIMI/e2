@@ -32,7 +32,7 @@ typedef actionlib::SimpleActionClient<e2_neck_controller::NeckAction> NeckClient
 class RobotInterface
 {
 	public:
-		RobotInterface(bool enable_neck=true);
+		RobotInterface(bool enable_neck=true,bool enable_voice=true,bool enable_train=true);
 		~RobotInterface();
 
 		void CancelAllGoals();
@@ -62,7 +62,7 @@ class RobotInterface
 
 		bool neck_enabled;
 		bool voice_enabled;
-		bool train_face_enabled;
+		bool train_enabled;
 
 		string recognized_user;
 		geometry_msgs::Pose robot_pose;

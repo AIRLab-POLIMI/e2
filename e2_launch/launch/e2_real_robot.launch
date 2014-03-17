@@ -28,5 +28,7 @@
 	
 	<!-- Neck Controller Node -->
 <!--	<include file="$(find e2_launch)/launch/neck_controller.launch" /> -->	
+	<!-- Navigation Node -->
+<!--	<include file="$(find e2_launch)/launch/e2_navigation.launch" /> -->	
 
 </launch>

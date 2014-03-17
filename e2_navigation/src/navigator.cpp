@@ -10,14 +10,17 @@
 
 #include "ros/ros.h"
 #include "Navigation.h"
+#include "std_srvs/Empty.h"
 #include "nav_msgs/Odometry.h"
 
 #define ROS_NODE_RATE	1
-#define ROS_NODE_NAME	"navigator"
+#define ROS_NODE_NAME	"e2_navigation"
 
 Navigation *navigation;
 
 void OdometryCb(const nav_msgs::Odometry::ConstPtr& msg);
+bool Abortcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
+bool Startcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
 
 using namespace std;
 
@@ -29,18 +32,25 @@ int main(int argc, char **argv)
 	ros::init(argc, argv, ROS_NODE_NAME);
 	ros::NodeHandle nh("~");
 
-    string marker_config;
-    string speech_config;
+    string marker_config,speech_config;
+    bool en_neck,en_voice,en_train;
+
+	nh.param<bool>("en_neck", en_neck, true);
+	nh.param<bool>("en_voice", en_voice, true);
+	nh.param<bool>("en_train", en_train, true);
 
 	nh.param("marker_config", marker_config, ros::package::getPath("e2_navigation")+"/config/marker_config.yaml");
 	nh.param("speech_config", speech_config, ros::package::getPath("e2_navigation")+"/config/speech_config.yaml");
+
+	ros::ServiceServer abort_service = nh.advertiseService("abort",Abortcallback);
+	ros::ServiceServer start_service = nh.advertiseService("start",Startcallback);
 
 	// Suscribers && Publishers for input messages
     ros::Subscriber odom_sub= nh.subscribe("/odom", 10,OdometryCb);
 
 	ROS_INFO("["ROS_NODE_NAME"]:: Node Started");
 
-	navigation = new Navigation(&nh,marker_config,speech_config,ROS_NODE_RATE);
+	navigation = new Navigation(&nh,marker_config,speech_config,ROS_NODE_RATE,en_neck,en_voice,en_train);
 	navigation->Controller();
 
 }
@@ -52,4 +62,22 @@ void OdometryCb(const nav_msgs::Odometry::ConstPtr& msg)
 {
 	ROS_DEBUG("[Odometry]:: Odometry pose x,y,z: [%f,%f,%f]: ", msg->pose.pose.position.x,msg->pose.pose.position.y,msg->pose.pose.position.z);
 	navigation->UpdateRobotPose(msg->pose.pose);
+}
+
+//=====================================
+// Kill everything and shutdown
+//=====================================
+bool Abortcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
+{
+	navigation->AbortTask();
+	return true;
+}
+
+//=====================================
+// Start new navigation tassk
+//=====================================
+bool Startcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
+{
+	navigation->NewTask();
+	return true;
 }

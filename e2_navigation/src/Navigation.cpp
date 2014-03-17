@@ -16,7 +16,8 @@ using namespace std;
 //=================================================================
 // Class Constructor
 //=================================================================
-Navigation::Navigation(ros::NodeHandle *nh, string marker_config,string speech_config,int rate) : irobot()
+Navigation::Navigation(ros::NodeHandle *nh, string marker_config,string speech_config,int rate,bool en_neck,bool en_voice,bool en_train) :
+		irobot(en_neck,en_voice,en_train)
 {
 	Handle = nh;
 
@@ -43,6 +44,10 @@ Navigation::Navigation(ros::NodeHandle *nh, string marker_config,string speech_c
 	active_task = false;
 	path_planned = false;
 	user_recognized = false;
+
+	ROS_INFO("[Navigation]:: Neck Enabled '%s' ",(en_neck ? "true" : "false"));
+	ROS_INFO("[Navigation]:: Voice Enabled '%s' ",(en_voice ? "true" : "false"));
+	ROS_INFO("[Navigation]:: Train Enabled '%s' ",(en_train ? "true" : "false"));
 
 	ROS_INFO("[Navigation]:: Default User Name set to '%s' ", guest_name.c_str());
 	ROS_INFO("[Navigation]:: Default Base location set to '%s' ",base_name.c_str());
@@ -140,9 +145,9 @@ void Navigation::NewTask()
 //=================================================================
 // Abort current task action
 //=================================================================
-void Navigation::AbortTask(const ros::TimerEvent& e)
+void Navigation::AbortTask()
 {
-	ROS_INFO("[Navigator]:: Task killed due to timeout");
+	ROS_INFO("[Navigator]:: Abort Task");
 
 	active_task = false;
 	irobot.CancelAllGoals();
@@ -150,6 +155,16 @@ void Navigation::AbortTask(const ros::TimerEvent& e)
 	abort_timeout.stop();
 	detect_timeout.stop();
 
+}
+
+//=================================================================
+// Abort current task action
+//=================================================================
+void Navigation::AbortTask(const ros::TimerEvent& e)
+{
+	ROS_INFO("[Navigator]:: Task killed due to timeout");
+
+	AbortTask();
 	NavigateTo(base_name);
 
 }

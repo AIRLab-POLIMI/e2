@@ -15,12 +15,12 @@ using namespace std;
 //=================================================================
 // Class Constructor
 //=================================================================
-RobotInterface::RobotInterface(bool enable_neck)
+RobotInterface::RobotInterface(bool enable_neck,bool enable_voice,bool enable_train)
 {
 	recognized_user = "none";
 	neck_enabled = enable_neck;
-	voice_enabled = true;							// Voice enabled
-	train_face_enabled = false;				// Force train new face before start navigation task
+	voice_enabled = enable_voice;								// Voice enabled
+	train_enabled = enable_train;								// Force train new face before start navigation task
 
 	ac_mb = new MoveBaseClient("move_base", true);
 	ac_fr = new FRClient("face_recognition", true);
@@ -198,7 +198,7 @@ char *RobotInterface::getBatteryStatus()
 //=================================================================
 bool RobotInterface::TrainUserFace(string user_name)
 {
-	if(train_face_enabled)
+	if(train_enabled)
 	{
 
 		face_recognition::FaceRecognitionGoal goal;
