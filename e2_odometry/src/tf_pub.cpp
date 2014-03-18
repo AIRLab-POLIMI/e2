@@ -25,11 +25,12 @@ int main(int argc, char** argv)
 
 	while(n.ok())
 	{
-		broadcaster.sendTransform(tf::StampedTransform(tf::Transform(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0.0, 0.0, 0.26)),ros::Time::now(),"base_footprint", "base_link"));
+		broadcaster.sendTransform(tf::StampedTransform(tf::Transform(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0.0, 0.0, 0.25)),ros::Time::now(),"base_footprint", "base_link"));
 		broadcaster.sendTransform(tf::StampedTransform(tf::Transform(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0.0, 0.0, 1.2)),ros::Time::now(),"base_link", "kinect_visionSensor"));
 		broadcaster.sendTransform(tf::StampedTransform(tf::Transform(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0.0, 0.0, 1.18)),ros::Time::now(),"base_link", "laser_scan"));
-		broadcaster.sendTransform(tf::StampedTransform(tf::Transform(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0.0, -0.27, -0.20)),ros::Time::now(),"base_link", "rightWheel"));
-		broadcaster.sendTransform(tf::StampedTransform(tf::Transform(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0.0, 0.27, -0.20)),ros::Time::now(),"base_link", "leftWheel"));
+		broadcaster.sendTransform(tf::StampedTransform(tf::Transform(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0.25, -0.25, -0.25)),ros::Time::now(),"base_link", "rightWheel"));
+		broadcaster.sendTransform(tf::StampedTransform(tf::Transform(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0.25, 0.25, -0.25)),ros::Time::now(),"base_link", "leftWheel"));
+		broadcaster.sendTransform(tf::StampedTransform(tf::Transform(tf::Quaternion(0, 0, 0, 1), tf::Vector3(-0.25, 0.0, -0.25)),ros::Time::now(),"base_link", "rearWheel"));
 		r.sleep();
 	}
 }
