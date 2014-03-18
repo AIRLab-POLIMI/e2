@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 //#define MOTOR_DEBUG 1
-#define POLOLU_DEBUG
+//#define POLOLU_DEBUG
 
 #include "LowLevelCommunication.h"
 
@@ -285,15 +285,8 @@ inline void SerialCommunication::ReadNumber(float* n)
 
 inline void SerialCommunication::Read(char* c)
 {
-#ifdef POLOLU_DEBUG
-  printf("step 0\n");
-#endif
-
   read(fd,c,1);
 
-#ifdef POLOLU_DEBUG
-  printf("step 1\n");
-#endif
 #ifdef MOTOR_DEBUG
   printf("\nReading: %c\n",*c);
 #endif   

@@ -67,15 +67,8 @@ public:
 	void initializePololuCommunication();
 	void destroyPololuCommunication();
 
-	void runSubroutine              (const int);
-	void runSubroutine              (const int, const int);
-	void runNeckSubroutine          (const int);
-	void runFaceEmotionalSubroutine (const int);
-	void runFaceSpeakingSubroutine  (const int);
-
 	void stopScriptAndGoHome();
 
-private:
 	void transformParameter (const int, char&, char&);
 
 	void waitForControllerScriptToComplete();
@@ -85,10 +78,23 @@ private:
 	void expressSurprise();
 	void reachStraightPosition();
 	void reachStraightNeckPosition();
+	void bendForward();
+	void bendBack();
+	void bendLeft();
+	void bendRight();
+
 	void setLowSpeed();
 	void setNormalSpeed();
 	void setHighSpeed();
 	void setLowAcc();
 	void setNormalAcc();
 	void setHighAcc();
+
+private:
+	void runSubroutine              (const int);            // Private
+	void runSubroutine              (const int, const int); // Private
+	void runNeckSubroutine          (const int);			// Private
+	void runFaceEmotionalSubroutine (const int);			// Private
+	void runFaceSpeakingSubroutine  (const int);			// Private
+
 };

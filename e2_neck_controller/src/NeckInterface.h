@@ -33,16 +33,6 @@ class NeckInterface
 
 		void executeCB(const e2_neck_controller::NeckGoalConstPtr &goal);
 
-		void menuChoice1( E2_Pololu_Interface* e2PololuInterface );
-		void menuChoice2( E2_Pololu_Interface* e2PololuInterface );
-		void menuChoice3( E2_Pololu_Interface* e2PololuInterface );
-		void menuChoice4( E2_Pololu_Interface* e2PololuInterface );
-		void menuChoice5( E2_Pololu_Interface* e2PololuInterface );
-		void menuChoice6( E2_Pololu_Interface* e2PololuInterface );
-		void menuChoice7( E2_Pololu_Interface* e2PololuInterface );
-		void menuChoice8( E2_Pololu_Interface* e2PololuInterface );
-		void menuChoice9( E2_Pololu_Interface* e2PololuInterface );
-
 	private:
 		int goal_id_;
 		E2_Pololu_Interface* pE2PololuInterface ;
