@@ -30,7 +30,8 @@ class Navigation
 		void loadMarkerData(YAML::Node& doc);
 
 		string getSpeechById(string name);
-	    MBGoal getMarkerById(string name);
+		bool MarkerExist(string name);
+		MBGoal getMarkerById(string name);
 
 	    void NewTask();
 	    void AbortTask();
@@ -54,6 +55,7 @@ class Navigation
 	    bool active_task;
 	    bool path_planned;
 	    bool user_recognized;
+	    bool detect_enabled;
 
 	    int node_rate;
 	    int marker_size,speech_size;

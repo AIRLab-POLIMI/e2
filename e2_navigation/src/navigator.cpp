@@ -10,6 +10,7 @@
 
 #include "ros/ros.h"
 #include "Navigation.h"
+#include "e2_msgs/Goto.h"
 #include "std_srvs/Empty.h"
 #include "nav_msgs/Odometry.h"
 
@@ -21,6 +22,7 @@ Navigation *navigation;
 void OdometryCb(const nav_msgs::Odometry::ConstPtr& msg);
 bool Abortcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
 bool Startcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
+bool Gotocallback(e2_msgs::Goto::Request& request, e2_msgs::Goto::Response& response);
 
 using namespace std;
 
@@ -44,6 +46,7 @@ int main(int argc, char **argv)
 
 	ros::ServiceServer abort_service = nh.advertiseService("abort",Abortcallback);
 	ros::ServiceServer start_service = nh.advertiseService("start",Startcallback);
+	ros::ServiceServer goto_service = nh.advertiseService("goto",Gotocallback);
 
 	// Suscribers && Publishers for input messages
     ros::Subscriber odom_sub= nh.subscribe("/odom", 10,OdometryCb);
@@ -74,10 +77,25 @@ bool Abortcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response&
 }
 
 //=====================================
-// Start new navigation tassk
+// Start new navigation task
 //=====================================
 bool Startcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
 {
 	navigation->NewTask();
 	return true;
+}
+
+//=====================================
+// Navigate to known location
+//=====================================
+bool Gotocallback(e2_msgs::Goto::Request& request, e2_msgs::Goto::Response& response)
+{
+	if(navigation->MarkerExist(request.location))
+	{
+		navigation->NavigateTo(request.location);
+		response.result = true;
+		return true;
+	}
+	response.result = false;
+	return false;
 }

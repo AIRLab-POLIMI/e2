@@ -21,6 +21,8 @@ Navigation::Navigation(ros::NodeHandle *nh, string marker_config,string speech_c
 {
 	Handle = nh;
 
+	detect_enabled = en_train;
+
 	YAML::Node doc_marker,doc_speech;
 	ifstream fin(marker_config.c_str());
 	YAML::Parser parser(fin);
@@ -126,8 +128,11 @@ void Navigation::NewTask()
 		active_task = true;
 		irobot.SpeechTalk(getSpeechById("train_success"));
 
-		abort_timeout = Handle->createTimer(ros::Duration(ABORT_TIMEOUT), &Navigation::AbortTask,this,true,false);
-		detect_timeout = Handle->createTimer(ros::Duration(DETECT_TIMEOUT), &Navigation::DetectUser,this,false,false);
+		if(detect_enabled)
+		{
+			abort_timeout = Handle->createTimer(ros::Duration(ABORT_TIMEOUT), &Navigation::AbortTask,this,true,false);
+			detect_timeout = Handle->createTimer(ros::Duration(DETECT_TIMEOUT), &Navigation::DetectUser,this,false,false);
+		}
 
 		// Save current position as first user detection position
 		initial_time = ros::Time::now();
@@ -150,10 +155,14 @@ void Navigation::AbortTask()
 	ROS_INFO("[Navigator]:: Abort Task");
 
 	active_task = false;
+	path_planned = false;
 	irobot.CancelAllGoals();
 
-	abort_timeout.stop();
-	detect_timeout.stop();
+	if(detect_enabled)
+	{
+		abort_timeout.stop();
+		detect_timeout.stop();
+	}
 
 }
 
@@ -269,6 +278,22 @@ MBGoal Navigation::getMarkerById(string name)
 	goal.target_pose.pose.orientation.w = 0.1;
 
 	return goal;
+}
+
+//=================================================================
+// Check if a marker exist in config file
+//=================================================================
+bool Navigation::MarkerExist(string name)
+{
+
+	int i=0;
+	for (i=0; i < marker_size; ++i)
+	{
+		if(strcmp(markers[i].name.c_str(),name.c_str()) == 0)
+			return true;
+	}
+
+	return false;
 }
 
 //=================================================================
