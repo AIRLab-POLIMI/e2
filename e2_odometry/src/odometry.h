@@ -23,6 +23,8 @@ class Odometry
 	private:
 
 		float d_left,d_right;
+		double distance, angle;
+
 		tf::TransformBroadcaster odom_broadcaster;
 
 	public:
@@ -33,8 +35,10 @@ class Odometry
 
 		double vx; // linear velocity along x
 		double vy; // linear velocity along y
-
 		double vr ; // angular velocity
+
+		bool enc1, enc2;
+		double enc1_vel,enc2_vel;
 
 		ros::Time current_time, last_time;
 		geometry_msgs::Quaternion odom_quat;

@@ -17,10 +17,14 @@
 #include "geometry_msgs/Twist.h"
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 
-#define ROS_NODE_RATE	50
+#define ROS_NODE_RATE	100
 #define ROS_NODE_NAME	"odometry_pub"
 
 Odometry *odom ;
+bool encoder = false;
+
+void getWheelEnc1(const e2_msgs::EncoderConstPtr& msg);
+void getWheelEnc2(const e2_msgs::EncoderConstPtr& msg);
 
 void getRobotVelocity(const e2_msgs::VelocityConstPtr& msg);
 void getInitialPose(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg );
@@ -42,29 +46,27 @@ int main(int argc, char **argv)
 	  nh.param<string>("vel_topic", vel_topic, "/cmd_vel");
 	  nh.param<string>("odom_type", odometry_type, "velocity");
 
-	  bool encoder = false;
-
 	  //Messages subscribers
 	  tf::TransformBroadcaster broadcaster;
 
 	  ros::Subscriber sub_enc_1;
 	  ros::Subscriber sub_enc_2;
-	  ros::Subscriber sub_enc_3;
+	  //ros::Subscriber sub_enc_3;
 	  ros::Subscriber sub_cmd_vel;
 	  ros::Subscriber initialpose = nh.subscribe("initialpose", 10, getInitialPose);
 
 	  if(strcmp(odometry_type.c_str(),string("encoder").c_str()) == 0)
 	  {
 		  // Encoders
-		  //sub_enc_1 = nh.subscribe(enc_1, 100, getWheelData);
-		  //sub_enc_2 = nh.subscribe(enc_2, 100, getWheelData);
+		  sub_enc_1 = nh.subscribe(enc_1, 100, getWheelEnc1);
+		  sub_enc_2 = nh.subscribe(enc_2, 100, getWheelEnc2);
 		  //sub_enc_3 = nh.subscribe(enc_3, 100, getWheelData);
 		  encoder=true;
 	  }
 	  else
-		  sub_cmd_vel= nh.subscribe(vel_topic, 10, getRobotVelocity);
+		  sub_cmd_vel= nh.subscribe(vel_topic, 100, getRobotVelocity);
 
-	  ros::Publisher odom_pub =  nh.advertise<nav_msgs::Odometry>("/odom", 1000);
+	  ros::Publisher odom_pub =  nh.advertise<nav_msgs::Odometry>("/odom", 1);
 
 	  ROS_INFO("[Odometry]:: Node started");
 	  ROS_INFO("[Odometry]:: Odometry updated by : %s ", odometry_type.c_str());
@@ -85,12 +87,12 @@ int main(int argc, char **argv)
 	  while(ros::ok())	//ROS LOOP
 	  {
 
-		  // Update Odometry information
-		  if(encoder)
+		  if(encoder && odom->enc1 && odom->enc2)
+		  {
 			  odom->UpdateOdometryEncoder();
-		  else
-			  odom->UpdateOdometryVelocity();
-
+			  odom->enc1 = false;
+			  odom->enc2 = false;
+		  }
 		  // Publish odom information
 		  tf::Quaternion quaternion;
 		  quaternion.setX(odom->odom_quat.x);
@@ -118,10 +120,13 @@ int main(int argc, char **argv)
 		  //set the velocity
 		  msg.child_frame_id = "base_footprint";
 		  msg.twist.twist.linear.x = odom->vx;
-		  msg.twist.twist.linear.y = 0;
+		  msg.twist.twist.linear.y = odom->vy;
 		  msg.twist.twist.angular.z = odom->vr;
 
 		  odom_pub.publish(msg);
+
+		  // Flush odom data
+		  odom->flush();
 
 		  ros::spinOnce();
 		  r.sleep();
@@ -135,7 +140,7 @@ int main(int argc, char **argv)
 //======================================================
 void getInitialPose(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg )
 {
-	ROS_INFO("[Odom]:: Received new robot pose. Update");
+	ROS_DEBUG("[Odom]:: Received new robot pose. Update");
 	odom->~Odometry();
 
 	odom = new Odometry(msg->pose.pose);
@@ -146,8 +151,28 @@ void getInitialPose(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg 
 //======================================================
 void getRobotVelocity(const e2_msgs::VelocityConstPtr& msg)
 {
-	ROS_INFO("[Odom]:: Received new robot velocity.");
+	ROS_DEBUG("[Odom]:: Received new robot velocity.");
 	odom->vx = msg->x;
 	odom->vy = msg->y;
 	odom->vr = msg->w;
+
+	// Update Odometry information
+	if(encoder)
+	{
+
+	}else
+		odom->UpdateOdometryVelocity();
+
+}
+
+void getWheelEnc1(const e2_msgs::EncoderConstPtr& msg)
+{
+	odom->enc1 = true;
+	odom->enc1_vel=msg->delta;
+}
+
+void getWheelEnc2(const e2_msgs::EncoderConstPtr& msg)
+{
+	odom->enc2 = true;
+	odom->enc2_vel=msg->delta;
 }
