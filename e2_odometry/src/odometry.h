@@ -17,7 +17,8 @@
 #include <tf/transform_broadcaster.h>
 
 #define ROBOT_WIDTH 0.6
-#define WHEEL_RADIUS 0.07
+#define WHEEL_RADIUS 0.05
+#define SCALE_VELOCITY_COST 0.645
 #define PI_GRECO 3.14
 
 class Odometry

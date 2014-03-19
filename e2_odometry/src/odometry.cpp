@@ -87,11 +87,10 @@ void Odometry::UpdateOdometryEncoder()
 	current_time=ros::Time::now();
 	double elapsed = (current_time - last_time).toSec();
 
-	// TODO
-	double wheel_radius = WHEEL_RADIUS;
-
-	d_left = (enc1_vel * 2 * PI_GRECO ) * elapsed ;
-	d_right = (enc2_vel * 2 * PI_GRECO ) * elapsed ;
+	// TODO - Understand Base encoder - no documentation .... wtf
+	/*
+	d_left = enc1_vel  ;
+	d_right = enc2_vel ;
 
 	// Distance travelled
 	double d = (d_left - d_right) / 2;
@@ -115,7 +114,7 @@ void Odometry::UpdateOdometryEncoder()
 		th += d_th ;
 
 
-/*
+
 	//compute odometry in a typical way given the velocities of the robot
     double delta_x = (vx * cos(th) - vy * sin(th)) * elapsed;
     double delta_y = (vx * sin(th) + vy * cos(th)) * elapsed;
@@ -125,7 +124,7 @@ void Odometry::UpdateOdometryEncoder()
     x += delta_x;
     y += delta_y;
     th += delta_th;
-*/
+
 
     // Update odom quaternion
 	odom_quat.x = 0;
@@ -135,6 +134,7 @@ void Odometry::UpdateOdometryEncoder()
 
 	//distance += sqrt(delta_x * delta_x + delta_y * delta_y);
 	//angle += fabs(delta_th);
+*/
 
 	last_time=current_time;
 
@@ -166,13 +166,17 @@ void Odometry::UpdateOdometryVelocity()
 	current_time=ros::Time::now();
 	double elapsed = (current_time - last_time).toSec();
 
+	vx*=SCALE_VELOCITY_COST;
+	vy*=SCALE_VELOCITY_COST;
+	vr*=SCALE_VELOCITY_COST;
+
+	// Vy inverted - Hw problem
+	vy=-vy;
+
 	//compute odometry in a typical way given the velocities of the robot
     double delta_x = (vx * cos(th) - vy * sin(th)) * elapsed;
     double delta_y = (vx * sin(th) + vy * cos(th)) * elapsed;
-
-    double delta_th = vr * elapsed * 0.65 ;
-
-
+    double delta_th = vr * elapsed ;
 
     x += delta_x;
     y += delta_y;

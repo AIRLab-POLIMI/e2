@@ -55,6 +55,7 @@ int main(int argc, char **argv)
 	  //Messages subscribers
 	  tf::TransformBroadcaster broadcaster;
 
+	  // Note
 	  ros::Subscriber sub_enc_1 = nh.subscribe(enc_1, 10, getWheelEnc1);
 	  ros::Subscriber sub_enc_2 = nh.subscribe(enc_2, 10, getWheelEnc2);
 	  ros::Subscriber sub_enc_3 = nh.subscribe(enc_3, 10, getWheelEnc3);
@@ -154,17 +155,23 @@ void getRobotVelocity(const e2_msgs::VelocityConstPtr& msg)
 			odom->vr = msg->w;
 
 	// Update Odometry information
-	if(encoder && odom->enc1 && odom->enc2)
+	if(encoder)
 	{
-		odom->UpdateOdometryEncoder();
-		odom->enc1 = false;
-		odom->enc2 = false;
-		odom->enc3 = false;
+		if(odom->enc1 && odom->enc2 && odom->enc3)
+		{
+			odom->UpdateOdometryEncoder();
+			odom->enc1 = false;
+			odom->enc2 = false;
+			odom->enc3 = false;
+		}
+
 	}else
 		odom->UpdateOdometryVelocity();
 
 }
-
+//======================================================
+//	Get Data from encoder
+//======================================================
 void getWheelEnc1(const e2_msgs::EncoderStampedConstPtr& msg)
 {
 	odom->enc1 = true;
