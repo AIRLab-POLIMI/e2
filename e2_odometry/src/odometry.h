@@ -17,6 +17,8 @@
 #include <tf/transform_broadcaster.h>
 
 #define ROBOT_WIDTH 0.6
+#define WHEEL_RADIUS 0.07
+#define PI_GRECO 3.14
 
 class Odometry
 {
@@ -37,8 +39,8 @@ class Odometry
 		double vy; // linear velocity along y
 		double vr ; // angular velocity
 
-		bool enc1, enc2;
-		double enc1_vel,enc2_vel;
+		bool enc1, enc2,enc3;
+		double enc1_vel,enc2_vel,enc3_vel;
 
 		ros::Time current_time, last_time;
 		geometry_msgs::Quaternion odom_quat;

@@ -84,19 +84,23 @@ Odometry::~Odometry()
 //==================================================================
 void Odometry::UpdateOdometryEncoder()
 {
-	// TODO
-/*
 	current_time=ros::Time::now();
 	double elapsed = (current_time - last_time).toSec();
-	last_time=current_time;
+
+	// TODO
+	double wheel_radius = WHEEL_RADIUS;
+
+	d_left = (enc1_vel * 2 * PI_GRECO ) * elapsed ;
+	d_right = (enc2_vel * 2 * PI_GRECO ) * elapsed ;
 
 	// Distance travelled
-	double d = (d_left + d_right) / 2;
-	double d_th = (d_right - d_left) / ROBOT_WIDTH;
+	double d = (d_left - d_right) / 2;
+	double d_th = (enc1_vel + enc2_vel) / ROBOT_WIDTH;
 
 	// Set velocity from calculated data
-	vx = d / elapsed ;
-	vr =d_th / elapsed ;
+	double enc_vx = d / elapsed ;
+	double enc_vr = d_th / elapsed ;
+
 	double d_x,d_y;
 
 	if( d != 0 )
@@ -104,15 +108,14 @@ void Odometry::UpdateOdometryEncoder()
 		d_x = cos(d_th) * d ;
 		d_y = -sin(d_th) * d ;
 
-		x = x + (cos(th) * d_x - sin(th) * d_y ) ;
-		y = y + (sin(th) * d_x + cos(th) * d_y ) ;
+		x += (cos(th) * d_x - sin(th) * d_y ) ;
+		y += (sin(th) * d_x + cos(th) * d_y ) ;
 	}
 	if(d_th != 0)
-		th = th + d_th ;
+		th += d_th ;
 
-	current_time=ros::Time::now();
-	double elapsed = (current_time - last_time).toSec();
 
+/*
 	//compute odometry in a typical way given the velocities of the robot
     double delta_x = (vx * cos(th) - vy * sin(th)) * elapsed;
     double delta_y = (vx * sin(th) + vy * cos(th)) * elapsed;
@@ -122,6 +125,7 @@ void Odometry::UpdateOdometryEncoder()
     x += delta_x;
     y += delta_y;
     th += delta_th;
+*/
 
     // Update odom quaternion
 	odom_quat.x = 0;
@@ -129,17 +133,27 @@ void Odometry::UpdateOdometryEncoder()
 	odom_quat.z = sin(th/2);
 	odom_quat.w = cos(th/2);
 
-	distance += sqrt(delta_x * delta_x + delta_y * delta_y);
-	angle += fabs(delta_th);
+	//distance += sqrt(delta_x * delta_x + delta_y * delta_y);
+	//angle += fabs(delta_th);
 
 	last_time=current_time;
 
 	ROS_INFO("------------------------------------------------");
 	ROS_INFO("[Odom]:: Elapsed  :  %f", elapsed);
-	ROS_INFO("[Odom]:: Angle 	  :  %f", angle);
-	ROS_INFO("[Odom]:: Distance :  %f", distance);
+	//ROS_INFO("[Odom]:: Angle 	  :  %f", angle);
+	//ROS_INFO("[Odom]:: Distance :  %f", d);
+	ROS_INFO("[Odom]:: RAD SEC ENC_1 :  %f", enc1_vel);
+	ROS_INFO("[Odom]:: RAD SEC ENC_2 :  %f", enc2_vel);
+	ROS_INFO("[Odom]:: RAD SEC ENC_3 :  %f", enc3_vel);
+	ROS_INFO("[Odom]:: Vx  :  %f ", vx);
+	ROS_INFO("[Odom]:: Vy  :  %f ", vy);
+	ROS_INFO("[Odom]:: Vr  :  %f ", vr);
+	//ROS_INFO("[Odom]:: Distance :  %f", d);
+	//ROS_INFO("[Odom]:: Vx - Vx_ENC :  %f - %f ", vx,enc_vx);
+	//ROS_INFO("[Odom]:: Vr - Ve_ENC :  %f - %f ", vr,enc_vr);
+
 	ROS_INFO("------------------------------------------------");
-*/
+
 };
 
 
@@ -156,7 +170,9 @@ void Odometry::UpdateOdometryVelocity()
     double delta_x = (vx * cos(th) - vy * sin(th)) * elapsed;
     double delta_y = (vx * sin(th) + vy * cos(th)) * elapsed;
 
-    double delta_th = vr * elapsed;
+    double delta_th = vr * elapsed * 0.65 ;
+
+
 
     x += delta_x;
     y += delta_y;

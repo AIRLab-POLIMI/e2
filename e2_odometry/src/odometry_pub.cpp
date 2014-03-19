@@ -14,17 +14,23 @@
 #include "odometry.h"
 
 #include "e2_msgs/Velocity.h"
+#include "e2_msgs/EncoderStamped.h"
 #include "geometry_msgs/Twist.h"
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 
 #define ROS_NODE_RATE	100
 #define ROS_NODE_NAME	"odometry_pub"
 
+#define VEL_X_MOTOR_START 0.12
+#define VEL_Y_MOTOR_START 0.12
+#define VEL_W_MOTOR_START 0.35
+
 Odometry *odom ;
 bool encoder = false;
 
-void getWheelEnc1(const e2_msgs::EncoderConstPtr& msg);
-void getWheelEnc2(const e2_msgs::EncoderConstPtr& msg);
+void getWheelEnc1(const e2_msgs::EncoderStampedConstPtr& msg);
+void getWheelEnc2(const e2_msgs::EncoderStampedConstPtr& msg);
+void getWheelEnc3(const e2_msgs::EncoderStampedConstPtr& msg);
 
 void getRobotVelocity(const e2_msgs::VelocityConstPtr& msg);
 void getInitialPose(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg );
@@ -49,22 +55,15 @@ int main(int argc, char **argv)
 	  //Messages subscribers
 	  tf::TransformBroadcaster broadcaster;
 
-	  ros::Subscriber sub_enc_1;
-	  ros::Subscriber sub_enc_2;
-	  //ros::Subscriber sub_enc_3;
-	  ros::Subscriber sub_cmd_vel;
-	  ros::Subscriber initialpose = nh.subscribe("initialpose", 10, getInitialPose);
+	  ros::Subscriber sub_enc_1 = nh.subscribe(enc_1, 10, getWheelEnc1);
+	  ros::Subscriber sub_enc_2 = nh.subscribe(enc_2, 10, getWheelEnc2);
+	  ros::Subscriber sub_enc_3 = nh.subscribe(enc_3, 10, getWheelEnc3);
+
+	  ros::Subscriber initialpose = nh.subscribe("/initialpose", 10, getInitialPose);
+	  ros::Subscriber sub_cmd_vel= nh.subscribe(vel_topic, 10, getRobotVelocity);
 
 	  if(strcmp(odometry_type.c_str(),string("encoder").c_str()) == 0)
-	  {
-		  // Encoders
-		  sub_enc_1 = nh.subscribe(enc_1, 100, getWheelEnc1);
-		  sub_enc_2 = nh.subscribe(enc_2, 100, getWheelEnc2);
-		  //sub_enc_3 = nh.subscribe(enc_3, 100, getWheelData);
 		  encoder=true;
-	  }
-	  else
-		  sub_cmd_vel= nh.subscribe(vel_topic, 100, getRobotVelocity);
 
 	  ros::Publisher odom_pub =  nh.advertise<nav_msgs::Odometry>("/odom", 1);
 
@@ -87,12 +86,6 @@ int main(int argc, char **argv)
 	  while(ros::ok())	//ROS LOOP
 	  {
 
-		  if(encoder && odom->enc1 && odom->enc2)
-		  {
-			  odom->UpdateOdometryEncoder();
-			  odom->enc1 = false;
-			  odom->enc2 = false;
-		  }
 		  // Publish odom information
 		  tf::Quaternion quaternion;
 		  quaternion.setX(odom->odom_quat.x);
@@ -152,27 +145,40 @@ void getInitialPose(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg 
 void getRobotVelocity(const e2_msgs::VelocityConstPtr& msg)
 {
 	ROS_DEBUG("[Odom]:: Received new robot velocity.");
-	odom->vx = msg->x;
-	odom->vy = msg->y;
-	odom->vr = msg->w;
+
+	if(abs(msg->x)>=VEL_X_MOTOR_START)
+			odom->vx = msg->x;
+	if(abs(msg->y)>=VEL_Y_MOTOR_START)
+			odom->vy = msg->y;
+	if(abs(msg->w)>=VEL_W_MOTOR_START)
+			odom->vr = msg->w;
 
 	// Update Odometry information
-	if(encoder)
+	if(encoder && odom->enc1 && odom->enc2)
 	{
-
+		odom->UpdateOdometryEncoder();
+		odom->enc1 = false;
+		odom->enc2 = false;
+		odom->enc3 = false;
 	}else
 		odom->UpdateOdometryVelocity();
 
 }
 
-void getWheelEnc1(const e2_msgs::EncoderConstPtr& msg)
+void getWheelEnc1(const e2_msgs::EncoderStampedConstPtr& msg)
 {
 	odom->enc1 = true;
-	odom->enc1_vel=msg->delta;
+	odom->enc1_vel=msg->encoder.delta;
 }
 
-void getWheelEnc2(const e2_msgs::EncoderConstPtr& msg)
+void getWheelEnc2(const e2_msgs::EncoderStampedConstPtr& msg)
 {
 	odom->enc2 = true;
-	odom->enc2_vel=msg->delta;
+	odom->enc2_vel=msg->encoder.delta;
+}
+
+void getWheelEnc3(const e2_msgs::EncoderStampedConstPtr& msg)
+{
+	odom->enc3 = true;
+	odom->enc3_vel=msg->encoder.delta;
 }
