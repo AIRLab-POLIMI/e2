@@ -19,7 +19,6 @@
 #include "geometry_msgs/Pose.h"
 
 #include <tf/transform_listener.h>
-#include "yaml.h"
 #include <yaml-cpp/yaml.h>
 
 // Operation include

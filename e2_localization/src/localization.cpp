@@ -19,7 +19,6 @@
 
 #include <tf/transform_listener.h>
 
-#include "yaml.h"
 #include <yaml-cpp/yaml.h>
 
 

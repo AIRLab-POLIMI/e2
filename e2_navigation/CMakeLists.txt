@@ -82,7 +82,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include
+#  INCLUDE_DIRS include
   LIBRARIES e2_navigation
   CATKIN_DEPENDS actionlib e2_neck_controller face_recognition roscpp roslib
   DEPENDS system_lib
