@@ -21,8 +21,9 @@ Navigation *navigation;
 
 void OdometryCb(const nav_msgs::Odometry::ConstPtr& msg);
 bool Abortcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
-bool Startcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
+bool Detectcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
 bool Gotocallback(e2_msgs::Goto::Request& request, e2_msgs::Goto::Response& response);
+bool Startcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
 
 using namespace std;
 
@@ -45,6 +46,7 @@ int main(int argc, char **argv)
 	nh.param("speech_config", speech_config, ros::package::getPath("e2_navigation")+"/config/speech_config.yaml");
 
 	ros::ServiceServer abort_service = nh.advertiseService("abort",Abortcallback);
+	ros::ServiceServer detect_service = nh.advertiseService("detect",Detectcallback);
 	ros::ServiceServer start_service = nh.advertiseService("start",Startcallback);
 	ros::ServiceServer goto_service = nh.advertiseService("goto",Gotocallback);
 
@@ -73,6 +75,15 @@ void OdometryCb(const nav_msgs::Odometry::ConstPtr& msg)
 bool Abortcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
 {
 	navigation->AbortTask();
+	return true;
+}
+
+//=====================================
+// This service launch a detection face
+//=====================================
+bool Detectcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
+{
+	navigation->DetectUser();
 	return true;
 }
 

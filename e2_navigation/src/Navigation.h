@@ -39,7 +39,8 @@ class Navigation
 
 	    void Controller();
 
-		void DetectUser(const ros::TimerEvent& e);									// Check for a user in faces database
+		void DetectTimer(const ros::TimerEvent& e);
+		void DetectUser(void);
 		void RecoverUser(void);																		// Recover User following the path of last position detection
 
 		void NavigateTo(string name);
@@ -49,6 +50,7 @@ class Navigation
 		void UpdateRobotPose(geometry_msgs::Pose pose);
 
 		string base_name;
+		string target_name;
 		string guest_name;
 
 	private:

@@ -38,6 +38,7 @@ Navigation::Navigation(ros::NodeHandle *nh, string marker_config,string speech_c
 	speech_size=doc_speech.size();
 
 	base_name = "base";
+	target_name ="airlab";
 	guest_name = "Lorenzo";
 
 	initial_time = ros::Time::now();
@@ -86,7 +87,7 @@ void Navigation::Controller()
 			if(!path_planned)
 			{
 
-				NavigateTo("airlab");
+				NavigateTo(target_name);
 
 				detect_timeout.start();
 				path_planned = true;
@@ -131,7 +132,7 @@ void Navigation::NewTask()
 		if(detect_enabled)
 		{
 			abort_timeout = Handle->createTimer(ros::Duration(ABORT_TIMEOUT), &Navigation::AbortTask,this,true,false);
-			detect_timeout = Handle->createTimer(ros::Duration(DETECT_TIMEOUT), &Navigation::DetectUser,this,false,false);
+			detect_timeout = Handle->createTimer(ros::Duration(DETECT_TIMEOUT), &Navigation::DetectTimer,this,false,false);
 		}
 
 		// Save current position as first user detection position
@@ -187,13 +188,21 @@ void Navigation::NavigateTo(string name)
 	irobot.setGoal(getMarkerById(name));
 }
 
+//=================================================================
+//	Fire a Detection timeout
+//=================================================================
+void Navigation::DetectTimer(const ros::TimerEvent& e)
+{
+	ROS_INFO("[Navigator]:: Detect timeout. Check user presence.");
+	DetectUser();
+}
+
 //=====================================
 // Check user face and start backtract action if none detected
 //=====================================
-void Navigation::DetectUser(const ros::TimerEvent& e)
+void Navigation::DetectUser(void)
 {
-	ROS_INFO("[Navigator]:: Default timeout. Check user presence.");
-
+	ROS_INFO("[Navigator]:: Start detection procedure.");
 	path_planned=false;
 	irobot.CancelAllGoals();
 
@@ -217,7 +226,7 @@ void Navigation::DetectUser(const ros::TimerEvent& e)
 
 	if(user_recognized)
 		user_recognized=false;
-	else
+	else if(active_task)
 		RecoverUser();			// User not found start Backtracking procedure
 
 }
@@ -328,7 +337,7 @@ void Navigation::getNavigationStatus()
 
 	string status = "none";
 
-	/*
+/*
 	if(path_planned && active_task)
 		status = "Going to " + base_name;
 	else if()
