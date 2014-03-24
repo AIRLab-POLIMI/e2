@@ -283,8 +283,8 @@ MBGoal Navigation::getMarkerById(string name)
 	goal.target_pose.header.stamp = ros::Time::now();
 	goal.target_pose.pose.position.x = markers[i].position.x;
 	goal.target_pose.pose.position.y = markers[i].position.y;
-	goal.target_pose.pose.orientation.z = 0.1;
-	goal.target_pose.pose.orientation.w = 0.1;
+	goal.target_pose.pose.orientation.z = markers[i].orientation.z;
+	goal.target_pose.pose.orientation.w = markers[i].orientation.w;
 
 	return goal;
 }
@@ -404,6 +404,12 @@ void operator >> (const YAML::Node& node, Vec3& v)
   	node[0] >> v.x;
   	node[1] >> v.y;
   	node[2] >> v.z;
+}
+
+void operator >> (const YAML::Node& node, Vec2& v)
+{
+  	node[0] >> v.z;
+  	node[1] >> v.w;
 }
 
 void operator >> (const YAML::Node& node, Marker& marker)

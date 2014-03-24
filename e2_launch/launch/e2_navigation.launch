@@ -1,10 +1,28 @@
 <launch>
-   
-  <!-- Navigation Node -->
-  <node name="e2_navigation" pkg="e2_navigation" type="e2_navigation_node" respawn="false" output="screen">
-  	<param name="en_neck" type="bool" value="false" />
-  	<param name="en_voice" type="bool" value="false" />
-  	<param name="en_train" type="bool" value="false" />
-  </node>
+  	<!-- <arg name="ambient_map" value="$(find e2_navigation)/map/fiera_final.yaml" type="string" /> -->
+ 	<arg name="ambient_map" value="$(find e2_navigation)/map/airlab/map.yaml" type="string" />
+ 	<arg name="stand_map" value="/home/jackal/ros_workspace/src/e2/e2_navigation/config/airlab_marker_config.yaml" type="string" />
+  
+	<!-- Run the map server -->
+    <node name="map_server" pkg="map_server" type="map_server" args="$(arg ambient_map)"/>
+
+	<!-- Run AMCL --><!-- Change to omni for new base -->
+  	<include file="$(find e2_launch)/launch/amcl_diff.launch" />
+
+	<!-- Run Move Base -->
+	<include file="$(find e2_launch)/launch/move_base.launch" />
+	
+	<!-- Nav Messages converter for triskar base -->	
+    <node name="e2_nav_messages" pkg="e2_nav_messages" type="e2_nav_messages_node"/>
+	
+	<!-- Navigation Node -->
+	<node name="e2_navigation" pkg="e2_navigation" type="e2_navigation_node" respawn="false" output="screen">
+	  	<param name="en_neck" type="bool" value="false" />
+	  	<param name="en_voice" type="bool" value="false" />
+	  	<param name="en_train" type="bool" value="false" />
+		
+		<param name="marker_config" type="string" value="$(arg stand_map)" />
+	
+	</node>
   
 </launch>

@@ -17,11 +17,17 @@ struct Vec3
    float x, y, z;
 };
 
+struct Vec2
+{
+   float z, w;
+};
+
 struct Marker
 {
    int id;
    string name;
    Vec3 position;
+   Vec2 orientation;
 };
 
 struct Speech
@@ -32,7 +38,8 @@ struct Speech
 };
 
 
-void operator >> (const YAML::Node& node, Vec3& v);
+void operator >> (const YAML::Node& node, Vec3& v);	//Position
+void operator >> (const YAML::Node& node, Vec2& v); //Orientation
 
 void operator >> (const YAML::Node& node, Marker& marker);
 
