@@ -53,6 +53,8 @@ class Navigation
 		string target_name;
 		string guest_name;
 
+		RobotInterface irobot;
+
 	private:
 	    bool active_task;
 	    bool path_planned;
@@ -66,7 +68,6 @@ class Navigation
 
 		Marker *markers;
 		Speech *speechs;
-		RobotInterface irobot;
 
 	    ros::NodeHandle *Handle;
 

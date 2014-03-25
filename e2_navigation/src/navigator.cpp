@@ -11,6 +11,7 @@
 #include "ros/ros.h"
 #include "Navigation.h"
 #include "e2_msgs/Goto.h"
+#include "e2_msgs/NeckAction.h"
 #include "std_srvs/Empty.h"
 #include "nav_msgs/Odometry.h"
 
@@ -24,7 +25,7 @@ bool Abortcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response&
 bool Detectcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
 bool Gotocallback(e2_msgs::Goto::Request& request, e2_msgs::Goto::Response& response);
 bool Startcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
-
+bool Neckcallback(e2_msgs::NeckAction::Request& request, e2_msgs::NeckAction::Response& response);
 using namespace std;
 
 //=====================================
@@ -109,4 +110,13 @@ bool Gotocallback(e2_msgs::Goto::Request& request, e2_msgs::Goto::Response& resp
 	}
 	response.result = false;
 	return false;
+}
+
+//=====================================
+// Service to test neck actions
+//=====================================
+bool Neckcallback(e2_msgs::NeckAction::Request& request, e2_msgs::NeckAction::Response& response)
+{
+	navigation->irobot.NeckAction(request.action_id);
+	return true;
 }

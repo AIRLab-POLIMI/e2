@@ -1,0 +1,5 @@
+#request field
+uint8 action_id
+---
+#response fields
+bool result
