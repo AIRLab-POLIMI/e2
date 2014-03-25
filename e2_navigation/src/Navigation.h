@@ -23,59 +23,64 @@ class Navigation
 {
 
 	public:
-		Navigation(ros::NodeHandle *nh, string marker_config,string speech_config,int rate,bool en_neck,bool en_voice,bool en_train);
-		~Navigation();
-
-		void loadSpeakData(YAML::Node& doc);
-		void loadMarkerData(YAML::Node& doc);
-
-		string getSpeechById(string name);
-		bool MarkerExist(string name);
-		MBGoal getMarkerById(string name);
-
-	    void NewTask();
-	    void AbortTask();
-	    void AbortTask(const ros::TimerEvent& e);
-
-	    void Controller();
-
-		void DetectTimer(const ros::TimerEvent& e);
-		void DetectUser(void);
-		void RecoverUser(void);																		// Recover User following the path of last position detection
-
-		void NavigateTo(string name);
-
-		void getNavigationStatus();
-		void setUserDetection(bool status);
-		void UpdateRobotPose(geometry_msgs::Pose pose);
-
 		string base_name;
 		string target_name;
 		string guest_name;
 
 		RobotInterface irobot;
 
+		// Class constructors
+		Navigation(ros::NodeHandle *nh, string marker_config,string speech_config,int rate,bool en_neck,bool en_voice,bool en_train);
+		~Navigation();
+
+		// Load speech data and navigation data in memory
+		void loadSpeakData(YAML::Node& doc);
+		void loadMarkerData(YAML::Node& doc);
+
+		// Usefull to check the presence of a location or a string by name
+		bool MarkerExist(string name);
+		string getSpeechById(string name);
+		MBGoal getMarkerById(string name);
+
+		// Navigation functions
+	    void NewTask();					// Start a new navigation task
+	    void AbortTask(); 				// Kill a current task
+	    void AbortTask(const ros::TimerEvent& e); // Kill a current task
+
+	    void Controller(); 				// Navigation controller loop
+
+	    void NavigateTo(string name);	// Navigate to known location
+	    void getNavigationStatus(); 	// Print navigation info in console
+
+		void DetectUser(void); 			// Detect user face and check if it's the last trained person
+		void RecoverUser(void);			// Recover User following the path of last position detection
+		void DetectTimer(const ros::TimerEvent& e); // Timer to be fired after timeout
+
+		void UpdateRobotPose(geometry_msgs::Pose pose);
+
 	private:
-	    bool active_task;
-	    bool path_planned;
-	    bool user_recognized;
-	    bool detect_enabled;
+	    bool active_task;				//if there's an active task
+	    bool path_planned;				// if the robot is following a navigation path
+	    bool user_recognized;			// User recognized by facerecognition
+	    bool detect_enabled;			// If face detection is enabled
 
 	    int node_rate;
 	    int marker_size,speech_size;
 
-		ros::Time initial_time;
-
+	    // Stand Location and speech data
 		Marker *markers;
 		Speech *speechs;
 
 	    ros::NodeHandle *Handle;
 
+	    ros::Time initial_time;
 	    ros::Timer abort_timeout;
 	    ros::Timer detect_timeout;
-	    ros::Timer recover_timeout;
 
 		move_base_msgs::MoveBaseGoal last_user_detection;
+
+		// Functions
+		void setUserDetection(bool status);	// Set new position for user detection
 
 };
 
