@@ -405,6 +405,7 @@ void operator >> (const YAML::Node& node, Marker& marker)
 	node["id"] >> marker.id;
 	node["name"] >> marker.name;
 	node["position"] >> marker.position;
+	node["orientation"] >> marker.orientation;
 }
 
 void operator >> (const YAML::Node& node, Speech& speech)
