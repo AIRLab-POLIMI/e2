@@ -140,6 +140,9 @@ int main(int argc,char* argv[]){
 			// handle ROS messages:
 			ros::spinOnce();
 
+			LeftMotorSpeed=0;
+			RightMotorSpeed=0;
+
 			// sleep a bit:
 			r.sleep();
 		}
