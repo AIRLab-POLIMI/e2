@@ -193,11 +193,11 @@ void Odometry::UpdateOdometryVelocity()
 
 	last_time=current_time;
 
-	ROS_INFO("------------------------------------------------");
-	ROS_INFO("[Odom]:: Elapsed  :  %f", elapsed);
-	ROS_INFO("[Odom]:: Angle 	  :  %f", angle);
-	ROS_INFO("[Odom]:: Distance :  %f", distance);
-	ROS_INFO("------------------------------------------------");
+	ROS_DEBUG("------------------------------------------------");
+	ROS_DEBUG("[Odom]:: Elapsed  :  %f", elapsed);
+	ROS_DEBUG("[Odom]:: Angle 	  :  %f", angle);
+	ROS_DEBUG("[Odom]:: Distance :  %f", distance);
+	ROS_DEBUG("------------------------------------------------");
 
 };
 
