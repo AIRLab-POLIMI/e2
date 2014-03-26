@@ -1,7 +1,7 @@
 /*
  * NeckInterface.cpp - AIRLab (Politecnico di Milano)
  * 
- * description
+ * This node control the movement for the E-two robot neck
  *
  *  Author:  Lorenzo Ripani 
  *  Email: ripani.lorenzo@gmail.com

@@ -2,7 +2,7 @@
 <package>
   <name>e2_nav_messages</name>
   <version>0.0.1</version>
-  <description>The e2_nav_messages package</description>
+  <description>The e2_nav_messages package transform cmd_vel messages for triskar base.</description>
 
   <maintainer email="ripani.lorenzo@gmail.com">Lorenzo Ripani</maintainer>
 

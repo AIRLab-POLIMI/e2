@@ -11,6 +11,7 @@
 #include "ros/ros.h"
 #include "Navigation.h"
 #include "e2_msgs/Goto.h"
+#include "e2_msgs/NeckAction.h"
 #include "std_srvs/Empty.h"
 #include "nav_msgs/Odometry.h"
 
@@ -21,8 +22,10 @@ Navigation *navigation;
 
 void OdometryCb(const nav_msgs::Odometry::ConstPtr& msg);
 bool Abortcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
-bool Startcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
+bool Detectcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
 bool Gotocallback(e2_msgs::Goto::Request& request, e2_msgs::Goto::Response& response);
+bool Startcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
+bool Neckcallback(e2_msgs::NeckAction::Request& request, e2_msgs::NeckAction::Response& response);
 
 using namespace std;
 
@@ -45,6 +48,7 @@ int main(int argc, char **argv)
 	nh.param("speech_config", speech_config, ros::package::getPath("e2_navigation")+"/config/speech_config.yaml");
 
 	ros::ServiceServer abort_service = nh.advertiseService("abort",Abortcallback);
+	ros::ServiceServer detect_service = nh.advertiseService("detect",Detectcallback);
 	ros::ServiceServer start_service = nh.advertiseService("start",Startcallback);
 	ros::ServiceServer goto_service = nh.advertiseService("goto",Gotocallback);
 
@@ -77,6 +81,15 @@ bool Abortcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response&
 }
 
 //=====================================
+// This service launch a detection face
+//=====================================
+bool Detectcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
+{
+	navigation->DetectUser();
+	return true;
+}
+
+//=====================================
 // Start new navigation task
 //=====================================
 bool Startcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
@@ -98,4 +111,13 @@ bool Gotocallback(e2_msgs::Goto::Request& request, e2_msgs::Goto::Response& resp
 	}
 	response.result = false;
 	return false;
+}
+
+//=====================================
+// Service to test neck actions
+//=====================================
+bool Neckcallback(e2_msgs::NeckAction::Request& request, e2_msgs::NeckAction::Response& response)
+{
+	navigation->irobot.NeckAction(request.action_id);
+	return true;
 }

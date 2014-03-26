@@ -24,7 +24,7 @@ RobotInterface::RobotInterface(bool enable_neck,bool enable_voice,bool enable_tr
 
 	ac_mb = new MoveBaseClient("move_base", true);
 	ac_fr = new FRClient("face_recognition", true);
-	ac_nc =new NeckClient("e2_neck_controller",true);
+	ac_nc = new NeckClient("e2_neck_controller",true);
 
 	while (!ac_mb->waitForServer(ros::Duration(5.0)))
 		ROS_INFO("[IRobot]:: Waiting for the move_base action server to come up");
@@ -39,7 +39,7 @@ RobotInterface::RobotInterface(bool enable_neck,bool enable_voice,bool enable_tr
 		double elapsed = (ros::Time::now() - init_time).toSec();
 		if(elapsed > 5.0)
 		{
-			ROS_INFO("[IRobot]:: No neck interface found. Disabled");
+			ROS_INFO("[IRobot]:: Neck connection problem. Check if neck is connected. Disabled");
 			neck_enabled=false;
 		}
 	}
@@ -145,7 +145,6 @@ void RobotInterface::NeckAction(int id_action)
 		n_goal.action_id=id_action;
 
 		ac_nc->sendGoal(n_goal);
-
 	}
 	else
 		ROS_INFO("[IRobot::Neck]:: Neck is not enabled. No action taken. ");
@@ -189,7 +188,7 @@ void RobotInterface::SpeechTalk(string text)
 //=================================================================
 char *RobotInterface::getBatteryStatus()
 {
-	// TODO - Read Battery status from somewhere.
+	// TODO - Read Battery status motor board.
 	return const_cast<char *>("GOOD");
 }
 
