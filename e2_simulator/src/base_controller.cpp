@@ -112,10 +112,8 @@ int main(int argc,char* argv[]){
 	if(!ros::master::check())
 		return(0);
 
-
 	ros::NodeHandle node("~");
 	printf("E2 Base Controller started.");
-
 
 	ros::Subscriber subInfo=node.subscribe("/vrep/info",1,infoCallback);
 
@@ -126,7 +124,6 @@ int main(int argc,char* argv[]){
 	srv_enableSubscriber.request.topicName="/"+nodeName+"/joints"; // the topic name
 	srv_enableSubscriber.request.queueSize=1; // the subscriber queue size (on V-REP side)
 	srv_enableSubscriber.request.streamCmd=simros_strmcmd_set_joint_state; // the subscriber type
-
 
 	if ( client_enableSubscriber.call(srv_enableSubscriber)&&(srv_enableSubscriber.response.subscriberID!=-1) )
 	{
@@ -140,18 +137,13 @@ int main(int argc,char* argv[]){
 
 		while (ros::ok()&&simulationRunning)
 		{
-
 			// handle ROS messages:
 			ros::spinOnce();
 
 			// sleep a bit:
 			r.sleep();
 		}
-
 	}
-
-
-
 }
 
 
