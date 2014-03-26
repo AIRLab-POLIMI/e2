@@ -1,6 +1,8 @@
 /*
  * e2_nav_messages.cpp - AIRLab (Politecnico di Milano)
  *
+ * Convert cmd_vel message for triskar base
+ *
  *  Author:  Lorenzo Ripani 
  *  Email: ripani.lorenzo@gmail.com
  *
