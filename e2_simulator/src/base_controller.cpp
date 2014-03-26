@@ -19,7 +19,7 @@
 #include "vrep_common/simRosEnablePublisher.h"
 #include "vrep_common/simRosEnableSubscriber.h"
 
-#define RATE 5000
+#define RATE 50 // Hz
 #define ROBOT_WIDTH 0.6
 
 // Global variables (modified by topic subscribers):
@@ -61,8 +61,9 @@ void controllerCallback(const geometry_msgs::Twist::ConstPtr& msg){
 	LeftMotorSpeed = msg->linear.x - msg->angular.z * (ROBOT_WIDTH/2);
 	RightMotorSpeed = msg->linear.x + msg->angular.z * (ROBOT_WIDTH/2);
 
-	LeftMotorSpeed *=20;
-	RightMotorSpeed *=20;
+	LeftMotorSpeed *=24;
+	RightMotorSpeed *=24;
+
 
 	motorSpeeds.handles.data.push_back(leftMotorHandle);
 	motorSpeeds.handles.data.push_back(rightMotorHandle);
@@ -135,6 +136,8 @@ int main(int argc,char* argv[]){
 		ros::Subscriber twist_sub = node.subscribe("/cmd_vel", RATE, controllerCallback);
 		ros::Subscriber neck_twist = node.subscribe("/e2/neck", RATE, neckCallback);
 
+		ros::Rate r(RATE);
+
 		while (ros::ok()&&simulationRunning)
 		{
 
@@ -142,7 +145,7 @@ int main(int argc,char* argv[]){
 			ros::spinOnce();
 
 			// sleep a bit:
-			usleep(RATE);
+			r.sleep();
 		}
 
 	}

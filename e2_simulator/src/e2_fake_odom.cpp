@@ -16,7 +16,7 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TwistStamped.h>
 
-#define RATE	5000
+#define RATE	20
 
 geometry_msgs::PoseStamped e2_pose;
 geometry_msgs::TwistStamped e2_twist;
@@ -56,7 +56,7 @@ int main(int argc, char** argv){
 	ros::Time current_time, last_time;
 	last_time = ros::Time::now();
 	current_time = ros::Time::now();
-	ros::Rate r(5.0);
+	ros::Rate r(RATE);
 
 	ROS_INFO("Fake odom Up and Running......");
 
@@ -106,7 +106,7 @@ int main(int argc, char** argv){
 
 		last_time = current_time;
 
-		usleep(RATE);
+		r.sleep();
 
 	}
 	ROS_INFO("Fake odom ended......");
