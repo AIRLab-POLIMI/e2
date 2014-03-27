@@ -6,7 +6,7 @@
    
   <!-- Recognition Nodes -->
   <node name="face_recognition" pkg="face_recognition" type="face_recognition_node" respawn="false" output="screen">
-	<param name="camera" type="string" value="$(arg camera_usb)" />
+	<param name="camera" type="string" value="$(arg camera_sim)" />
   </node>
   
 </launch>
