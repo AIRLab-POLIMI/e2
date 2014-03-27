@@ -119,13 +119,13 @@ void Navigation::NewTask()
 {
 	ROS_INFO("[Navigator]:: New navigation task started");
 
-	irobot.SpeechTalk(getSpeechById("train"));
+	irobot.Talk(getSpeechById("train"));
 
 	// Save new user face
 	if(irobot.TrainUserFace(guest_name))
 	{
 		active_task = true;
-		irobot.SpeechTalk(getSpeechById("train_success"));
+		irobot.Talk(getSpeechById("train_success"));
 
 		if(detect_enabled)
 		{
@@ -140,7 +140,7 @@ void Navigation::NewTask()
 	else
 	{
 		active_task = false;
-		irobot.SpeechTalk(getSpeechById("train_failed"));
+		irobot.Talk(getSpeechById("train_failed"));
 	}
 
 }
@@ -185,6 +185,17 @@ void Navigation::NavigateTo(string name)
 }
 
 //=================================================================
+// Wait in position till one condition is verified
+//=================================================================
+void Navigation::Wait()
+{
+	ROS_INFO("[Navigation]:: Waiting  for user.....");
+
+	sleep(WAIT_TIME);
+
+}
+
+//=================================================================
 //	Fire a Detection timeout
 //=================================================================
 void Navigation::DetectTimer(const ros::TimerEvent& e)
@@ -202,6 +213,8 @@ void Navigation::DetectUser(void)
 
 	// Remove current navigation goal
 	path_planned=false;
+	user_recognized=false;
+
 	irobot.CancelAllGoals();
 
 	ros::Time init_detection = ros::Time::now();
@@ -210,20 +223,22 @@ void Navigation::DetectUser(void)
 
 	while((ros::Time::now() - init_detection < timeout) && !user_recognized)
 	{
-		irobot.RotateBase(const_cast<char *>("LEFT"),3.14);
+		irobot.RotateBase(const_cast<char *>("LEFT"));
 
 		if(irobot.CheckFace(guest_name))
-		{
-			active_task=true;
-			path_planned=false;
 			setUserDetection(true);
-		}
+
 		ros::spinOnce();
 		r.sleep();
 	}
 
+	irobot.CancelAllGoals();	// Force stop face detection still alive
+
 	if(user_recognized)
+	{
+		path_planned=false;
 		user_recognized=false;
+	}
 	else if(active_task)		// Recover user only if there's a navigation goal. Not used in testing
 		RecoverUser();			// User not found start Backtracking procedure
 

@@ -11,6 +11,7 @@
 #include "ros/ros.h"
 #include "Navigation.h"
 #include "e2_msgs/Goto.h"
+#include "e2_msgs/Train.h"
 #include "e2_msgs/NeckAction.h"
 #include "std_srvs/Empty.h"
 #include "nav_msgs/Odometry.h"
@@ -28,6 +29,7 @@ bool Detectcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response
 bool Gotocallback(e2_msgs::Goto::Request& request, e2_msgs::Goto::Response& response);
 bool Startcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
 bool Neckcallback(e2_msgs::NeckAction::Request& request, e2_msgs::NeckAction::Response& response);
+bool Traincallback(e2_msgs::Train::Request& request, e2_msgs::Train::Response& response);
 
 using namespace std;
 
@@ -54,6 +56,7 @@ int main(int argc, char **argv)
 	ros::ServiceServer start_service = nh.advertiseService("start",Startcallback);
 	ros::ServiceServer goto_service = nh.advertiseService("goto",Gotocallback);
 	ros::ServiceServer neck_service = nh.advertiseService("neckaction",Neckcallback);
+	ros::ServiceServer train_service = nh.advertiseService("train",Traincallback);
 
 	// Suscribers && Publishers for input messages
     ros::Subscriber odom_sub= nh.subscribe("/odom", 10,OdometryCb);
@@ -124,4 +127,25 @@ bool Neckcallback(e2_msgs::NeckAction::Request& request, e2_msgs::NeckAction::Re
 {
 	navigation->irobot.NeckAction(request.action_id);
 	return true;
+}
+
+//=====================================
+// Train callback
+//=====================================
+bool Traincallback(e2_msgs::Train::Request& request, e2_msgs::Train::Response& response)
+{
+	if(strcmp(request.username.c_str(), "") == 0)
+	{
+		ROS_INFO("["ROS_NODE_NAME"]:: Can't train without a username. Abort action.");
+		return false;
+	}
+
+	navigation->irobot.Talk(navigation->getSpeechById("train"));
+	if(navigation->irobot.TrainUserFace(request.username.c_str()))
+	{
+		navigation->irobot.Talk(navigation->getSpeechById("train_success"));
+		return true;
+	}
+	navigation->irobot.Talk(navigation->getSpeechById("train_failed"));
+	return false;
 }

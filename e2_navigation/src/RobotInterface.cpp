@@ -95,7 +95,7 @@ bool RobotInterface::getBaseGoalStatus()
 //=================================================================
 void RobotInterface::RotateBase(char *direction,float angle)
 {
-	ROS_INFO("[IRobot]:: Rotating %s of %f ",direction,angle);
+	ROS_INFO("[IRobot]:: Rotating %s of %f rad ",direction,angle);
 
 	double th = tf::getYaw(robot_pose.orientation);
 	double th_new;
@@ -172,13 +172,13 @@ void RobotInterface::setRobotPose(geometry_msgs::Pose pose)
 //=================================================================
 // Make the robot talk
 //=================================================================
-void RobotInterface::SpeechTalk(string text)
+void RobotInterface::Talk(string text)
 {
 	if(voice_enabled)
 	{
-		string command=SPEECH_COMMAND" "SPEECH_PARAM" '"+text+"'";	// TODO - Fix voice command
-		system(command.c_str());
+		string command=SPEECH_COMMAND" "SPEECH_PARAM" '"+text+"' "SPEECH_OPT ;	// TODO - Use Svox (pico) when male voice will be added - Better voice
 		ROS_INFO("[IRobot]:: Robot say: %s",text.c_str());
+		system(command.c_str());
 	}
 	else
 		ROS_INFO("[IRobot]:: Robot can't talk. Enable voice support");
@@ -272,7 +272,8 @@ bool RobotInterface::CheckFace(string guest_user)
 //=====================================
 void RobotInterface::FaceRecognCb(const actionlib::SimpleClientGoalState& state, const face_recognition::FaceRecognitionResultConstPtr& result)
 {
-	ROS_INFO("[IRobot]:: Goal [%i] Finished in state [%s]", result->order_id,state.toString().c_str());
+	recognized_user = "none";
+	ROS_DEBUG("[IRobot]:: Goal [%i] Finished in state [%s]", result->order_id,state.toString().c_str());
 
 	if(state.toString() != "SUCCEEDED") return;
 
@@ -284,7 +285,5 @@ void RobotInterface::FaceRecognCb(const actionlib::SimpleClientGoalState& state,
 
 	if( result->order_id==2)
 		ROS_INFO("[IRobot]:: Pictures of %s were successfully added to the training images",result->names[0].c_str());
-
-	recognized_user = "none";
 
 }

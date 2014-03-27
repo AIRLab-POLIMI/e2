@@ -11,9 +11,11 @@
 #ifndef ROBOTINTERFACE_H_
 #define ROBOTINTERFACE_H_
 
-#define BASE_ROTATION_ANGLE 30		// Rotation of 30 degree
+#define BASE_ROTATION_ANGLE 0.785		// Radians 45°
+
 #define SPEECH_COMMAND "espeak"
 #define SPEECH_PARAM " -s 150 -v it "
+#define SPEECH_OPT "--stdout | paplay" 		// Fix bug with alsa and pulseaudio
 
 #include "tf/tf.h"
 #include "common.h"
@@ -45,7 +47,7 @@ class RobotInterface
 		void NeckAction(int id_action);
 
 		char *getBatteryStatus();
-		void SpeechTalk(string text);
+		void Talk(string text);
 
 		bool TrainUserFace(string user_name);
 		bool CheckFace(string guest_user);

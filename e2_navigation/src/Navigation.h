@@ -18,6 +18,7 @@
 
 #define DETECT_TIMEOUT	 			60																// Define the time before fire a detection request
 #define ABORT_TIMEOUT 				300																// Navigation timeout
+#define WAIT_TIME							5
 
 class Navigation
 {
@@ -51,6 +52,7 @@ class Navigation
 
 	    void NavigateTo(string name);	// Navigate to known location
 	    void getNavigationStatus(); 	// Print navigation info in console
+	    void Wait();
 
 		void DetectUser(void); 			// Detect user face and check if it's the last trained person
 		void RecoverUser(void);			// Recover User following the path of last position detection
