@@ -1,14 +1,14 @@
 - id: 0
-  name: airlab
-  position: [4.2, 1.13, 0]
-  orientation: [0.74, 0.67]
+  name: AD
+  position: [-2.0, -1.54, 0]
+  orientation: [-0.73, 0.68]
 
 - id: 1
-  name: google
-  position: [-2.2, -1.8, 0]
-  orientation: [-0.73, 0.68]
+  name: AS
+  position: [3.59, -0.24, 0]
+  orientation: [-0.67, 0.73]
 
 - id: 2
   name: base
-  position: [0.8, 0.0, 0]
-  orientation: [-0.73, 0.68]
+  position: [-0.014, 0.0, 0]
+  orientation: [0.70, 0.70]
