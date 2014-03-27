@@ -4,6 +4,8 @@ string  order_argument
 ---
 #result definition
 uint8   order_id
+uint8   n_faces
+uint8 	detect_distance
 string[]  names
 float32[] confidence
 ---

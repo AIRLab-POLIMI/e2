@@ -32,7 +32,7 @@ class FaceRecognitionLib
 		vector<string> personNames; 												// array of person names (indexed by the person number). Added by Shervin.
 
 		int faceWidth; 																			// Default dimensions for faces in the face recognition database. Added by Shervin.
-		int faceHeight; 																		//	"		"		"		"		"		"
+		int faceHeight; 																			//	"		"		"		"		"		"
 		int nPersons; 																			// the number of people in the training set. Added by Shervin.
 		int nTrainFaces;																		// the number of training images
 		int nEigens; 																				// the number of eigenvalues
@@ -58,8 +58,7 @@ class FaceRecognitionLib
 		IplImage* cropImage(const IplImage *img, const CvRect region);
 		IplImage* resizeImage(const IplImage *origImg, int newWidth, int newHeight);
 		IplImage* convertFloatImageToUcharImage(const IplImage *srcImg);
-		CvRect detectFaceInImage(const IplImage *inputImg,
-		const CvHaarClassifierCascade* cascade);
+		CvRect detectFaceInImage(const IplImage *inputImg,	const CvHaarClassifierCascade* cascade);
 		bool retrainOnline(void);
 
 		FaceRecognitionLib() {
@@ -76,11 +75,12 @@ class FaceRecognitionLib
 			projectedTrainFaceMat = 0;
 			database_updated = false;
 
+			path = ros::package::getPath("face_recognition");
+
 			data_folder = path + "/data";
 			original_train_file = path + "/backup/train.txt";
 			original_data_folder = path + "/backup";
 
-			path = ros::package::getPath("face_recognition");
 			train_file = path + "/config/train.txt";
 			facedata_file = path + "/config/facedata.xml";
 			faceCascade_file = path + "/haarcascade_frontalface_alt.xml";
@@ -153,9 +153,10 @@ class FaceRecognitionLib
 		}
 
 };
-
+//=============================================================================================
 // Perform face detection on the input image, using the given Haar cascade classifier.
 // Returns a rectangle for the detected region in the given image.
+//=============================================================================================
 CvRect FaceRecognitionLib::detectFaceInImage(const IplImage *inputImg, const CvHaarClassifierCascade* cascade)
 {
 	const CvSize minFeatureSize = cvSize(20, 20);
@@ -165,7 +166,7 @@ CvRect FaceRecognitionLib::detectFaceInImage(const IplImage *inputImg, const CvH
 	IplImage *greyImg = 0;
 	CvMemStorage* storage;
 	CvRect rc;
-	//double t;
+	double t;
 	CvSeq* rects;
 
 	storage = cvCreateMemStorage(0);
@@ -181,10 +182,11 @@ CvRect FaceRecognitionLib::detectFaceInImage(const IplImage *inputImg, const CvH
 	}
 
 	// Detect all the faces.
-	//$$$$$t = (double)cvGetTickCount();
+	//t = (double)cvGetTickCount();
 	rects = cvHaarDetectObjects(detectImg, (CvHaarClassifierCascade*) cascade,storage, search_scale_factor, 3, flags, minFeatureSize);
-	//$$$$$t = (double)cvGetTickCount() - t;
-	//$$$$$ROS_INFO("[Face Detection took %d ms and found %d objects]\n", cvRound( t/((double)cvGetTickFrequency()*1000.0) ), rects->total );
+	//t = (double)cvGetTickCount() - t;
+	//ROS_INFO("[Face Detection took %d ms and found %d objects]\n", cvRound( t/((double)cvGetTickFrequency()*1000.0) ), rects->total );
+	ROS_INFO("[FaceRecognition]:: Detected %d faces!",rects->total);
 
 	// Get the first detected face (the biggest).
 	if (rects->total > 0) {
