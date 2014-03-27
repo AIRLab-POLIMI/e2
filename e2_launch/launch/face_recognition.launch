@@ -1,6 +1,12 @@
 <launch>
-  
+  <!-- Parameters -->
+  <arg name="camera_sim" value="/camera/image_raw" />
+  <arg name="camera_usb" value="/usb_cam/image_raw" />
+  <arg name="camera_kinect" value="/camera/rgb/image_raw" />
+   
   <!-- Recognition Nodes -->
-  <node name="face_recognition" pkg="face_recognition" type="face_recognition_node" respawn="false" output="screen"/>
-
+  <node name="face_recognition" pkg="face_recognition" type="face_recognition_node" respawn="false" output="screen">
+	<param name="camera" type="string" value="$(arg camera_usb)" />
+  </node>
+  
 </launch>
