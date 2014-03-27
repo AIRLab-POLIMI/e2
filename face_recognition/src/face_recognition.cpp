@@ -31,6 +31,8 @@ public:
 
 	FaceRecognition(std::string name) : frl(), it_(nh_), as_(nh_, name,boost::bind(&FaceRecognition::executeCB, this, _1), false)
 	{
+		ros::NodeHandle nh("~");
+
 		cvNamedWindow("Input", CV_WINDOW_AUTOSIZE);
 		cvInitFont(&font, CV_FONT_HERSHEY_PLAIN, 1.0, 4.0, 2, 2, CV_AA);
 
@@ -49,11 +51,12 @@ public:
 			frl.database_updated = false;
 			ROS_INFO("[FaceRecognition]:: Alert: Database is not updated, You better (re)train from images!");
 		}
+		string camera_topic;
+		nh.param<string>("camera", camera_topic, "/camera/rgb/image_raw");
 
-		//subscribe to video stream through image transport class
-		//image_sub_ = it_.subscribe("/camera/image_raw", 1,&FaceRecognition::imageCB, this); 					// Simulation topic
-		//image_sub_ = it_.subscribe("/camera/rgb/image_raw", 1,&FaceRecognition::imageCB, this);			// Kinect topic
-		image_sub_ = it_.subscribe("/usb_cam/image_raw", 1,&FaceRecognition::imageCB, this); 						// Real image stream
+		ROS_INFO("camera: %s",camera_topic.c_str());
+		image_sub_ = it_.subscribe(camera_topic, 1,&FaceRecognition::imageCB, this); 						// Real image stream
+
 	}
 
 	~FaceRecognition(void) {
