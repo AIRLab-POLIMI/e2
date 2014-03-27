@@ -64,7 +64,7 @@ class Navigation
 	    bool active_task;				//if there's an active task
 	    bool path_planned;				// if the robot is following a navigation path
 	    bool user_recognized;			// User recognized by facerecognition
-	    bool detect_enabled;			// If face detection is enabled
+	    bool train_enabled;			// If face detection is enabled
 
 	    int node_rate;
 	    int marker_size,speech_size;

@@ -20,7 +20,7 @@ Navigation::Navigation(ros::NodeHandle *nh, string marker_config,string speech_c
 		irobot(en_neck,en_voice,en_train)
 {
 	Handle = nh;
-	detect_enabled = en_train;
+	train_enabled = en_train;
 
 	// Load Stand positions in memory
 	YAML::Node doc_marker,doc_speech;
@@ -119,29 +119,34 @@ void Navigation::NewTask()
 {
 	ROS_INFO("[Navigator]:: New navigation task started");
 
-	irobot.Talk(getSpeechById("train"));
-
-	// Save new user face
-	if(irobot.TrainUserFace(guest_name))
+	if(train_enabled)
 	{
-		active_task = true;
-		irobot.Talk(getSpeechById("train_success"));
+		irobot.Talk(getSpeechById("train"));
 
-		if(detect_enabled)
+		// Save new user face
+		if(irobot.TrainUserFace(guest_name))
 		{
-			abort_timeout = Handle->createTimer(ros::Duration(ABORT_TIMEOUT), &Navigation::AbortTask,this,true,false);
-			detect_timeout = Handle->createTimer(ros::Duration(DETECT_TIMEOUT), &Navigation::DetectTimer,this,false,false);
-		}
+			active_task = true;
+			irobot.Talk(getSpeechById("train_success"));
 
-		// Save current position as first user detection position
-		initial_time = ros::Time::now();
-		setUserDetection(true);
+			if(train_enabled)
+			{
+				abort_timeout = Handle->createTimer(ros::Duration(ABORT_TIMEOUT), &Navigation::AbortTask,this,true,false);
+				detect_timeout = Handle->createTimer(ros::Duration(DETECT_TIMEOUT), &Navigation::DetectTimer,this,false,false);
+			}
+
+			// Save current position as first user detection position
+			initial_time = ros::Time::now();
+			setUserDetection(true);
+		}
+		else
+		{
+			active_task = false;
+			irobot.Talk(getSpeechById("train_failed"));
+		}
 	}
 	else
-	{
-		active_task = false;
-		irobot.Talk(getSpeechById("train_failed"));
-	}
+		active_task = true;
 
 }
 
@@ -156,7 +161,7 @@ void Navigation::AbortTask()
 	path_planned = false;
 	irobot.CancelAllGoals();
 
-	if(detect_enabled)
+	if(train_enabled)
 	{
 		abort_timeout.stop();
 		detect_timeout.stop();
