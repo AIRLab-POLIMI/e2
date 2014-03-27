@@ -21,6 +21,8 @@
 Navigation *navigation;
 
 void OdometryCb(const nav_msgs::Odometry::ConstPtr& msg);
+
+// Define services
 bool Abortcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
 bool Detectcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
 bool Gotocallback(e2_msgs::Goto::Request& request, e2_msgs::Goto::Response& response);
@@ -51,6 +53,7 @@ int main(int argc, char **argv)
 	ros::ServiceServer detect_service = nh.advertiseService("detect",Detectcallback);
 	ros::ServiceServer start_service = nh.advertiseService("start",Startcallback);
 	ros::ServiceServer goto_service = nh.advertiseService("goto",Gotocallback);
+	ros::ServiceServer neck_service = nh.advertiseService("neckaction",Neckcallback);
 
 	// Suscribers && Publishers for input messages
     ros::Subscriber odom_sub= nh.subscribe("/odom", 10,OdometryCb);
@@ -58,6 +61,7 @@ int main(int argc, char **argv)
 	ROS_INFO("["ROS_NODE_NAME"]:: Node Started");
 
 	navigation = new Navigation(&nh,marker_config,speech_config,ROS_NODE_RATE,en_neck,en_voice,en_train);
+
 	navigation->Controller();
 
 }
