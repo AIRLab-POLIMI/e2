@@ -6,7 +6,7 @@
  	<arg name="stand_airlab" value="/home/jackal/ros_workspace/src/e2/e2_navigation/config/airlab_marker_config.yaml" />
   
 	<!-- Run the map server -->
-    <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_fiera)"/>
+    <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_airlab)"/>
 
 	<!-- Run AMCL -->
   	<include file="$(find e2_launch)/launch/amcl_diff.launch" />
@@ -22,7 +22,7 @@
 	  	<param name="en_neck" type="bool" value="false" />
 	  	<param name="en_voice" type="bool" value="true" />
 	  	<param name="en_train" type="bool" value="true" />
-		<param name="marker_config" type="string" value="$(arg stand_fiera)" />
+		<param name="marker_config" type="string" value="$(arg stand_airlab)" />
 	</node>
   
 </launch>
