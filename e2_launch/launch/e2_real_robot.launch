@@ -10,7 +10,7 @@
 	<include file="$(find e2_launch)/launch/face_recognition.launch" />
 		
 	<!-- Neck Controller Node -->
-<!--	<include file="$(find e2_launch)/launch/e2_neck_controller.launch" /> -->
+	<include file="$(find e2_launch)/launch/e2_neck_controller.launch" />
 	
 	<!-- Navigation Node -->
 	<include file="$(find e2_launch)/launch/e2_navigation.launch" />	
