@@ -9,7 +9,7 @@
     <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_fiera)"/>
 
 	<!-- Run AMCL -->
-  	<!-- <include file="$(find e2_launch)/launch/amcl_diff.launch" /> -->
+  	<include file="$(find e2_launch)/launch/amcl_diff.launch" />
 
 	<!-- Run Move Base -->
 	<include file="$(find e2_launch)/launch/move_base.launch" />

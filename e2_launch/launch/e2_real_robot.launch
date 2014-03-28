@@ -1,7 +1,7 @@
 <launch>
 	
     <!-- Kinect launch and scanner info -->
-	<include file="$(find e2_launch)/launch/scanner.launch" />
+	<include file="$(find e2_launch)/launch/e2_scanner.launch" />
 
 	<!-- Odom & Tf -->
 	<include file="$(find e2_launch)/launch/e2_odometry.launch" /> 
