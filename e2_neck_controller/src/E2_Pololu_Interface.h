@@ -9,6 +9,7 @@ class E2_Pololu_Interface
 {
 public:
 	E2_Pololu_Interface();
+	E2_Pololu_Interface(string device);
 	~E2_Pololu_Interface();
 
 	const char* PololuUsbDevice;

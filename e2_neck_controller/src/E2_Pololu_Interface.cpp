@@ -6,6 +6,11 @@ E2_Pololu_Interface::E2_Pololu_Interface()
 {
 	initializePololuCommunication();
 }
+E2_Pololu_Interface::E2_Pololu_Interface(string device)
+: PololuUsbDevice(device.c_str()), firstCommand(1)
+{
+	initializePololuCommunication();
+}
 
 E2_Pololu_Interface::~E2_Pololu_Interface()
 {

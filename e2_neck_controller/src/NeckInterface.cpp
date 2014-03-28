@@ -15,12 +15,18 @@
 // ========================================================================
 // Default constructor
 // ========================================================================
-NeckInterface::NeckInterface(string name) : nh_(),as_(nh_, name, boost::bind(&NeckInterface::executeCB, this, _1), false)
+NeckInterface::NeckInterface(string name) : nh_("~"),as_(nh_, name, boost::bind(&NeckInterface::executeCB, this, _1), false)
 {
 	goal_id_ = -99;
-	as_.start();			//starting the actionlib server
+	as_.start();																//starting the actionlib server
 
-	pE2PololuInterface = new E2_Pololu_Interface();
+	std::string device;
+
+	nh_.param<std::string>("usb_device", device, "/dev/ttyACM0");
+
+	ROS_INFO("[INeck]:: Using %s device.",device.c_str());
+
+	pE2PololuInterface = new E2_Pololu_Interface(device);
 
 	ROS_INFO("[INeck]:: Neck interface ready");
 
