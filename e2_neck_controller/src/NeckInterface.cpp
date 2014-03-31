@@ -99,6 +99,10 @@ void NeckInterface::executeCB(const e2_neck_controller::NeckGoalConstPtr &goal)
 			ROS_INFO("[INeck]:: Bend Right");
 			pE2PololuInterface->bendRight();
 			break;
+		case '10':
+			ROS_INFO("[INeck]:: Bend Right");
+			pE2PololuInterface->blinkLed();
+			break;
 	}
 
 	ROS_INFO("[INeck]:: Action completed");

@@ -193,3 +193,10 @@ void E2_Pololu_Interface::bendRight()
 {
 	runSubroutine( BENDRIGHT );
 }
+
+// Used for test
+void E2_Pololu_Interface::blinkLed()
+{
+	runSubroutine( BLINKSLOW10SECONDS );
+}
+

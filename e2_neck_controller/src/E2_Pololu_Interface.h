@@ -83,6 +83,7 @@ public:
 	void bendBack();
 	void bendLeft();
 	void bendRight();
+	void blinkLed();
 
 	void setLowSpeed();
 	void setNormalSpeed();
