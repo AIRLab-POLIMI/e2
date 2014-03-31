@@ -1,9 +1,9 @@
 <launch>
 	<!-- Parameters -->
   	<arg name="map_fiera" value="$(find e2_navigation)/map/fiera_final.yaml" /> 
-  	<arg name="stand_fiera" value="/home/jackal/ros_workspace/src/e2/e2_navigation/config/marker_config.yaml" />
+  	<arg name="stand_fiera" value="$(find e2_navigation)/config/marker_config.yaml" />
  	<arg name="map_airlab" value="$(find e2_navigation)/map/airlab/map.yaml" />
- 	<arg name="stand_airlab" value="/home/jackal/ros_workspace/src/e2/e2_navigation/config/airlab_marker_config.yaml" />
+ 	<arg name="stand_airlab" value="$(find e2_navigation)/config/airlab_marker_config.yaml" />
   
 	<!-- Run the map server -->
     <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_airlab)"/>
