@@ -63,44 +63,44 @@ void NeckInterface::executeCB(const e2_neck_controller::NeckGoalConstPtr &goal)
 
 	switch(goal_id_)
 	{
-		case '1':
+		case 1:
 			ROS_INFO("[INeck]:: Reach Straight Neck Position");
 			pE2PololuInterface->reachStraightNeckPosition();
 			break;
-		case '2':
+		case 2:
 			ROS_INFO("[INeck]:: Invitation Left");
 			pE2PololuInterface->invitationLeft();
 			break;
-		case '3':
+		case 3:
 			ROS_INFO("[INeck]:: Invitation Right");
 			pE2PololuInterface->invitationRight();
 			break;
-		case '4':
+		case 4:
 			ROS_INFO("[INeck]:: Give a Bow");
 			pE2PololuInterface->give_a_bow();
 			break;
-		case '5':
+		case 5:
 			ROS_INFO("[INeck]:: Surprise Expression");
 			pE2PololuInterface->expressSurprise();
 			break;
-		case '6':
+		case 6:
 			ROS_INFO("[INeck]:: Bend Forward");
 			pE2PololuInterface->bendForward();
 			break;
-		case '7':
+		case 7:
 			ROS_INFO("[INeck]:: Bend Back");
 			pE2PololuInterface->bendBack();
 			break;
-		case '8':
+		case 8:
 			ROS_INFO("[INeck]:: Bend Left");
 			pE2PololuInterface->bendLeft();
 			break;
-		case '9':
+		case 9:
 			ROS_INFO("[INeck]:: Bend Right");
 			pE2PololuInterface->bendRight();
 			break;
-		case '10':
-			ROS_INFO("[INeck]:: Bend Right");
+		case 0:
+			ROS_INFO("[INeck]:: Blink LED");
 			pE2PololuInterface->blinkLed();
 			break;
 	}
