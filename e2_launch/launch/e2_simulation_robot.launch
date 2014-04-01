@@ -8,7 +8,7 @@
     	args="0.0 0 0 0 0 0  /map /odom 100" /> 
 	
     <!-- Kinect launch and scanner info -->
-	<include file="$(find e2_launch)/launch/scanner.launch" />
+	<include file="$(find e2_launch)/launch/simulation_scanner.launch" />
 
 	<!-- Face Recognition Node -->
 	<include file="$(find e2_launch)/launch/face_recognition.launch" />

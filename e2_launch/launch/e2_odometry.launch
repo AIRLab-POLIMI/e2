@@ -1,8 +1,4 @@
 <launch>
-   
-  <!-- Static Transform -->
-  <!--	<node pkg="tf" type="static_transform_publisher" name="odom_to_map"
-    	args="0.0 0 0 0 0 0  /map /odom 100" /> -->
     	
   <!-- Odometry Node -->
   <node name="odom" pkg="e2_odometry" type="e2_odometry_node" respawn="true" output="screen">

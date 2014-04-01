@@ -1,9 +1,4 @@
-<launch>
-
-
-    <!-- Add Scanner Info -->
-    <include file="$(find e2_launch)/launch/scanner.launch" />
-	 
+<launch>	 
     <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
         <!--remap from="scan" to="base_scan"/-->
         <param name="base_frame" value="base_footprint"/>
