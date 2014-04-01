@@ -87,70 +87,61 @@ void Odometry::UpdateOdometryEncoder()
 	current_time=ros::Time::now();
 	double elapsed = (current_time - last_time).toSec();
 
-	// TODO - Understand Base encoder - no documentation .... wtf
-	/*
-	d_left = enc1_vel  ;
-	d_right = enc2_vel ;
+	// TODO
+	double phi_1,phi_2,phi_3;
 
-	// Distance travelled
-	double d = (d_left - d_right) / 2;
-	double d_th = (enc1_vel + enc2_vel) / ROBOT_WIDTH;
+	//Add calc for phi
+	phi_1 = enc1_vel * elapsed ;
+	phi_2 = enc2_vel * elapsed ;
+	phi_3 = enc3_vel * elapsed ;
 
-	// Set velocity from calculated data
-	double enc_vx = d / elapsed ;
-	double enc_vr = d_th / elapsed ;
+	//Calculate delta theta
+	double delta_th = ( WHEEL_RADIUS / ( 3 * L_DISTANCE) ) * ( phi_1 + phi_2 + phi_3 ) ;
 
-	double d_x,d_y;
+	// Calculate new position
+	double delta_x = WHEEL_RADIUS / ( 3 * sin( M_PI / 3 ) )  *
+										(
+												( cos( M_PI / 3 +  delta_th  ) - cos( M_PI / 3 -  delta_th ) ) * phi_1 +
+												( -cos(delta_th) - cos( M_PI / 3 +  delta_th  ) ) * phi_2 +
+												( cos(delta_th) + cos( M_PI / 3 -  delta_th ) ) * phi_3
+										) ;
 
-	if( d != 0 )
-	{
-		d_x = cos(d_th) * d ;
-		d_y = -sin(d_th) * d ;
+	double delta_y = WHEEL_RADIUS / ( 3 * sin( M_PI / 3 ) )  *
+										(
+												( sin( M_PI / 3 -  delta_th ) + sin( M_PI / 3 +  delta_th  ) ) * phi_1 +
+												( -sin(delta_th) - sin( M_PI / 3 +  delta_th  ) ) * phi_2 +
+												( sin(delta_th) - sin( M_PI / 3 -  delta_th ) ) * phi_3
+										);
 
-		x += (cos(th) * d_x - sin(th) * d_y ) ;
-		y += (sin(th) * d_x + cos(th) * d_y ) ;
-	}
-	if(d_th != 0)
-		th += d_th ;
+	x += delta_x;
+	y += delta_y;
+	th += delta_th;
 
-
-
-	//compute odometry in a typical way given the velocities of the robot
-    double delta_x = (vx * cos(th) - vy * sin(th)) * elapsed;
-    double delta_y = (vx * sin(th) + vy * cos(th)) * elapsed;
-
-    double delta_th = vr * elapsed;
-
-    x += delta_x;
-    y += delta_y;
-    th += delta_th;
-
-
-    // Update odom quaternion
+	// Update odom quaternion
 	odom_quat.x = 0;
 	odom_quat.y = 0;
 	odom_quat.z = sin(th/2);
 	odom_quat.w = cos(th/2);
 
-	//distance += sqrt(delta_x * delta_x + delta_y * delta_y);
-	//angle += fabs(delta_th);
-*/
+	distance += sqrt(delta_x * delta_x + delta_y * delta_y);
+	angle += fabs(delta_th);
 
 	last_time=current_time;
 
 	ROS_INFO("------------------------------------------------");
 	ROS_INFO("[Odom]:: Elapsed  :  %f", elapsed);
-	//ROS_INFO("[Odom]:: Angle 	  :  %f", angle);
-	//ROS_INFO("[Odom]:: Distance :  %f", d);
+	ROS_INFO("[Odom]:: Angle 	  :  %f", angle);
+	ROS_INFO("[Odom]:: Distance :  %f", distance);
 	ROS_INFO("[Odom]:: RAD SEC ENC_1 :  %f", enc1_vel);
 	ROS_INFO("[Odom]:: RAD SEC ENC_2 :  %f", enc2_vel);
 	ROS_INFO("[Odom]:: RAD SEC ENC_3 :  %f", enc3_vel);
 	ROS_INFO("[Odom]:: Vx  :  %f ", vx);
 	ROS_INFO("[Odom]:: Vy  :  %f ", vy);
 	ROS_INFO("[Odom]:: Vr  :  %f ", vr);
-	//ROS_INFO("[Odom]:: Distance :  %f", d);
-	//ROS_INFO("[Odom]:: Vx - Vx_ENC :  %f - %f ", vx,enc_vx);
-	//ROS_INFO("[Odom]:: Vr - Ve_ENC :  %f - %f ", vr,enc_vr);
+
+	ROS_INFO("[Odom]:: delta_x  :  %f ", delta_x);
+	ROS_INFO("[Odom]:: delta_y  :  %f ", delta_y);
+	ROS_INFO("[Odom]:: delta_th  :  %f ", delta_th);
 
 	ROS_INFO("------------------------------------------------");
 

@@ -11,15 +11,15 @@
 #ifndef ODOMETRY_H_
 #define ODOMETRY_H_
 
+#include <math.h>
 #include "nav_msgs/Odometry.h"
-#include <geometry_msgs/Quaternion.h>
 #include <geometry_msgs/Pose.h>
+#include <geometry_msgs/Quaternion.h>
 #include <tf/transform_broadcaster.h>
 
-#define ROBOT_WIDTH 0.6
-#define WHEEL_RADIUS 0.05
-#define SCALE_VELOCITY_COST 0.645
-#define PI_GRECO 3.14
+#define L_DISTANCE	0.3 								// Wheel distance from center of mass (m)
+#define WHEEL_RADIUS  0.05 						// Wheel radius (m)
+#define SCALE_VELOCITY_COST 0.645 		// Correction for velocity only
 
 class Odometry
 {

@@ -45,12 +45,12 @@ int main(int argc, char **argv)
 	  string enc_1,enc_2,enc_3;
 	  string odometry_type,vel_topic;
 
-	  nh.param<string>("enc_1", enc_1, "Encoder1");
-	  nh.param<string>("enc_2", enc_2, "Encoder2");
-	  nh.param<string>("enc_3", enc_3, "Encoder3");
+	  nh.param<string>("enc_1", enc_1, "/triskar/encoder1");
+	  nh.param<string>("enc_2", enc_2, "/triskar/encoder2");
+	  nh.param<string>("enc_3", enc_3, "/triskar/encoder3");
 
-	  nh.param<string>("vel_topic", vel_topic, "/cmd_vel");
-	  nh.param<string>("odom_type", odometry_type, "velocity");
+	  nh.param<string>("vel_topic", vel_topic, "/triskar/velocity");
+	  nh.param<string>("odom_type", odometry_type, "encoder");
 
 	  //Messages subscribers
 	  tf::TransformBroadcaster broadcaster;
