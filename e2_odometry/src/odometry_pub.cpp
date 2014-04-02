@@ -16,8 +16,8 @@
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
 
-#include "e2_msgs/Velocity.h"
-#include "e2_msgs/EncoderStamped.h"
+#include "r2p/Velocity.h"
+#include "r2p/EncoderStamped.h"
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 
 #define ROS_NODE_RATE	50
@@ -30,13 +30,13 @@
 Odometry *odom ;
 bool encoder = false;
 
-void getRobotVelocity(const e2_msgs::VelocityConstPtr& msg);
+void getRobotVelocity(const r2p::VelocityConstPtr& msg);
 void getInitialPose(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg );
-void encoderCallback(const e2_msgs::EncoderStampedConstPtr& enc1,const e2_msgs::EncoderStampedConstPtr& enc2,const e2_msgs::EncoderStampedConstPtr& enc3);
+void encoderCallback(const r2p::EncoderStampedConstPtr& enc1,const r2p::EncoderStampedConstPtr& enc2,const r2p::EncoderStampedConstPtr& enc3);
 
 
 using namespace std;
-using namespace e2_msgs;
+using namespace r2p;
 using namespace message_filters;
 
 int main(int argc, char **argv)
@@ -148,7 +148,7 @@ void getInitialPose(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg 
 //======================================================
 //	Get Robot velocity data
 //======================================================
-void getRobotVelocity(const e2_msgs::VelocityConstPtr& msg)
+void getRobotVelocity(const r2p::VelocityConstPtr& msg)
 {
 	ROS_DEBUG("[Odom]:: Received new robot velocity.");
 
@@ -168,7 +168,7 @@ void getRobotVelocity(const e2_msgs::VelocityConstPtr& msg)
 //======================================================
 //	Get Encoders data
 //======================================================
-void encoderCallback(const e2_msgs::EncoderStampedConstPtr& enc1,const e2_msgs::EncoderStampedConstPtr& enc2,const e2_msgs::EncoderStampedConstPtr& enc3)
+void encoderCallback(const r2p::EncoderStampedConstPtr& enc1,const r2p::EncoderStampedConstPtr& enc2,const r2p::EncoderStampedConstPtr& enc3)
 {
 	odom->enc1_vel=enc1->encoder.delta;
 	odom->enc2_vel=enc2->encoder.delta;

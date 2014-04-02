@@ -84,7 +84,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
   LIBRARIES e2_odometry
-  CATKIN_DEPENDS roscpp roslib tf
+  CATKIN_DEPENDS roscpp roslib tf 
   DEPENDS system_lib
 )
 
@@ -111,7 +111,7 @@ include_directories(
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
- add_dependencies(e2_odometry_node e2_msgs_generate_messages_cpp)
+ add_dependencies(e2_odometry_node r2p_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
  target_link_libraries(e2_odometry_node
