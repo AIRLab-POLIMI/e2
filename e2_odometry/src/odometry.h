@@ -41,7 +41,6 @@ class Odometry
 		double vr ; // angular velocity
 
 		double enc1_vel,enc2_vel,enc3_vel;
-		bool enc1,enc2,enc3;
 
 		ros::Time current_time, last_time;
 		geometry_msgs::Quaternion odom_quat;

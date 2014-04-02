@@ -13,12 +13,14 @@
 #include "ros/ros.h"
 #include "odometry.h"
 
+#include <message_filters/subscriber.h>
+#include <message_filters/time_synchronizer.h>
+
 #include "e2_msgs/Velocity.h"
 #include "e2_msgs/EncoderStamped.h"
-#include "geometry_msgs/Twist.h"
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 
-#define ROS_NODE_RATE	100
+#define ROS_NODE_RATE	50
 #define ROS_NODE_NAME	"odometry_pub"
 
 #define VEL_X_MOTOR_START 0.12
@@ -28,14 +30,14 @@
 Odometry *odom ;
 bool encoder = false;
 
-void getWheelEnc1(const e2_msgs::EncoderStampedConstPtr& msg);
-void getWheelEnc2(const e2_msgs::EncoderStampedConstPtr& msg);
-void getWheelEnc3(const e2_msgs::EncoderStampedConstPtr& msg);
-
 void getRobotVelocity(const e2_msgs::VelocityConstPtr& msg);
 void getInitialPose(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg );
+void encoderCallback(const e2_msgs::EncoderStampedConstPtr& enc1,const e2_msgs::EncoderStampedConstPtr& enc2,const e2_msgs::EncoderStampedConstPtr& enc3);
+
 
 using namespace std;
+using namespace e2_msgs;
+using namespace message_filters;
 
 int main(int argc, char **argv)
 {
@@ -50,15 +52,18 @@ int main(int argc, char **argv)
 	  nh.param<string>("enc_3", enc_3, "/triskar/encoder3");
 
 	  nh.param<string>("vel_topic", vel_topic, "/triskar/velocity");
-	  nh.param<string>("odom_type", odometry_type, "velocity");
+	  nh.param<string>("odom_type", odometry_type, "encoder");
 
 	  //Messages subscribers
 	  tf::TransformBroadcaster broadcaster;
 
-	  // Note
-	  ros::Subscriber sub_enc_1 = nh.subscribe(enc_1, 10, getWheelEnc1);
-	  ros::Subscriber sub_enc_2 = nh.subscribe(enc_2, 10, getWheelEnc2);
-	  ros::Subscriber sub_enc_3 = nh.subscribe(enc_3, 10, getWheelEnc3);
+	  message_filters::Subscriber<EncoderStamped> sub_enc_1(nh, enc_1, 1);
+	  message_filters::Subscriber<EncoderStamped> sub_enc_2(nh, enc_2, 1);
+	  message_filters::Subscriber<EncoderStamped> sub_enc_3(nh, enc_3, 1);
+
+	  TimeSynchronizer<EncoderStamped, EncoderStamped,EncoderStamped> sync(sub_enc_1, sub_enc_2,sub_enc_3, 10);
+
+	  sync.registerCallback(boost::bind(&encoderCallback, _1, _2,_3));
 
 	  ros::Subscriber initialpose = nh.subscribe("/initialpose", 10, getInitialPose);
 	  ros::Subscriber sub_cmd_vel= nh.subscribe(vel_topic, 10, getRobotVelocity);
@@ -155,38 +160,24 @@ void getRobotVelocity(const e2_msgs::VelocityConstPtr& msg)
 			odom->vr = msg->w;
 
 	// Update Odometry information
-	if(encoder)
-	{
-		if(odom->enc1 && odom->enc2 && odom->enc3)
-		{
-			odom->UpdateOdometryEncoder();
-			odom->enc1 = false;
-			odom->enc2 = false;
-			odom->enc3 = false;
-		}
-
-	}else
+	if(!encoder)
 		odom->UpdateOdometryVelocity();
 
 }
+
 //======================================================
-//	Get Data from encoder
+//	Get Encoders data
 //======================================================
-void getWheelEnc1(const e2_msgs::EncoderStampedConstPtr& msg)
+void encoderCallback(const e2_msgs::EncoderStampedConstPtr& enc1,const e2_msgs::EncoderStampedConstPtr& enc2,const e2_msgs::EncoderStampedConstPtr& enc3)
 {
-	odom->enc1 = true;
-	odom->enc1_vel=msg->encoder.delta;
-}
+	odom->enc1_vel=enc1->encoder.delta;
+	odom->enc2_vel=enc2->encoder.delta;
+	odom->enc3_vel=enc3->encoder.delta;
 
-void getWheelEnc2(const e2_msgs::EncoderStampedConstPtr& msg)
-{
-	odom->enc2 = true;
-	odom->enc2_vel=msg->encoder.delta;
-}
+	odom->UpdateOdometryEncoder();
 
-void getWheelEnc3(const e2_msgs::EncoderStampedConstPtr& msg)
-{
-	odom->enc3 = true;
-	odom->enc3_vel=msg->encoder.delta;
-}
+	odom->enc1_vel = 0.0;
+	odom->enc2_vel = 0.0;
+	odom->enc3_vel = 0.0;
 
+}
