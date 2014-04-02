@@ -80,7 +80,7 @@ Odometry::~Odometry()
 };
 
 //==================================================================
-//		Calculate odometry data based on robot wheel velocity from encoders (Triskar base)
+//		Calculate odometry data based on robot wheel velocity from encoders (Triskar base) Direct Method
 //==================================================================
 void Odometry::UpdateOdometryEncoder()
 {
@@ -145,12 +145,7 @@ void Odometry::UpdateOdometryEncoder()
 
 	ROS_INFO("------------------------------------------------");
 
-	enc1_vel = 0.0;
-	enc2_vel = 0.0;
-	enc3_vel = 0.0;
-
 };
-
 
 //==================================================================
 //		Calculate odometry data based on robot velocity

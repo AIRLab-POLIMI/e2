@@ -40,7 +40,6 @@ class Odometry
 		double vy; // linear velocity along y
 		double vr ; // angular velocity
 
-		bool enc1, enc2,enc3;
 		double enc1_vel,enc2_vel,enc3_vel;
 
 		ros::Time current_time, last_time;
@@ -58,6 +57,7 @@ class Odometry
 
 		/*
 		 * Compute odometry based on robot encoder
+		 * Direct Method
 		 */
 		void UpdateOdometryEncoder();
 
