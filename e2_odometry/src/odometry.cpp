@@ -128,6 +128,10 @@ void Odometry::UpdateOdometryEncoder()
 
 	last_time=current_time;
 
+	enc1_vel = 0.0;
+	enc2_vel = 0.0;
+	enc3_vel = 0.0;
+
 	ROS_INFO("------------------------------------------------");
 	ROS_INFO("[Odom]:: Elapsed  :  %f", elapsed);
 	ROS_INFO("[Odom]:: Angle 	  :  %f", angle);
