@@ -44,7 +44,7 @@ class RobotInterface
 		void StopBase();
 		void RotateNeck(char *direction);
 		void RotateBase(char *direction,float angle = BASE_ROTATION_ANGLE);
-		void NeckAction(int id_action);
+		void NeckAction(int action, int sub_action);
 
 		char *getBatteryStatus();
 		void Talk(string text);

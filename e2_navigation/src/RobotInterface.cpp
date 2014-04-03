@@ -125,25 +125,16 @@ void RobotInterface::StopBase()
 
 //=================================================================
 //	Send an action to neck controller
-//	action_id
-//	"1 - Reach Straight Neck Position"
-//	"2 - Invitation Left"
-//	"3 - Invitation Right"
-//	"4 - Give a Bow"
-//	"5 - Surprise Expression"
-//	"6 - Bend Forward"
-//	"7 - Bend Back"
-//	"8 - Bend Left"
-//	"9 - Bend Right"
 //=================================================================
-void RobotInterface::NeckAction(int id_action)
+void RobotInterface::NeckAction(int action,int sub_action)
 {
 	if(neck_enabled)
 	{
-		ROS_INFO("[IRobot::Neck]:: Received Neck action %d",id_action);
+		ROS_INFO("[IRobot::Neck]:: Received Neck action %d - %d",action,sub_action);
 
 		e2_neck_controller::NeckGoal n_goal;
-		n_goal.action_id=id_action;
+		n_goal.action=action;
+		n_goal.sub_action=sub_action;
 
 		ac_nc->sendGoal(n_goal);
 	}

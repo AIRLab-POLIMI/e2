@@ -125,7 +125,7 @@ bool Gotocallback(e2_msgs::Goto::Request& request, e2_msgs::Goto::Response& resp
 //=====================================
 bool Neckcallback(e2_msgs::NeckAction::Request& request, e2_msgs::NeckAction::Response& response)
 {
-	navigation->irobot.NeckAction(request.action_id);
+	navigation->irobot.NeckAction(request.action,request.sub_action);
 	return true;
 }
 
