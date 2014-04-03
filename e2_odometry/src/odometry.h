@@ -25,8 +25,9 @@ class Odometry
 {
 	private:
 
-		float d_left,d_right;
+		double elapsed;
 		double distance, angle;
+		double delta_x,  delta_y, delta_th;
 
 		tf::TransformBroadcaster odom_broadcaster;
 
@@ -40,6 +41,7 @@ class Odometry
 		double vy; // linear velocity along y
 		double vr ; // angular velocity
 
+		bool encoder_enabled;
 		double enc1_vel,enc2_vel,enc3_vel;
 
 		ros::Time current_time, last_time;
@@ -69,7 +71,7 @@ class Odometry
 		/*
 		 * Clear old odometry data
 		 */
-		void flush();
+		void clear();
 };
 
 #endif /* ODOMETRY_H_ */

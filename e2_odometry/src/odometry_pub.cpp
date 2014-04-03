@@ -20,7 +20,7 @@
 #include "r2p/EncoderStamped.h"
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 
-#define ROS_NODE_RATE	50
+#define ROS_NODE_RATE	100
 #define ROS_NODE_NAME	"odometry_pub"
 
 #define VEL_X_MOTOR_START 0.12
@@ -28,12 +28,10 @@
 #define VEL_W_MOTOR_START 0.35
 
 Odometry *odom ;
-bool encoder = false;
 
 void getRobotVelocity(const r2p::VelocityConstPtr& msg);
 void getInitialPose(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg );
 void encoderCallback(const r2p::EncoderStampedConstPtr& enc1,const r2p::EncoderStampedConstPtr& enc2,const r2p::EncoderStampedConstPtr& enc3);
-
 
 using namespace std;
 using namespace r2p;
@@ -68,26 +66,27 @@ int main(int argc, char **argv)
 	  ros::Subscriber initialpose = nh.subscribe("/initialpose", 10, getInitialPose);
 	  ros::Subscriber sub_cmd_vel= nh.subscribe(vel_topic, 10, getRobotVelocity);
 
-	  if(strcmp(odometry_type.c_str(),string("encoder").c_str()) == 0)
-		  encoder=true;
-
 	  ros::Publisher odom_pub =  nh.advertise<nav_msgs::Odometry>("/odom", 1);
+
+	  odom = new Odometry();
+
+	  if(strcmp(odometry_type.c_str(),string("encoder").c_str()) == 0)
+		  odom->encoder_enabled=true;
+	  else
+		  odom->encoder_enabled=false;
 
 	  ROS_INFO("[Odometry]:: Node started");
 	  ROS_INFO("[Odometry]:: Odometry updated by : %s ", odometry_type.c_str());
 	  ROS_INFO("[Odometry]:: Velocity Topic  : %s ", vel_topic.c_str());
 
-	  if(encoder)
+	  if(odom->encoder_enabled)
 	  {
 		  ROS_INFO("[Odometry]:: Encoder1 Topic : %s", enc_1.c_str());
 		  ROS_INFO("[Odometry]:: Encoder2 Topic : %s", enc_2.c_str());
 		  ROS_INFO("[Odometry]:: Encoder3 Topic : %s", enc_3.c_str());
 	  }
 
-
 	  ros::Rate r(ROS_NODE_RATE);
-
-	  odom = new Odometry();
 
 	  while(ros::ok())	//ROS LOOP
 	  {
@@ -124,9 +123,6 @@ int main(int argc, char **argv)
 
 		  odom_pub.publish(msg);
 
-		  // Flush odom data
-		  odom->flush();
-
 		  ros::spinOnce();
 		  r.sleep();
 	  }
@@ -152,6 +148,10 @@ void getRobotVelocity(const r2p::VelocityConstPtr& msg)
 {
 	ROS_DEBUG("[Odom]:: Received new robot velocity.");
 
+	odom->vx = 0.0;
+	odom->vy = 0.0;
+	odom->vr = 0.0;
+
 	if(abs(msg->x)>=VEL_X_MOTOR_START)
 			odom->vx = msg->x;
 	if(abs(msg->y)>=VEL_Y_MOTOR_START)
@@ -159,8 +159,7 @@ void getRobotVelocity(const r2p::VelocityConstPtr& msg)
 	if(abs(msg->w)>=VEL_W_MOTOR_START)
 			odom->vr = msg->w;
 
-	// Update Odometry information
-	if(!encoder)
+	if(!odom->encoder_enabled)
 		odom->UpdateOdometryVelocity();
 
 }
@@ -174,10 +173,7 @@ void encoderCallback(const r2p::EncoderStampedConstPtr& enc1,const r2p::EncoderS
 	odom->enc2_vel=enc2->encoder.delta;
 	odom->enc3_vel=enc3->encoder.delta;
 
-	odom->UpdateOdometryEncoder();
-
-	odom->enc1_vel = 0.0;
-	odom->enc2_vel = 0.0;
-	odom->enc3_vel = 0.0;
+	if(odom->encoder_enabled)
+		odom->UpdateOdometryEncoder();
 
 }
