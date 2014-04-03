@@ -1,0 +1,12 @@
+<launch>
+
+    <!-- Kinect launch and scanner info -->
+	<include file="$(find e2_launch)/launch/e2_scanner.launch" />
+	
+	<!-- Neck Controller Node -->
+	<include file="$(find e2_launch)/launch/e2_neck_controller.launch" />
+	
+	<!-- Joystick -->
+    <node name="joy" pkg="triskar" type="map_server" args="$(find triskar)/launch/teleop_joy.launch"/>
+	
+</launch>
