@@ -1,5 +1,6 @@
 #request field
-uint8 action_id
+uint8 action
+uint8 sub_action
 ---
 #response fields
 bool result
