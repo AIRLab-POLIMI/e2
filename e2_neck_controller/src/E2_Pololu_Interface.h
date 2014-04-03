@@ -39,7 +39,7 @@ public:
 
 //		Neck Subroutines
 		GIVE_A_BOW        = 0x06,
-		STRAIGHT          = 0x07,
+		STRAIGHT          = 0x07,   // # Deprecated on Pololu Script
 		STRAIGHTNECK      = 0x08,
 		INVITATIONLEFT    = 0x09,
 		INVITATIONRIGHT   = 0x0A,
@@ -65,26 +65,31 @@ public:
 		LEDBLINKSLOWNSECONDS = 0x30,
 	};
 
-	void initializePololuCommunication();
-	void destroyPololuCommunication();
+	// Face Actions
+	void standardFace();
+	void happyFace();
+	void angryFace();
+	void interestedFace();
+	void invitationFace();
+	void start_speakingFace();
+	void stop_speakingFace();
 
-	void stopScriptAndGoHome();
-
-	void transformParameter (const int, char&, char&);
-
-	void waitForControllerScriptToComplete();
+	// Neck Actions
+	void straightNeck();
 	void invitationLeft();
 	void invitationRight();
-	void give_a_bow();
-	void expressSurprise();
-	void reachStraightPosition();
-	void reachStraightNeckPosition();
+	void give_a_bow();				 // Inchino
 	void bendForward();
 	void bendBack();
 	void bendLeft();
 	void bendRight();
-	void blinkLed();
 
+	// Composite actions
+	void expressSurprise();
+	void reachStraightPosition();
+
+	// Other
+	void blinkLed();
 	void setLowSpeed();
 	void setNormalSpeed();
 	void setHighSpeed();
@@ -93,10 +98,16 @@ public:
 	void setHighAcc();
 
 private:
-	void runSubroutine              (const int);            // Private
-	void runSubroutine              (const int, const int); // Private
-	void runNeckSubroutine          (const int);			// Private
-	void runFaceEmotionalSubroutine (const int);			// Private
-	void runFaceSpeakingSubroutine  (const int);			// Private
+	void runSubroutine(const int);
+	void runSubroutine(const int, const int);
+	void runSubroutine_nowait(const int, const int);
+	void runNeckSubroutine(const int);
+	void runFaceEmotionalSubroutine (const int);
+	void runFaceSpeakingSubroutine  (const int);
 
+	void waitForControllerScriptToComplete();
+	void initializePololuCommunication();
+	void destroyPololuCommunication();
+	void stopScriptAndGoHome();
+	void transformParameter (const int, char&, char&);
 };

@@ -54,8 +54,9 @@ int main (int argc, char **argv)
 //=========================================================
 void nclientCallback(const e2_neck_controller::NeckGoalPtr& msg)
 {
-     ROS_INFO("["ROS_NODE_NAME"]:: Request for sending goal [%d]  received", msg->action_id);
+     ROS_INFO("["ROS_NODE_NAME"]:: Request for sending goal [%d] [%d] received", msg->action,msg->sub_action);
 
-     goal.action_id = msg->action_id;
+     goal.action = msg->action;
+     goal.sub_action = msg->sub_action;
      ac_nc->sendGoal(goal);
 }

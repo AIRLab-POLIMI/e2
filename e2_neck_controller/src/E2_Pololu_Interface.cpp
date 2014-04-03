@@ -19,16 +19,12 @@ E2_Pololu_Interface::~E2_Pololu_Interface()
 
 void E2_Pololu_Interface::initializePololuCommunication()
 {
-	//printf("about to create PololuCommunication instance...");
 	pololuComm = new PololuCommunication( PololuUsbDevice );
-	//printf(" created!\n\n");
 }
 
 void E2_Pololu_Interface::destroyPololuCommunication()
 {
-	//printf("about to destroy PololuCommunication instance...");
 	delete pololuComm;
-	//printf(" destroyed!\n\n");
 }
 
 void E2_Pololu_Interface::stopScriptAndGoHome()
@@ -39,14 +35,11 @@ void E2_Pololu_Interface::stopScriptAndGoHome()
 
 void E2_Pololu_Interface::runSubroutine(const int sub)
 {
-//	waitForControllerScriptToComplete();
-
 	pololuComm->Write( (char)RunSubroutine );
 	pololuComm->Write( (char)sub );
 
 	firstCommand = 0;
 
-//	if(	sub == LEDON || sub == BLINKSLOW10SECONDS)
 	waitForControllerScriptToComplete();
 }
 
@@ -64,8 +57,22 @@ void E2_Pololu_Interface::runSubroutine(const int sub, const int par)
 
 	firstCommand = 0;
 
-//	if(	sub == LEDBLINKFASTNSECONDS || sub == LEDBLINKSLOWNSECONDS)
 	waitForControllerScriptToComplete();
+}
+
+void E2_Pololu_Interface::runSubroutine_nowait(const int sub, const int par)
+{
+	char parLowBits;
+	char parHighBits;
+
+	transformParameter(par, parLowBits, parHighBits);
+
+	pololuComm->Write( (char)RunSubroutineWithParameter );
+	pololuComm->Write( (char)sub );
+	pololuComm->Write( (char)parLowBits );
+	pololuComm->Write( (char)parHighBits );
+
+	firstCommand = 0;
 }
 
 void E2_Pololu_Interface::runNeckSubroutine(const int sub)
@@ -84,7 +91,7 @@ void E2_Pololu_Interface::runFaceEmotionalSubroutine(const int sub)
 
 void E2_Pololu_Interface::runFaceSpeakingSubroutine(const int sub)
 {
-	runSubroutine( sub, firstCommand );
+	runSubroutine_nowait( sub, firstCommand );
 
 	firstCommand = 0;
 }
@@ -105,45 +112,98 @@ void E2_Pololu_Interface::waitForControllerScriptToComplete()
 		pololuComm->Write( (char)GetScriptStatus );
 		pololuComm->Read(&c);
 
-//		printf("[%d]\n", c);
-
 		usleep(1000);
 	}
 	while (c == 0);
 }
 
+//==================================================
+//	Public Face Functions
+//==================================================
+void E2_Pololu_Interface::standardFace()
+{
+	runFaceEmotionalSubroutine(STANDARD_FACE);
+}
+void E2_Pololu_Interface::happyFace()
+{
+	runFaceEmotionalSubroutine(HAPPY_FACE);
+}
+void E2_Pololu_Interface::angryFace()
+{
+	runFaceEmotionalSubroutine(ANGRY_FACE);
+}
+void E2_Pololu_Interface::interestedFace()
+{
+	runFaceEmotionalSubroutine(INTERESTED_FACE);
+}
+void E2_Pololu_Interface::invitationFace()
+{
+	runFaceEmotionalSubroutine(INVITATION_FACE);
+}
+void E2_Pololu_Interface::start_speakingFace()
+{
+	runFaceSpeakingSubroutine(MOUTH_MOVES);
+}
+void E2_Pololu_Interface::stop_speakingFace()
+{
+	stopScriptAndGoHome();
+}
 
-// PUBLIC INTERFACE
+//==================================================
+//	Public Neck Functions
+//==================================================
+void E2_Pololu_Interface::straightNeck()
+{
+	runNeckSubroutine( STRAIGHTNECK );
+}
 void E2_Pololu_Interface::invitationLeft()
 {
-	runSubroutine( INVITATIONLEFT );
+	runNeckSubroutine( INVITATIONLEFT );
 }
-
 void E2_Pololu_Interface::invitationRight()
 {
-	runSubroutine( INVITATIONRIGHT );
+	runNeckSubroutine( INVITATIONRIGHT );
 }
-
 void E2_Pololu_Interface::give_a_bow()
 {
-	runSubroutine( GIVE_A_BOW );
+	runNeckSubroutine( GIVE_A_BOW );
 }
+void E2_Pololu_Interface::bendForward()
+{
+	runNeckSubroutine( BENDFORWARD );
+}
+void E2_Pololu_Interface::bendBack()
+{
+	runNeckSubroutine( BENDBACK );
+}
+void E2_Pololu_Interface::bendLeft()
+{
+	runNeckSubroutine( BENDLEFT );
+}
+void E2_Pololu_Interface::bendRight()
+{
+	runNeckSubroutine( BENDRIGHT );
+}
+
+//==================================================
+//	Public composite Functions
+//==================================================
 
 void E2_Pololu_Interface::expressSurprise()
 {
-	runSubroutine( SURPRISEBEHAVIOUR );
+	runFaceEmotionalSubroutine( SURPRISEBEHAVIOUR );
 }
 
 void E2_Pololu_Interface::reachStraightPosition()
 {
-	runSubroutine( STRAIGHTNECK );
+	runFaceEmotionalSubroutine( STANDARD_FACE );
+	runFaceEmotionalSubroutine( STRAIGHTNECK  );
 }
 
-void E2_Pololu_Interface::reachStraightNeckPosition()
-{
-	runSubroutine( STRAIGHTNECK );
-}
 
+//==================================================
+//	Public other Functions
+//==================================================
 void E2_Pololu_Interface::setLowSpeed()
 {
 	runSubroutine( SETLOWSPEED );
@@ -172,26 +232,6 @@ void E2_Pololu_Interface::setNormalAcc()
 void E2_Pololu_Interface::setHighAcc()
 {
 	runSubroutine( SETHIGHACC );
-}
-
-void E2_Pololu_Interface::bendForward()
-{
-	runSubroutine( BENDFORWARD );
-}
-
-void E2_Pololu_Interface::bendBack()
-{
-	runSubroutine( BENDBACK );
-}
-
-void E2_Pololu_Interface::bendLeft()
-{
-	runSubroutine( BENDLEFT );
-}
-
-void E2_Pololu_Interface::bendRight()
-{
-	runSubroutine( BENDRIGHT );
 }
 
 // Used for test

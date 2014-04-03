@@ -28,14 +28,20 @@ class NeckInterface
 {
 	public:
 
+		E2_Pololu_Interface* pE2PololuInterface ;
+
 		NeckInterface(string name);
 		~NeckInterface();
+
+		void face_actions(int action);
+		void neck_actions(int action);
+		void other_actions(int action);
+		void composite_actions(int action);
 
 		void executeCB(const e2_neck_controller::NeckGoalConstPtr &goal);
 
 	private:
 		int goal_id_;
-		E2_Pololu_Interface* pE2PololuInterface ;
 
 	protected:
 		ros::NodeHandle nh_;

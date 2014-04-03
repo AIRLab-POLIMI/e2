@@ -1,5 +1,6 @@
 #goal definition
-uint8   action_id 
+uint8   action
+uint8   sub_action
 ---
 #result definition
 uint8   action_id
@@ -15,7 +16,7 @@ string  status
 
 
 ################# action_id
-#	"1 - Reach Straight Neck Position"
+#	"1 - Reach Straight Position"
 #	"2 - Invitation Left"
 #	"3 - Invitation Right"
 #	"4 - Give a Bow"
