@@ -47,19 +47,25 @@ public:
 		as_.start();																		//starting the actionlib server
 
 		//if the number of persons in the training file is not equal with the number of persons in the trained database, the database is not updated and user should be notified to retrain the database if new tarining images are to be considered.
-		if (calcNumTrainingPerson(frl.train_filename) != frl.nPersons) {
+		if (calcNumTrainingPerson(frl.train_filename) != frl.nPersons)
+		{
 			frl.database_updated = false;
 			ROS_INFO("[FaceRecognition]:: Alert: Database is not updated, You better (re)train from images!");
 		}
-		string camera_topic;
-		nh.param<string>("camera", camera_topic, "/camera/rgb/image_raw");
+		string rgb_camera_topic, depth_camera_topic;
+		nh.param<string>("rgb_camera", rgb_camera_topic, "/camera/rgb/image_raw");
+		nh.param<string>("depth_camera", depth_camera_topic, "/camera/depth/image_raw");
 
-		ROS_INFO("camera: %s",camera_topic.c_str());
-		image_sub_ = it_.subscribe(camera_topic, 1,&FaceRecognition::imageCB, this); 						// Real image stream
+		ROS_INFO("[FaceRecognition]:: rgb camera: %s",rgb_camera_topic.c_str());
+		rgb_image_sub_ = it_.subscribe(rgb_camera_topic, 1,&FaceRecognition::imageCB, this); 								// Real image stream
+
+		//ROS_INFO("[FaceRecognition]:: depth camera: %s",depth_camera_topic.c_str());
+		//depth_image_sub_ = it_.subscribe(depth_camera_topic, 1,&FaceRecognition::imageCB, this); 						// Depth image stream
 
 	}
 
-	~FaceRecognition(void) {
+	~FaceRecognition(void)
+	{
 		cvDestroyWindow("Input");
 	}
 
@@ -178,9 +184,7 @@ public:
 				break;
 			}
 		}
-
 		goal_id_ = -99;
-
 	}
 
 	//==============================================================
@@ -480,7 +484,7 @@ protected:
 	ros::NodeHandle nh_;
 	FaceRecognitionLib frl;
 	image_transport::ImageTransport it_;
-	image_transport::Subscriber image_sub_;
+	image_transport::Subscriber rgb_image_sub_, depth_image_sub_;
 	actionlib::SimpleActionServer<face_recognition::FaceRecognitionAction> as_;
 	int person_number; 																					//the number of persons in the train file (train.txt)
 };
