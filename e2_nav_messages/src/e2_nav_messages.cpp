@@ -13,7 +13,7 @@
 #define ROS_NODE_NAME	"e2_nav_messages"
 
 #include "ros/ros.h"
-#include "e2_msgs/Velocity.h"
+#include "r2p/Velocity.h"
 #include "geometry_msgs/Twist.h"
 
 using namespace std;
@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 	  nh.param<string>("triskar_topic", triskar_topic, "/triskar/velocity");
 
 	  sub_cmd_vel= nh.subscribe(vel_topic, 10, getVelocityCmd);
-	  pub_triskar_vel =  nh.advertise<e2_msgs::Velocity>(triskar_topic, 1000);
+	  pub_triskar_vel =  nh.advertise<r2p::Velocity>(triskar_topic, 1000);
 
 	  ROS_INFO("["ROS_NODE_NAME"]:: Node started");
 	  ROS_INFO("["ROS_NODE_NAME"]:: Vel topic : %s ", vel_topic.c_str());
@@ -57,7 +57,7 @@ void getVelocityCmd(const geometry_msgs::TwistConstPtr& msg )
 {
 	ROS_DEBUG("["ROS_NODE_NAME"]:: Received vel cmd");
 
-	e2_msgs::Velocity triskar_msg;
+	r2p::Velocity triskar_msg;
 
 	triskar_msg.x = msg->linear.x;
 	triskar_msg.y = msg->linear.y;
