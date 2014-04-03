@@ -3,10 +3,12 @@
   <arg name="camera_sim" value="/camera/image_raw" />
   <arg name="camera_usb" value="/usb_cam/image_raw" />
   <arg name="camera_kinect" value="/camera/rgb/image_raw" />
+  <arg name="camera_depth" value="/camera/depth/image_raw" />
    
   <!-- Recognition Nodes -->
   <node name="face_recognition" pkg="face_recognition" type="face_recognition_node" respawn="false" output="screen">
-	<param name="camera" type="string" value="$(arg camera_kinect)" />
+	<param name="rgb_camera" type="string" value="$(arg camera_kinect)" />
+	<param name="depth_camera" type="string" value="$(arg camera_depth)" />
   </node>
   
 </launch>
