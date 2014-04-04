@@ -167,9 +167,13 @@ void RobotInterface::Talk(string text)
 {
 	if(voice_enabled)
 	{
+		NeckAction(1,6); // Start Moving mouth
+
 		string command=SPEECH_COMMAND" "SPEECH_PARAM" '"+text+"' "SPEECH_OPT ;	// TODO - Use Svox (pico) when male voice will be added - Better voice
 		ROS_INFO("[IRobot]:: Robot say: %s",text.c_str());
 		system(command.c_str());
+
+		NeckAction(1,7); // stop Moving mouth
 	}
 	else
 		ROS_INFO("[IRobot]:: Robot can't talk. Enable voice support");
