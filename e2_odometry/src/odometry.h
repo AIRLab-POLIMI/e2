@@ -64,6 +64,16 @@ class Odometry
 		void UpdateOdometryEncoder();
 
 		/*
+		 * Calc delta xy based ond encoders velocity
+		 */
+		void calc_delta_xy(double phi_1,double phi_2,double phi_3);
+
+		/*
+		 * Calc delta th (rotation based on encoders vel)
+		 */
+		void calc_delta_th(double phi_1,double phi_2,double phi_3);
+
+		/*
 		 * Compute odometry based on robot velocity
 		 */
 		void UpdateOdometryVelocity();
