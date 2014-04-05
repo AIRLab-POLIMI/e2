@@ -1,0 +1,20 @@
+<launch> 
+
+   <param name="use_sim_time" value="false" />
+
+   <!-- Static Transform -->
+   <node pkg="tf" type="static_transform_publisher" name="odom_to_map"
+    	args="0.0 0 0 0 0 0  /map /odom 100" />
+
+   <!-- Odom & Tf -->
+   <include file="$(find e2_launch)/launch/e2_odometry.launch" /> 
+
+   <!-- Run the map server -->
+   <node name="map_server" pkg="map_server" type="map_server" args="$(find e2_navigation)/map/airlab/map.yaml"/>
+
+   <!-- Rviz -->
+   <node name="rviz" pkg="rviz" type="rviz" />
+
+   <!-- RosBag-->
+   <node pkg="rosbag" type="play" name="play" args="--clock -l /home/jackal/Tesi/bag_file/rosbag-17-03/2014-03-17-18-05-40.bag --topics /triskar/encoder1 /triskar/encoder2 /triskar/encoder3 /triskar/velocity"/>
+</launch>
