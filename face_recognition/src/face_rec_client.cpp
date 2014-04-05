@@ -51,7 +51,7 @@ void feedbackCb(const face_recognition::FaceRecognitionFeedbackConstPtr& feedbac
 // Client processes each message and sends the corresponding
 // goal to the server and registers feedback and result and status call back functions.
 //=================================================
-void frclientCallback(const face_recognition::FRClientGoalConstPtr& msg)
+void frclientCallback(const face_recognition::FaceRecognitionGoalConstPtr& msg)
 {
 	ROS_INFO("request for sending goal [%i] is received", msg->order_id);
 	goal.order_id = msg->order_id;
