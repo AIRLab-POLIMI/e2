@@ -12,6 +12,7 @@
 #include "Navigation.h"
 #include "e2_msgs/Goto.h"
 #include "e2_msgs/Train.h"
+#include "e2_msgs/Talk.h"
 #include "e2_msgs/NeckAction.h"
 #include "std_srvs/Empty.h"
 #include "nav_msgs/Odometry.h"
@@ -30,6 +31,7 @@ bool Gotocallback(e2_msgs::Goto::Request& request, e2_msgs::Goto::Response& resp
 bool Startcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
 bool Neckcallback(e2_msgs::NeckAction::Request& request, e2_msgs::NeckAction::Response& response);
 bool Traincallback(e2_msgs::Train::Request& request, e2_msgs::Train::Response& response);
+bool Talkcallback(e2_msgs::Talk::Request& request, e2_msgs::Talk::Response& response);
 
 using namespace std;
 
@@ -56,6 +58,7 @@ int main(int argc, char **argv)
 	ros::ServiceServer start_service = nh.advertiseService("start",Startcallback);
 	ros::ServiceServer goto_service = nh.advertiseService("goto",Gotocallback);
 	ros::ServiceServer neck_service = nh.advertiseService("neckaction",Neckcallback);
+	ros::ServiceServer talk_service = nh.advertiseService("talk",Traincallback);
 	ros::ServiceServer train_service = nh.advertiseService("train",Traincallback);
 
 	// Suscribers && Publishers for input messages
@@ -126,6 +129,20 @@ bool Gotocallback(e2_msgs::Goto::Request& request, e2_msgs::Goto::Response& resp
 bool Neckcallback(e2_msgs::NeckAction::Request& request, e2_msgs::NeckAction::Response& response)
 {
 	navigation->irobot.NeckAction(request.action,request.sub_action);
+	return true;
+}
+
+//=====================================
+// Service to test robot voice
+//=====================================
+bool Talkcallback(e2_msgs::Talk::Request& request, e2_msgs::Talk::Response& response)
+{
+	if(strcmp(request.text.c_str(), "") == 0)
+	{
+		ROS_INFO("["ROS_NODE_NAME"]:: Empty string. Cant test voice. Abort");
+		return false;
+	}
+	navigation->irobot.Talk(request.text);
 	return true;
 }
 
