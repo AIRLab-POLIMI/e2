@@ -10,6 +10,10 @@
   text: "Non sono riuscito a memorizzare il tuo volto."
   duration: 150
 
+- id: follow_me
+  text: "Seguimi. Ti portero nel nostro stand."
+  duration: 150
+
 - id: joke_1
   text: "Squilla il telefono, un robot si avvicina e chiede: Che cosa parla?"
   duration: 150
