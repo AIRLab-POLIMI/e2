@@ -1,0 +1,5 @@
+#request field
+string text
+---
+#response fields
+bool result
