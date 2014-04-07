@@ -23,7 +23,7 @@ void doneCb(const actionlib::SimpleClientGoalState& state, 	const face_recogniti
 	ROS_INFO("Goal [%i] Finished in state [%s]", result->order_id,state.toString().c_str());
 	if(state.toString() != "SUCCEEDED") return;
 	if( result->order_id==0)
-		ROS_INFO("%s was recognized with confidence %f", result->names[0].c_str(),result->confidence[0]);
+		ROS_INFO("%s was recognized with confidence %f at distance %f", result->names[0].c_str(),result->confidence[0],result->distance[0]);
 	if( result->order_id==2)
 		ROS_INFO("Pictures of %s were successfully added to the training images",result->names[0].c_str());
 }
@@ -42,7 +42,7 @@ void feedbackCb(const face_recognition::FaceRecognitionFeedbackConstPtr& feedbac
 {
 	ROS_INFO("Received feedback from Goal [%d] ", feedback->order_id);
 	if(feedback->order_id==1 )
-		ROS_INFO("%s was recognized with confidence %f", feedback->names[0].c_str(),feedback->confidence[0]);
+		ROS_INFO("%s was recognized with confidence %f at distance %f", feedback->names[0].c_str(),feedback->confidence[0],feedback->distance[0]);
 	if( feedback->order_id==2)
 		ROS_INFO("A picture of %s was successfully added to the training images",feedback->names[0].c_str());
 }

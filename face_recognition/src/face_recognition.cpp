@@ -5,6 +5,7 @@
 #include "ros/package.h"
 #include <actionlib/server/simple_action_server.h>
 #include <face_recognition/FaceRecognitionAction.h>
+#include <face_recognition/FaceRecognitionResult.h>
 
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
@@ -38,6 +39,7 @@ class FaceRecognition {
 
 public:
 
+	// Better use registered depth topic but use default to avoid an excessive load over the network
 	FaceRecognition(std::string name) :
 		frl(),
 		it_(nh_),
@@ -261,7 +263,7 @@ public:
 		try
 		{
 			cv_ptr_rgb = cv_bridge::toCvCopy(msg_rgb);
-			cv_ptr_depth = cv_bridge::toCvCopy(msg_depth,image_encodings::TYPE_16UC1);
+			cv_ptr_depth = cv_bridge::toCvCopy(msg_depth,image_encodings::TYPE_32FC1);
 		}
 		catch (cv_bridge::Exception& e)
 		{
@@ -318,14 +320,14 @@ public:
 
 
 		cvRectangle(img_rgb, cvPoint(faceRect.x, faceRect.y),cvPoint(faceRect.x + faceRect.width - 1,faceRect.y + faceRect.height - 1), CV_RGB(0,255,0), 1,8, 0);
-		cvCircle(img_depth, cvPoint(faceRect.x+faceRect.width/2, faceRect.y+faceRect.height/2), 10,  CV_RGB(0,255,255), 3, 8, 0 );
+		cvCircle(img_depth, cvPoint(faceRect.x+faceRect.width/2, faceRect.y+faceRect.height/2), 10,  CV_RGB(255,0,0), 3, 8, 0 );
 		float x = faceRect.x+faceRect.width/2;
 		float y = faceRect.y+faceRect.height/2;
 		float distance = cv_ptr_depth->image.at<float>(x,y);
 
 		text_image.str("");
-		text_image << "Distance:  " <<  distance << endl;
-		cvPutText(img_depth, text_image.str().c_str(), cvPoint(10, 50), &font,textColor);
+		text_image << "Distance:  " <<  distance << "mm" <<endl;
+		cvPutText(img_rgb, text_image.str().c_str(), cvPoint(20, 50), &font,CV_RGB(255,0,0));
 
 		faceImg = frl.cropImage(greyImg, faceRect); // Get the detected face image.
 
@@ -478,6 +480,7 @@ public:
 				{
 					result_.names.push_back(frl.personNames[nearest - 1].c_str());
 					result_.confidence.push_back(confidence);
+					result_.distance.push_back(distance);
 					as_.setSucceeded(result_);
 				}
 				else
@@ -486,8 +489,10 @@ public:
 					ROS_INFO("[FaceRecognition]:: detected %s  confidence %f ", frl.personNames[nearest-1].c_str(), confidence);
 					feedback_.names.clear();
 					feedback_.confidence.clear();
+					feedback_.distance.clear();
 					feedback_.names.push_back(frl.personNames[nearest - 1].c_str());
 					feedback_.confidence.push_back(confidence);
+					feedback_.distance.push_back(distance);
 					as_.publishFeedback(feedback_);
 				}
 
