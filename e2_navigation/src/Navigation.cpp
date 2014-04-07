@@ -16,7 +16,11 @@ using namespace std;
 //=================================================================
 // Class Constructor
 //=================================================================
-Navigation::Navigation(ros::NodeHandle *nh, string marker_config,string speech_config,int rate,bool en_neck,bool en_voice,bool en_train) :
+Navigation::Navigation(
+		ros::NodeHandle *nh,
+		string marker_config,
+		string speech_config,
+		int rate,bool en_neck,bool en_voice,bool en_train) :
 		irobot(en_neck,en_voice,en_train)
 {
 	Handle = nh;
