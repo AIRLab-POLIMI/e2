@@ -7,6 +7,6 @@
 	<include file="$(find e2_launch)/launch/e2_neck_controller.launch" />
 	
 	<!-- Joystick -->
-	<include file="$(find triskar)/launch/teleop_joy.launch" />
+	<!--<include file="$(find triskar)/launch/teleop_joy.launch" /> -->
 	
 </launch>
