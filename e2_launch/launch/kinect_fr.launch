@@ -10,7 +10,7 @@
   <param name="use_sim_time" value="false" />
 	
    <!-- Rviz -->
-   <node name="rviz" pkg="rviz" type="rviz" />
+   <node name="rviz" pkg="rviz" type="rviz" args="-d /home/jackal/.rviz/kinect.rviz"/>
    
    <!-- Recognition Nodes -->
    <node name="face_recognition" pkg="face_recognition" type="face_recognition_node" respawn="false" output="screen">
