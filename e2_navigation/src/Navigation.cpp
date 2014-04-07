@@ -60,10 +60,13 @@ Navigation::Navigation(ros::NodeHandle *nh, string marker_config,string speech_c
 	ROS_INFO("[Navigation]:: Loaded Marker Config %s with %d markers", marker_config.c_str(),(int)doc_marker.size());
 	ROS_INFO("[Navigation]:: Loaded Speech Config %s with %d conversations", speech_config.c_str(),(int)doc_speech.size());
 
+	irobot.NeckAction(2,1); // Staigth neck position
+
 }
 
 Navigation::~Navigation()
 {
+	irobot.NeckAction(4,1); // Turn off neck
 	irobot.~RobotInterface();
 }
 
@@ -89,7 +92,6 @@ void Navigation::Controller()
 			if(!path_planned)
 			{
 				NavigateTo(target_name);
-
 				abort_timeout.start();
 				detect_timeout.start();
 				path_planned = true;
@@ -104,7 +106,6 @@ void Navigation::Controller()
 		{	/* Looking for user */
 
 			//NewTask();
-			//irobot.NeckAction(1);
 
 		}
 		r.sleep();
@@ -148,6 +149,9 @@ void Navigation::NewTask()
 	else
 		active_task = true;
 
+	irobot.NeckAction(2,2);	//	Invitation Left
+	irobot.Talk(getSpeechById("follow_me"));
+	irobot.NeckAction(2,1);	//	Straight again
 }
 
 //=================================================================

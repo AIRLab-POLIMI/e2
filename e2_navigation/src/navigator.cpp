@@ -16,7 +16,7 @@
 #include "std_srvs/Empty.h"
 #include "nav_msgs/Odometry.h"
 
-#define ROS_NODE_RATE	1
+#define ROS_NODE_RATE	30
 #define ROS_NODE_NAME	"e2_navigation"
 
 Navigation *navigation;
