@@ -1,0 +1,21 @@
+<launch> 
+
+   <param name="use_sim_time" value="false" />
+
+   <!-- Static Transform -->
+   <node pkg="tf" type="static_transform_publisher" name="odom_to_map"
+    	args="0.0 0 0 0 0 0  /map /odom 100" />
+
+   <!-- Odom & Tf -->
+   <include file="$(find e2_launch)/launch/e2_odometry.launch" /> 
+
+   <!-- Run the map server -->
+   <node name="map_server" pkg="map_server" type="map_server" args="$(find e2_navigation)/map/airlab/map.yaml"/>
+
+   <!-- Joystick -->
+   <!-- <node name="joy" pkg="triskar" type="map_server" args="$(find triskar)/launch/teleop_joy.launch"/> -->
+
+   <!-- rviz -->
+   <node name="rviz" pkg="rviz" type="rviz" />
+
+</launch>

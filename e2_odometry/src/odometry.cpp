@@ -99,6 +99,40 @@ Odometry::~Odometry()
 };
 
 //==================================================================
+//	Calculate new position xy of the robot using wheel data
+//==================================================================
+void Odometry::calc_delta_xy(double phi_1,double phi_2,double phi_3)
+{
+
+	delta_x = WHEEL_RADIUS / ( 3 * sin( M_PI / 3 ) )  *
+										(
+												( cos( M_PI / 3 +  th  ) - cos( M_PI / 3 -  th ) ) * phi_1 +
+												( -cos(th) - cos( M_PI / 3 +  th  ) ) * phi_2 +
+												( cos(th) + cos( M_PI / 3 -  th ) ) * phi_3
+										) ;
+
+	delta_y = WHEEL_RADIUS / ( 3 * sin( M_PI / 3 ) )  *
+										(
+												( sin( M_PI / 3 -  th ) + sin( M_PI / 3 +  th  ) ) * phi_1 +
+												( -sin(th) - sin( M_PI / 3 +  th  ) ) * phi_2 +
+												( sin(th) - sin( M_PI / 3 -  th ) ) * phi_3
+										);
+	x += delta_x;	// Update new value
+	y += delta_y; // Update new value
+
+}
+
+//==================================================================
+//	Calculate new robot orientation th using wheel data
+//==================================================================
+void Odometry::calc_delta_th(double phi_1,double phi_2,double phi_3)
+{
+	delta_th = ( WHEEL_RADIUS / ( 3 * L_DISTANCE) ) * ( phi_1 + phi_2 + phi_3 ) ;
+	th += delta_th;	// Update new value
+}
+
+
+//==================================================================
 //		Calculate odometry data based on robot wheel velocity from encoders (Triskar base) Direct Method
 //==================================================================
 void Odometry::UpdateOdometryEncoder()
@@ -106,7 +140,7 @@ void Odometry::UpdateOdometryEncoder()
 	current_time=ros::Time::now();
 	elapsed = (current_time - last_time).toSec();
 
-	// TODO - Fix and check data from encoders
+	// TODO - Solve bug on triskar encoders
 	double phi_1,phi_2,phi_3;
 
 	//Add calc for phi
@@ -114,27 +148,21 @@ void Odometry::UpdateOdometryEncoder()
 	phi_2 = enc2_vel * elapsed ;
 	phi_3 = enc3_vel * elapsed ;
 
-	//Calculate delta theta
-	delta_th = ( WHEEL_RADIUS / ( 3 * L_DISTANCE) ) * ( phi_1 + phi_2 + phi_3 ) ;
-
-	// Calculate new position
-	delta_x = WHEEL_RADIUS / ( 3 * sin( M_PI / 3 ) )  *
-										(
-												( cos( M_PI / 3 +  delta_th  ) - cos( M_PI / 3 -  delta_th ) ) * phi_1 +
-												( -cos(delta_th) - cos( M_PI / 3 +  delta_th  ) ) * phi_2 +
-												( cos(delta_th) + cos( M_PI / 3 -  delta_th ) ) * phi_3
-										) ;
-
-	delta_y = WHEEL_RADIUS / ( 3 * sin( M_PI / 3 ) )  *
-										(
-												( sin( M_PI / 3 -  delta_th ) + sin( M_PI / 3 +  delta_th  ) ) * phi_1 +
-												( -sin(delta_th) - sin( M_PI / 3 +  delta_th  ) ) * phi_2 +
-												( sin(delta_th) - sin( M_PI / 3 -  delta_th ) ) * phi_3
-										);
-
-	x += delta_x;
-	y += delta_y;
-	th += delta_th;
+	if(fabs(vx)>0 && fabs(vr)>0 )
+	{
+		calc_delta_th(phi_1,phi_2,phi_3);
+		//calc_delta_xy(phi_1,phi_2,phi_3);
+		calc_delta_xy(0,phi_2,-phi_2);	 // Used to solve problem with triskar encoder bug
+	}
+	else if(fabs(vx)>0 && fabs(vr) == 0)
+	{
+		//calc_delta_xy(phi_1,phi_2,phi_3);
+		calc_delta_xy(0,phi_2,-phi_2);	// Used to solve problem with triskar encoder bug
+	}
+	else if(fabs(vx)==0 && fabs(vr) > 0)
+	{
+		calc_delta_th(-phi_1,-phi_2,-phi_3);
+	}
 
 	// Update odom quaternion
 	odom_quat.x = 0;

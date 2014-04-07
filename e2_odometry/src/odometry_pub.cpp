@@ -20,7 +20,7 @@
 #include "r2p/EncoderStamped.h"
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 
-#define ROS_NODE_RATE	100
+#define ROS_NODE_RATE	30
 #define ROS_NODE_NAME	"odometry_pub"
 
 #define VEL_X_MOTOR_START 0.12
@@ -152,11 +152,11 @@ void getRobotVelocity(const r2p::VelocityConstPtr& msg)
 	odom->vy = 0.0;
 	odom->vr = 0.0;
 
-	if(abs(msg->x)>=VEL_X_MOTOR_START)
+	if(fabs(msg->x)>=VEL_X_MOTOR_START)
 			odom->vx = msg->x;
-	if(abs(msg->y)>=VEL_Y_MOTOR_START)
+	if(fabs(msg->y)>=VEL_Y_MOTOR_START)
 			odom->vy = msg->y;
-	if(abs(msg->w)>=VEL_W_MOTOR_START)
+	if(fabs(msg->w)>=VEL_W_MOTOR_START)
 			odom->vr = msg->w;
 
 	if(!odom->encoder_enabled)
