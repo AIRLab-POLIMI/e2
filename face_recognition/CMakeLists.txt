@@ -47,11 +47,11 @@ find_package(OpenCV REQUIRED)
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
+ add_message_files(
+   FILES
 #   Message1.msg
 #   Message2.msg
-# )
+ )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -84,7 +84,7 @@ find_package(OpenCV REQUIRED)
 catkin_package(
 #  INCLUDE_DIRS include
   LIBRARIES face_recognition
-  #CATKIN_DEPENDS actionlib actionlib_msgs cv_bridge image_transport roscpp roslib 
+  CATKIN_DEPENDS actionlib actionlib_msgs cv_bridge image_transport roscpp roslib
   #DEPENDS system_lib
 )
 
