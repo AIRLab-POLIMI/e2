@@ -161,7 +161,7 @@ void Odometry::UpdateOdometryEncoder()
 	}
 	else if(fabs(vx)==0 && fabs(vr) > 0)
 	{
-		calc_delta_th(phi_1,phi_2,phi_3);
+		calc_delta_th(-phi_1,-phi_2,-phi_3);
 	}
 
 	// Update odom quaternion
