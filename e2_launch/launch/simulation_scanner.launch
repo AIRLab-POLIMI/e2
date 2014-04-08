@@ -3,14 +3,14 @@
 
   <!-- Fake Laser Standalone nodelet-->
   <node pkg="nodelet" type="nodelet" name="vrep_laser" args="standalone pointcloud_to_laserscan/CloudToScan" respawn="true">
-
-  <param name="output_frame_id" value="/laser_scan"/>
-  <param name="min_height" value="0.10"/>
-  <param name="max_height" value="0.20"/>
-  <param name="range_min" value="0.45"/>
-  <param name="range_max" value="15.0"/>
-
-
+  	<param name="output_frame_id" value="/laser_scan"/>
+  	<param name="min_height" value="0.10"/>
+  	<param name="max_height" value="0.20"/>
+  	<param name="range_min" value="0.45"/>
+  	<param name="range_max" value="15.0"/>
   </node> 
-
+  
+  <!-- Publish Fake kinect images -->
+  <node pkg="e2_simulator" type="e2_depthbuffer_to_img" name="e2_depthbuffer_to_img"/> 
+  
 </launch>
