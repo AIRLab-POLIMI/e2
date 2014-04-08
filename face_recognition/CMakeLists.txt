@@ -47,11 +47,11 @@ find_package(OpenCV REQUIRED)
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
+ add_message_files(
+   FILES
 #   Message1.msg
 #   Message2.msg
-# )
+ )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -84,7 +84,7 @@ find_package(OpenCV REQUIRED)
 catkin_package(
 #  INCLUDE_DIRS include
   LIBRARIES face_recognition
-  #CATKIN_DEPENDS actionlib actionlib_msgs cv_bridge image_transport roscpp roslib 
+  CATKIN_DEPENDS actionlib actionlib_msgs cv_bridge image_transport roscpp roslib
   #DEPENDS system_lib
 )
 
@@ -106,6 +106,7 @@ include_directories(
 
 ## Declare a cpp executable
  add_executable(face_recognition_node src/face_recognition.cpp)
+ add_executable(face_recognition_client src/face_rec_client.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -113,6 +114,10 @@ include_directories(
 
 ## Specify libraries to link a library or executable target against
  target_link_libraries(face_recognition_node
+   ${catkin_LIBRARIES}
+   ${OpenCV_LIBS}
+ )
+  target_link_libraries(face_recognition_client
    ${catkin_LIBRARIES}
    ${OpenCV_LIBS}
  )

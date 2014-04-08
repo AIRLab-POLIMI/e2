@@ -42,8 +42,8 @@ find_package(catkin REQUIRED std_msgs message_generation)
 ## Generate messages in the 'msg' folder
  add_message_files(
    FILES
-#   Encoder.msg
-#   EncoderStamped.msg
+   Encoder.msg
+   EncoderStamped.msg
    Velocity.msg
  )
 
@@ -65,8 +65,8 @@ find_package(catkin REQUIRED std_msgs message_generation)
 
 ## Generate added messages and services with any dependencies listed here
  generate_messages(
-#   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
+   DEPENDENCIES
+   std_msgs  # Or other packages containing msgs
  )
 
 ###################################

@@ -5,7 +5,8 @@
 #include "ros/package.h"
 #include <actionlib/server/simple_action_server.h>
 #include <face_recognition/FaceRecognitionAction.h>
-#include <image_transport/image_transport.h>
+#include <face_recognition/FaceRecognitionResult.h>
+
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -21,19 +22,36 @@
 #include <boost/filesystem.hpp>
 #include <dirent.h>
 
+#include <image_transport/image_transport.h>
+#include <message_filters/synchronizer.h>
+#include <message_filters/sync_policies/approximate_time.h>
+
+#include <message_filters/subscriber.h>
+#include <message_filters/time_synchronizer.h>
+#include <sensor_msgs/image_encodings.h>
+
 #define RATE 4 // Hz
 
 using namespace std;
+using namespace sensor_msgs;
 
 class FaceRecognition {
 
 public:
 
-	FaceRecognition(std::string name) : frl(), it_(nh_), as_(nh_, name,boost::bind(&FaceRecognition::executeCB, this, _1), false)
+	// Better use registered depth topic but use default to avoid an excessive load over the network
+	FaceRecognition(std::string name) :
+		frl(),
+		it_(nh_),
+		rgb_image_sub_( nh_ , "/camera/rgb/image_raw", 1 ),
+		depth_image_sub_( nh_ , "/camera/depth/image_raw", 1 ),
+		sync( MySyncPolicy( 10 ), rgb_image_sub_, depth_image_sub_ ),
+		as_(nh_, name,boost::bind(&FaceRecognition::executeCB, this, _1), false)
 	{
 		ros::NodeHandle nh("~");
 
-		cvNamedWindow("Input", CV_WINDOW_AUTOSIZE);
+		cvNamedWindow("rgb", CV_WINDOW_AUTOSIZE);
+		cvNamedWindow("depth", CV_WINDOW_AUTOSIZE);
 		cvInitFont(&font, CV_FONT_HERSHEY_PLAIN, 1.0, 4.0, 2, 2, CV_AA);
 
 		goal_id_ = -99;
@@ -52,21 +70,18 @@ public:
 			frl.database_updated = false;
 			ROS_INFO("[FaceRecognition]:: Alert: Database is not updated, You better (re)train from images!");
 		}
-		string rgb_camera_topic, depth_camera_topic;
-		nh.param<string>("rgb_camera", rgb_camera_topic, "/camera/rgb/image_raw");
-		nh.param<string>("depth_camera", depth_camera_topic, "/camera/depth/image_raw");
 
-		ROS_INFO("[FaceRecognition]:: rgb camera: %s",rgb_camera_topic.c_str());
-		rgb_image_sub_ = it_.subscribe(rgb_camera_topic, 1,&FaceRecognition::imageCB, this); 								// Real image stream
+		ROS_INFO("[FaceRecognition]:: rgb camera: %s","/camera/rgb/image_raw");
+		ROS_INFO("[FaceRecognition]:: depth camera: %s","/camera/depth/image_raw");
 
-		//ROS_INFO("[FaceRecognition]:: depth camera: %s",depth_camera_topic.c_str());
-		//depth_image_sub_ = it_.subscribe(depth_camera_topic, 1,&FaceRecognition::imageCB, this); 						// Depth image stream
+		sync.registerCallback( boost::bind( &FaceRecognition::imageCB, this, _1, _2 ) );
 
 	}
 
 	~FaceRecognition(void)
 	{
-		cvDestroyWindow("Input");
+		cvDestroyWindow("rgb");
+		cvDestroyWindow("depth");
 	}
 
 	//==============================================================
@@ -228,24 +243,30 @@ public:
 	//==============================================================
 	//	Image callback
 	//==============================================================
-	void imageCB(const sensor_msgs::ImageConstPtr& msg) {
+	void imageCB(const sensor_msgs::ImageConstPtr& msg_rgb, const sensor_msgs::ImageConstPtr& msg_depth)
+	{
 		//to synchronize with executeCB function.
 		//as far as the goal id is 0, 1 or 2, it's active and there is no preempting request, imageCB function is proceed.
 		if (!as_.isActive() || goal_id_ > 2)
 			return;
 		if (!mutex_.try_lock())
 			return;
-		if (as_.isPreemptRequested()) {
+		if (as_.isPreemptRequested())
+		{
 			ROS_INFO("[FaceRecognition]:: Goal %d is preempted", goal_id_);
 			as_.setPreempted();
 			mutex_.unlock();
 			return;
 		}
-		cv_bridge::CvImagePtr cv_ptr;
+		cv_bridge::CvImagePtr cv_ptr_rgb,cv_ptr_depth;
 		//convert from ros image format to opencv image format
-		try {
-			cv_ptr = cv_bridge::toCvCopy(msg);
-		} catch (cv_bridge::Exception& e) {
+		try
+		{
+			cv_ptr_rgb = cv_bridge::toCvCopy(msg_rgb);
+			cv_ptr_depth = cv_bridge::toCvCopy(msg_depth,image_encodings::TYPE_32FC1);
+		}
+		catch (cv_bridge::Exception& e)
+		{
 			ROS_ERROR("cv_bridge exception: %s", e.what());
 			as_.setPreempted();
 			ROS_INFO("[FaceRecognition]:: Goal %d is preempted", goal_id_);
@@ -255,8 +276,11 @@ public:
 
 		ros::Rate r(RATE);
 
-		IplImage img_input = cv_ptr->image;
-		IplImage *img = cvCloneImage(&img_input);
+		IplImage img_input_rgb = cv_ptr_rgb->image;
+		IplImage img_input_depth = cv_ptr_depth->image;
+		IplImage *img_rgb = cvCloneImage(&img_input_rgb);
+		IplImage *img_depth = cvCloneImage(&img_input_depth);
+
 		IplImage *greyImg;
 		IplImage *faceImg;
 		IplImage *sizedImg;
@@ -264,7 +288,7 @@ public:
 		CvRect faceRect;
 
 		// Make sure the image is greyscale, since the Eigenfaces is only done on greyscale image.
-		greyImg = frl.convertImageToGreyscale(img);
+		greyImg = frl.convertImageToGreyscale(img_rgb);
 		// Perform face detection on the input image, using the given Haar cascade classifier.
 		faceRect = frl.detectFaceInImage(greyImg, frl.faceCascade);
 
@@ -275,16 +299,18 @@ public:
 			text_image.str("");
 			text_image << "No face was detected. ";
 
-			cvPutText(img, text_image.str().c_str(), cvPoint(10, faceRect.y + 50), &font, textColor);
+			cvPutText(img_rgb, text_image.str().c_str(), cvPoint(10, faceRect.y + 50), &font, textColor);
 
 			if (show_screen_flag)
 			{
-				cvShowImage("Input", img);
+				cvShowImage("rgb", img_rgb);
+				cvShowImage("depth", img_depth);
 				cvWaitKey(1);
 			}
 
 			cvReleaseImage(&greyImg);
-			cvReleaseImage(&img);
+			cvReleaseImage(&img_rgb);
+			cvReleaseImage(&img_depth);
 
 			r.sleep();
 
@@ -292,7 +318,17 @@ public:
 			return;
 		}
 
-		cvRectangle(img, cvPoint(faceRect.x, faceRect.y),cvPoint(faceRect.x + faceRect.width - 1,faceRect.y + faceRect.height - 1), CV_RGB(0,255,0), 1,8, 0);
+
+		cvRectangle(img_rgb, cvPoint(faceRect.x, faceRect.y),cvPoint(faceRect.x + faceRect.width - 1,faceRect.y + faceRect.height - 1), CV_RGB(0,255,0), 1,8, 0);
+		cvCircle(img_depth, cvPoint(faceRect.x+faceRect.width/2, faceRect.y+faceRect.height/2), 10,  CV_RGB(255,0,0), 3, 8, 0 );
+		float x = faceRect.x+faceRect.width/2;
+		float y = faceRect.y+faceRect.height/2;
+		float distance = cv_ptr_depth->image.at<float>(x,y);
+
+		text_image.str("");
+		text_image << "Distance:  " <<  distance << "mm" <<endl;
+		cvPutText(img_rgb, text_image.str().c_str(), cvPoint(20, 50), &font,CV_RGB(255,0,0));
+
 		faceImg = frl.cropImage(greyImg, faceRect); // Get the detected face image.
 
 		// Make sure the image is the same dimensions as the training images.
@@ -311,7 +347,8 @@ public:
 		{
 			ROS_INFO("[FaceRecognition]:: Goal %d is preempted", goal_id_);
 			cvReleaseImage(&equalizedImg);
-			cvReleaseImage(&img);
+			cvReleaseImage(&img_rgb);
+			cvReleaseImage(&img_depth);
 			as_.setPreempted();
 			ROS_INFO("[FaceRecognition]:: Goal %d is preempted", goal_id_);
 			mutex_.unlock();
@@ -322,8 +359,10 @@ public:
 		ros::param::getCached("show_screen_flag", show_screen_flag);
 
 		//goal is add_face_images
-		if (goal_id_ == 2) {
-			if (add_face_count == 0) {
+		if (goal_id_ == 2)
+		{
+			if (add_face_count == 0)
+			{
 				//assign the correct number for the new person
 				person_number = calcNumTrainingPerson(frl.train_filename) + 1;
 			}
@@ -358,7 +397,7 @@ public:
 
 			text_image.str("");
 			text_image << "A picture of " << &goal_argument_[0] << "was added" << endl;
-			cvPutText(img, text_image.str().c_str(), cvPoint(10, 50), &font,textColor);
+			cvPutText(img_rgb, text_image.str().c_str(), cvPoint(10, 50), &font,textColor);
 
 			//check if enough number of training images for the person has been acquired, then the goal is succeed.
 			if (++add_face_count == add_face_number)
@@ -368,12 +407,14 @@ public:
 
 				if (show_screen_flag)
 				{
-					cvShowImage("Input", img);
+					cvShowImage("rgb", img_rgb);
+					cvShowImage("depth", img_depth);
 					cvWaitKey(1);
 				}
 
 				cvReleaseImage(&equalizedImg);
-				cvReleaseImage(&img);
+				cvReleaseImage(&img_rgb);
+				cvReleaseImage(&img_depth);
 				mutex_.unlock();
 				return;
 			}
@@ -382,7 +423,7 @@ public:
 			feedback_.confidence.clear();
 			feedback_.names.push_back(goal_argument_);
 
-			//      feedback_.confidence.push_back();
+			// feedback_.confidence.push_back();
 			as_.publishFeedback(feedback_);
 		}
 
@@ -400,7 +441,8 @@ public:
 			{
 				ROS_INFO("[FaceRecognition]:: NO database available, goal is Aborted");
 				cvReleaseImage(&equalizedImg);
-				cvReleaseImage(&img);
+				cvReleaseImage(&img_rgb);
+				cvReleaseImage(&img_depth);
 				ROS_INFO("[FaceRecognition]:: Goal %d is Aborted", goal_id_);
 				as_.setAborted();
 				mutex_.unlock();
@@ -426,18 +468,19 @@ public:
 			{
 				ROS_INFO("[FaceRecognition]:: Confidence is less than %f, detected face is not considered.", (float)confidence_value);
 				text_image << "Confidence is less than " << confidence_value;
-				cvPutText(img, text_image.str().c_str(),cvPoint(faceRect.x, faceRect.y + faceRect.height + 25),&font, textColor);
+				cvPutText(img_rgb, text_image.str().c_str(),cvPoint(faceRect.x, faceRect.y + faceRect.height + 25),&font, textColor);
 			}
 			else
 			{
 				text_image << frl.personNames[nearest - 1].c_str()	<< " is recognized";
-				cvPutText(img, text_image.str().c_str(),cvPoint(faceRect.x, faceRect.y + faceRect.height + 25),&font, textColor);
+				cvPutText(img_rgb, text_image.str().c_str(),cvPoint(faceRect.x, faceRect.y + faceRect.height + 25),&font, textColor);
 
 				//goal is to recognize_once, therefore set as succeeded.
 				if (goal_id_ == 0)
 				{
 					result_.names.push_back(frl.personNames[nearest - 1].c_str());
 					result_.confidence.push_back(confidence);
+					result_.distance.push_back(distance);
 					as_.setSucceeded(result_);
 				}
 				else
@@ -446,8 +489,10 @@ public:
 					ROS_INFO("[FaceRecognition]:: detected %s  confidence %f ", frl.personNames[nearest-1].c_str(), confidence);
 					feedback_.names.clear();
 					feedback_.confidence.clear();
+					feedback_.distance.clear();
 					feedback_.names.push_back(frl.personNames[nearest - 1].c_str());
 					feedback_.confidence.push_back(confidence);
+					feedback_.distance.push_back(distance);
 					as_.publishFeedback(feedback_);
 				}
 
@@ -456,18 +501,19 @@ public:
 		}
 		if (show_screen_flag)
 		{
-			cvShowImage("Input", img);
+			cvShowImage("rgb", img_rgb);
+			cvShowImage("depth", img_depth);
 			cvWaitKey(1);
 		}
 		cvReleaseImage(&equalizedImg);
-		cvReleaseImage(&img);
+		cvReleaseImage(&img_rgb);
+		cvReleaseImage(&img_depth);
 		r.sleep();
 		mutex_.unlock();
 		return;
 	}
 
 protected:
-
 	boost::mutex mutex_; 																				//for synchronization between executeCB and imageCB
 	std::string goal_argument_;
 	int goal_id_;
@@ -481,12 +527,20 @@ protected:
 	CvFont font;
 	CvScalar textColor;
 	ostringstream text_image;
+
 	ros::NodeHandle nh_;
 	FaceRecognitionLib frl;
+
+	typedef message_filters::Subscriber< sensor_msgs::Image > ImageSubscriber;
 	image_transport::ImageTransport it_;
-	image_transport::Subscriber rgb_image_sub_, depth_image_sub_;
+	ImageSubscriber rgb_image_sub_, depth_image_sub_;
+
+	typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image, sensor_msgs::Image> MySyncPolicy;
+	message_filters::Synchronizer< MySyncPolicy > sync;
+
 	actionlib::SimpleActionServer<face_recognition::FaceRecognitionAction> as_;
 	int person_number; 																					//the number of persons in the train file (train.txt)
+
 };
 
 
