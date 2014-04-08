@@ -318,7 +318,6 @@ public:
 			return;
 		}
 
-
 		cvRectangle(img_rgb, cvPoint(faceRect.x, faceRect.y),cvPoint(faceRect.x + faceRect.width - 1,faceRect.y + faceRect.height - 1), CV_RGB(0,255,0), 1,8, 0);
 		cvCircle(img_depth, cvPoint(faceRect.x+faceRect.width/2, faceRect.y+faceRect.height/2), 10,  CV_RGB(255,0,0), 3, 8, 0 );
 		float x = faceRect.x+faceRect.width/2;

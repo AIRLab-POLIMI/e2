@@ -160,8 +160,10 @@ class FaceRecognitionLib
 CvRect FaceRecognitionLib::detectFaceInImage(const IplImage *inputImg, const CvHaarClassifierCascade* cascade)
 {
 	const CvSize minFeatureSize = cvSize(20, 20);
-	const int flags = CV_HAAR_FIND_BIGGEST_OBJECT | CV_HAAR_DO_ROUGH_SEARCH; // Only search for 1 face.
+	const int flags = CV_HAAR_FIND_BIGGEST_OBJECT | CV_HAAR_DO_ROUGH_SEARCH;
 	const float search_scale_factor = 1.1f;
+	//const int flags = CV_HAAR_DO_CANNY_PRUNING;
+	//const float search_scale_factor = 1.2f;
 	IplImage *detectImg;
 	IplImage *greyImg = 0;
 	CvMemStorage* storage;
@@ -173,20 +175,17 @@ CvRect FaceRecognitionLib::detectFaceInImage(const IplImage *inputImg, const CvH
 	cvClearMemStorage(storage);
 
 	// If the image is color, use a greyscale copy of the image.
-	detectImg = (IplImage*) inputImg; // Assume the input image is to be used.
-	if (inputImg->nChannels > 1) {
-		greyImg = cvCreateImage(cvSize(inputImg->width, inputImg->height),
-				IPL_DEPTH_8U, 1);
+	detectImg = (IplImage*) inputImg;
+	if (inputImg->nChannels > 1)
+	{
+		greyImg = cvCreateImage(cvSize(inputImg->width, inputImg->height), IPL_DEPTH_8U, 1);
 		cvCvtColor(inputImg, greyImg, CV_BGR2GRAY);
-		detectImg = greyImg; // Use the greyscale version as the input.
+		detectImg = greyImg;
 	}
 
-	// Detect all the faces.
-	//t = (double)cvGetTickCount();
+	// Detect faces.
 	rects = cvHaarDetectObjects(detectImg, (CvHaarClassifierCascade*) cascade,storage, search_scale_factor, 3, flags, minFeatureSize);
-	//t = (double)cvGetTickCount() - t;
-	//ROS_INFO("[Face Detection took %d ms and found %d objects]\n", cvRound( t/((double)cvGetTickFrequency()*1000.0) ), rects->total );
-	ROS_INFO("[FaceRecognition]:: Detected %d faces!",rects->total);
+	//ROS_INFO("[FaceRecognition]:: Detected %d faces!",rects->total);
 
 	// Get the first detected face (the biggest).
 	if (rects->total > 0) {
@@ -364,8 +363,7 @@ bool FaceRecognitionLib::learn(char *szFileTrain)
 
 	ROS_INFO("Got %d training images.\n", nTrainFaces);
 	if (nTrainFaces < 2) {
-		fprintf(stderr, "Need 2 or more training faces"
-				"Input file contains only %d", nTrainFaces);
+		fprintf(stderr, "Need 2 or more training faces Input file contains only %d", nTrainFaces);
 		return false;
 	}
 
