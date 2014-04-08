@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   tf
   e2_msgs
+  pcl_ros
 )
 
 ## System dependencies are found with CMake's conventions
@@ -87,7 +88,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
   LIBRARIES e2_simulator
-  CATKIN_DEPENDS actionlib move_base_msgs nav_msgs roscpp message_runtime tf e2_msgs
+  CATKIN_DEPENDS actionlib move_base_msgs nav_msgs roscpp message_runtime tf e2_msgs pcl_ros
   DEPENDS system_lib
 )
 
@@ -111,6 +112,7 @@ include_directories(
 add_executable(base_controller src/base_controller.cpp)
 add_executable(e2_fake_odom src/e2_fake_odom.cpp)
 add_executable(e2_fake_encoder src/e2_fake_encoder.cpp)
+add_executable(e2_pointcloud_to_depth src/e2_pointcloud_to_depth.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -121,6 +123,7 @@ add_dependencies(e2_fake_encoder e2_msgs_generate_messages_cpp)
 target_link_libraries(base_controller ${catkin_LIBRARIES} )
 target_link_libraries(e2_fake_odom ${catkin_LIBRARIES} )
 target_link_libraries(e2_fake_encoder ${catkin_LIBRARIES} )
+target_link_libraries(e2_pointcloud_to_depth ${catkin_LIBRARIES} )
 
 #############
 ## Install ##

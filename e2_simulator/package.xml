@@ -54,6 +54,9 @@
   <run_depend>tf</run_depend>
   <build_depend>e2_msgs</build_depend>
   <run_depend>e2_msgs</run_depend>
+  <build_depend>pcl_ros</build_depend>
+  <run_depend>pcl_ros</run_depend>
+  
   <!-- The export tag contains other, unspecified, tags -->
   <export>
     <!-- You can specify that this package is a metapackage here: -->
