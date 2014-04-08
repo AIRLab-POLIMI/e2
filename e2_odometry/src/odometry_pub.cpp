@@ -23,6 +23,7 @@
 #define ROS_NODE_RATE	30
 #define ROS_NODE_NAME	"odometry_pub"
 
+// Tweak for velocity update. Better result
 #define VEL_X_MOTOR_START 0.12
 #define VEL_Y_MOTOR_START 0.12
 #define VEL_W_MOTOR_START 0.35

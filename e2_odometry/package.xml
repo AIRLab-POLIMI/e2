@@ -2,7 +2,7 @@
 <package>
   <name>e2_odometry</name>
   <version>0.0.1</version>
-  <description>The e2_odometry package, gives nodes for odometry and tf od e2 robot</description>
+  <description>The e2_odometry package, gives nodes for odometry and tf of e2 robot</description>
 
   <maintainer email="ripani.lorenzo@gmail.com">Lorenzo Ripani</maintainer>
 
