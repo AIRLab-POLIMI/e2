@@ -17,7 +17,10 @@ using namespace std;
 //=================================================================
 RobotInterface::RobotInterface(bool enable_neck,bool enable_voice,bool enable_train)
 {
-	recognized_user = "none";
+
+	detected_user.name="";
+	detected_user.distance=0;
+
 	neck_enabled = enable_neck;
 	voice_enabled = enable_voice;								// Voice enabled
 	train_enabled = enable_train;								// Force train new face before start navigation task
@@ -250,7 +253,7 @@ bool RobotInterface::CheckFace(string guest_user)
     ac_fr->sendGoal(goal, boost::bind(&RobotInterface::FaceRecognCb, this, _1, _2),FRClient::SimpleActiveCallback(), FRClient::SimpleFeedbackCallback());
     ac_fr->waitForResult(ros::Duration(2.0));
 
-    if(strcmp(recognized_user.c_str(),guest_user.c_str())==0)
+    if(strcmp(detected_user.name.c_str(),guest_user.c_str())==0)
     	return true;
 
     return false;
@@ -261,7 +264,9 @@ bool RobotInterface::CheckFace(string guest_user)
 //=====================================
 void RobotInterface::FaceRecognCb(const actionlib::SimpleClientGoalState& state, const face_recognition::FaceRecognitionResultConstPtr& result)
 {
-	recognized_user = "none";
+	detected_user.name = "";
+	detected_user.distance = 0;
+
 	ROS_DEBUG("[IRobot]:: Goal [%i] Finished in state [%s]", result->order_id,state.toString().c_str());
 
 	if(state.toString() != "SUCCEEDED") return;
@@ -269,7 +274,8 @@ void RobotInterface::FaceRecognCb(const actionlib::SimpleClientGoalState& state,
 	if( result->order_id==0)
 	{
 		ROS_INFO("[IRobot]:: Detected User: %s",result->names[0].c_str());
-		recognized_user = result->names[0];
+		detected_user.name = result->names[0];
+		detected_user.distance = result->distance[0];
 	}
 
 	if( result->order_id==2)

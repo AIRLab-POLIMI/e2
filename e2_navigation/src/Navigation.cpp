@@ -236,6 +236,7 @@ void Navigation::DetectUser(void)
 
 	while((ros::Time::now() - init_detection < timeout) && !user_recognized)
 	{
+
 		irobot.RotateBase(const_cast<char *>("LEFT"));
 
 		if(irobot.CheckFace(guest_name))
@@ -251,6 +252,7 @@ void Navigation::DetectUser(void)
 	{
 		path_planned=false;
 		user_recognized=false;
+
 	}
 	else if(active_task)		// Recover user only if there's a navigation goal. Not used in testing
 		RecoverUser();			// User not found start Backtracking procedure
@@ -368,7 +370,6 @@ bool Navigation::MarkerExist(string name)
 		if(strcmp(markers[i].name.c_str(),name.c_str()) == 0)
 			return true;
 	}
-
 	return false;
 }
 
@@ -383,7 +384,6 @@ string Navigation::getSpeechById(string name)
 		if(strcmp(speechs[i].id.c_str(),name.c_str()) == 0)
 			break;
 	}
-
 	return speechs[i].text;
 }
 
@@ -393,7 +393,6 @@ string Navigation::getSpeechById(string name)
 void Navigation::loadMarkerData(YAML::Node& doc)
 {
 	markers = new Marker [doc.size()];
-
 	// Load Markers from map file
 	for(unsigned i=0;i<doc.size();i++)
 		doc[i] >> markers[i];
@@ -405,11 +404,9 @@ void Navigation::loadMarkerData(YAML::Node& doc)
 void Navigation::loadSpeakData(YAML::Node& doc)
 {
 	speechs = new Speech [doc.size()];
-
 	// Load Markers from map file
 	for(unsigned i=0;i<doc.size();i++)
 		doc[i] >> speechs[i];
-
 }
 
 //=====================================

@@ -31,6 +31,12 @@ typedef actionlib::SimpleActionClient<face_recognition::FaceRecognitionAction> F
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 typedef actionlib::SimpleActionClient<e2_neck_controller::NeckAction> NeckClient;
 
+typedef struct
+{
+	string name;
+	int distance;
+}t_user;
+
 class RobotInterface
 {
 	public:
@@ -66,7 +72,7 @@ class RobotInterface
 		bool voice_enabled;
 		bool train_enabled;
 
-		string recognized_user;
+		t_user detected_user;
 		geometry_msgs::Pose robot_pose;
 
 		void FaceRecognCb(const actionlib::SimpleClientGoalState& state, const face_recognition::FaceRecognitionResultConstPtr& result);
