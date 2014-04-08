@@ -112,18 +112,15 @@ include_directories(
 ## Declare a cpp executable
 add_executable(base_controller src/base_controller.cpp)
 add_executable(e2_fake_odom src/e2_fake_odom.cpp)
-add_executable(e2_fake_encoder src/e2_fake_encoder.cpp)
 add_executable(e2_depthbuffer_to_img src/e2_depthbuffer_to_img.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 add_dependencies(e2_fake_odom e2_msgs_generate_messages_cpp)
-add_dependencies(e2_fake_encoder e2_msgs_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(base_controller ${catkin_LIBRARIES} )
 target_link_libraries(e2_fake_odom ${catkin_LIBRARIES} )
-target_link_libraries(e2_fake_encoder ${catkin_LIBRARIES} )
 target_link_libraries(e2_depthbuffer_to_img ${catkin_LIBRARIES} )
 
 #############
