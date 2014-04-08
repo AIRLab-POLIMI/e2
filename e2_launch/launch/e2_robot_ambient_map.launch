@@ -10,6 +10,6 @@
 	<include file="$(find e2_launch)/launch/e2_scanner.launch" />	
 	
 	<!-- Load Gmapping -->
-	<include file="$(find e2_launch)/launch/e2_gmapping.launch" />
+	<include file="$(find e2_launch)/launch/gmapping.launch" />
 
 </launch>
