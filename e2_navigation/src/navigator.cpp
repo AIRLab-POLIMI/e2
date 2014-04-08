@@ -58,7 +58,7 @@ int main(int argc, char **argv)
 	ros::ServiceServer start_service = nh.advertiseService("start",Startcallback);
 	ros::ServiceServer goto_service = nh.advertiseService("goto",Gotocallback);
 	ros::ServiceServer neck_service = nh.advertiseService("neckaction",Neckcallback);
-	ros::ServiceServer talk_service = nh.advertiseService("talk",Traincallback);
+	ros::ServiceServer talk_service = nh.advertiseService("talk",Talkcallback);
 	ros::ServiceServer train_service = nh.advertiseService("train",Traincallback);
 
 	// Suscribers && Publishers for input messages
@@ -91,15 +91,6 @@ bool Abortcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response&
 }
 
 //=====================================
-// This service launch a detection face
-//=====================================
-bool Detectcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
-{
-	navigation->DetectUser();
-	return true;
-}
-
-//=====================================
 // Start new navigation task
 //=====================================
 bool Startcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
@@ -124,25 +115,11 @@ bool Gotocallback(e2_msgs::Goto::Request& request, e2_msgs::Goto::Response& resp
 }
 
 //=====================================
-// Service to test neck actions
+// This service launch a detection face
 //=====================================
-bool Neckcallback(e2_msgs::NeckAction::Request& request, e2_msgs::NeckAction::Response& response)
+bool Detectcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
 {
-	navigation->irobot.NeckAction(request.action,request.sub_action);
-	return true;
-}
-
-//=====================================
-// Service to test robot voice
-//=====================================
-bool Talkcallback(e2_msgs::Talk::Request& request, e2_msgs::Talk::Response& response)
-{
-	if(strcmp(request.text.c_str(), "") == 0)
-	{
-		ROS_INFO("["ROS_NODE_NAME"]:: Empty string. Cant test voice. Abort");
-		return false;
-	}
-	navigation->irobot.Talk(request.text);
+	navigation->DetectUser();
 	return true;
 }
 
@@ -165,4 +142,27 @@ bool Traincallback(e2_msgs::Train::Request& request, e2_msgs::Train::Response& r
 	}
 	navigation->irobot.Talk(navigation->getSpeechById("train_failed"));
 	return false;
+}
+
+//=====================================
+// Service to test neck actions
+//=====================================
+bool Neckcallback(e2_msgs::NeckAction::Request& request, e2_msgs::NeckAction::Response& response)
+{
+	navigation->irobot.NeckAction(request.action,request.sub_action);
+	return true;
+}
+
+//=====================================
+// Service to test robot voice
+//=====================================
+bool Talkcallback(e2_msgs::Talk::Request& request, e2_msgs::Talk::Response& response)
+{
+	if(strcmp(request.text.c_str(), "") == 0)
+	{
+		ROS_INFO("["ROS_NODE_NAME"]:: Empty string. Cant test voice. Abort");
+		return false;
+	}
+	navigation->irobot.Talk(request.text);
+	return true;
 }
