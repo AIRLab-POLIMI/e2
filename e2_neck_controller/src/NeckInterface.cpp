@@ -1,7 +1,7 @@
 /*
  * NeckInterface.cpp - AIRLab (Politecnico di Milano)
  * 
- * This node control the movement for the E-two robot neck
+ * This node control the movement of E-two robot neck
  *
  *  Author:  Lorenzo Ripani 
  *  Email: ripani.lorenzo@gmail.com
@@ -21,13 +21,10 @@ NeckInterface::NeckInterface(string name) : nh_("~"),as_(nh_, name, boost::bind(
 	as_.start();																//starting the actionlib server
 
 	std::string device;
-
 	nh_.param<std::string>("usb_device", device, "/dev/ttyACM0");
-
-	ROS_INFO("[INeck]:: Using %s device.",device.c_str());
-
 	pE2PololuInterface = new E2_Pololu_Interface(device);
 
+	ROS_INFO("[INeck]:: Using %s device.",device.c_str());
 	ROS_INFO("[INeck]:: Neck interface ready");
 
 }
