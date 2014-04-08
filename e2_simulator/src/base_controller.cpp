@@ -4,7 +4,7 @@
  *  by Lorenzo Ripani - AIRLab (Politecnico di Milano)
  *  email: ripani.lorenzo@gmail.com
  *
- *  version 0.1 - 12/2014
+ *  version 0.1 - 01/2014
  *************************************************************/
 
 #include "ros/ros.h"
@@ -31,25 +31,25 @@ float LeftMotorSpeed,RightMotorSpeed,neckMotorSpeed;
 ros::Publisher motorSpeedPub;
 vrep_common::JointSetStateData motorSpeeds,neckSpeed;
 
-
-/*
- * Send messages to vrep simulator, for neck rotation
- */
+//===================================================
+//	Send messages to vrep simulator, for neck rotation
+//===================================================
 void neckCallback(const geometry_msgs::Twist::ConstPtr& msg){
 	ROS_INFO("Received neck velocity command:%f", msg->angular.z);
 
-	neckMotorSpeed = msg->angular.z * 5;
+	neckMotorSpeed = msg->angular.z * 5;	// Fix due to problem in simulator
 
+	// Push data back to vrep
 	neckSpeed.handles.data.push_back(neckMotorHandle);
 	neckSpeed.setModes.data.push_back(2);
-
+	// Push data back to vrep
 	neckSpeed.values.data.push_back(neckMotorSpeed);
 	motorSpeedPub.publish(neckSpeed);
 }
 
-/*
- * Send messages to vrep simulator in order to move robot base
- */
+//===================================================
+//	Send messages to vrep simulator in order to move robot base
+//===================================================
 void controllerCallback(const geometry_msgs::Twist::ConstPtr& msg){
 
 	ROS_DEBUG("Received Twist Message");
@@ -61,10 +61,10 @@ void controllerCallback(const geometry_msgs::Twist::ConstPtr& msg){
 	LeftMotorSpeed = msg->linear.x - msg->angular.z * (ROBOT_WIDTH/2);
 	RightMotorSpeed = msg->linear.x + msg->angular.z * (ROBOT_WIDTH/2);
 
+	// Fix due to problem in simulator. Too slow
 	LeftMotorSpeed *=24;
 	RightMotorSpeed *=24;
-
-
+	// Push data back to vrep
 	motorSpeeds.handles.data.push_back(leftMotorHandle);
 	motorSpeeds.handles.data.push_back(rightMotorHandle);
 	motorSpeeds.setModes.data.push_back(2); // 2 is the speed mode
@@ -75,12 +75,13 @@ void controllerCallback(const geometry_msgs::Twist::ConstPtr& msg){
 
 }
 
-// Topic subscriber callbacks:
+//===================================================
+//	Topic subscriber callbacks
+//===================================================
 void infoCallback(const vrep_common::VrepInfo::ConstPtr& info){
 	simulationTime=info->simulationTime.data;
 	simulationRunning=(info->simulatorState.data&1)!=0;
 }
-
 
 //===================================================
 //	Main Code
