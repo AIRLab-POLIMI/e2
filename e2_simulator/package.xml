@@ -56,6 +56,9 @@
   <run_depend>e2_msgs</run_depend>
   <build_depend>pcl_ros</build_depend>
   <run_depend>pcl_ros</run_depend>
+  <build_depend>cv_bridge</build_depend>
+  <run_depend>cv_bridge</run_depend>
+  
   
   <!-- The export tag contains other, unspecified, tags -->
   <export>
