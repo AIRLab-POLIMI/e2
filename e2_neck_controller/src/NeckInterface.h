@@ -20,8 +20,6 @@
 #include "e2_neck_controller/NeckAction.h"
 #include "e2_neck_controller/NeckActionFeedback.h"
 
-#define ACTION_TIME 10000000							// Define time before action is completed in microsec
-
 using namespace std;
 
 class NeckInterface
