@@ -6,6 +6,7 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /Polygon1
       Splitter Ratio: 0.5
     Tree Height: 318
   - Class: rviz/Selection
@@ -214,6 +215,13 @@ Visualization Manager:
       Name: LocalCostMap
       Topic: /move_base/local_costmap/costmap
       Value: true
+    - Alpha: 1
+      Class: rviz/Polygon
+      Color: 255; 0; 0
+      Enabled: true
+      Name: Polygon
+      Topic: /move_base/local_costmap/obstacle_layer_footprint/footprint_stamped
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -238,7 +246,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 25.0566
+      Distance: 19.9209
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
@@ -250,10 +258,10 @@ Visualization Manager:
         Z: 0.0383106
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.809798
+      Pitch: 0.344798
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 3.17403
+      Yaw: 1.44585
     Saved: ~
 Window Geometry:
   Displays:
