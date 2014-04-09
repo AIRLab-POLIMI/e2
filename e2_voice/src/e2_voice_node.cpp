@@ -69,7 +69,7 @@ public:
 			case 1:
 				ROS_INFO("["ROS_NODE_NAME"]:: Received text %s ",msg->text.c_str());
 				//string command=SPEECH_COMMAND" "SPEECH_PARAM" '"+msg->text+"' "SPEECH_OPT ;
-				string command="pico2wave -l it-IT -w /tmp/e2.wav  '"+msg->text+"' && play /tmp/e2.wav pitch -500 treble 10 4.0k  loudness 5 >/dev/null 2>&1";
+				string command="pico2wave -l it-IT -w /tmp/e2.wav  '"+msg->text+"' && play /tmp/e2.wav  pitch -200 stretch 0.85 band 2000 500 treble 10 4.0k >/dev/null 2>&1";
 				system(command.c_str());
 				break;
 		}
