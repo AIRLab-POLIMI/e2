@@ -15,4 +15,7 @@
 	<!-- Navigation Node -->
 	<include file="$(find e2_launch)/launch/e2_navigation.launch" />	
 
+	<!-- Voice Node Server-->
+  	<node name="e2_voice_node" pkg="e2_voice" type="e2_voice_node" respawn="false" output="screen" />
+  	
 </launch>

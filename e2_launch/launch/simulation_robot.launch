@@ -31,6 +31,9 @@
 		<param name="marker_config" type="string" value="$(arg stand_fiera)" />
 	</node>
 	
+	<!-- Voice Node Server-->
+  	<node name="e2_voice_node" pkg="e2_voice" type="e2_voice_node" respawn="false" output="screen" />
+  	
     <!-- Rviz -->
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find e2_launch)/launch/config/simulation.rviz"/>
     
