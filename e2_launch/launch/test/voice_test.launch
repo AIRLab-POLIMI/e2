@@ -1,0 +1,9 @@
+<launch>
+  
+  <!-- Voice Node Server-->
+  <node name="e2_voice_node" pkg="e2_voice" type="e2_voice_node" respawn="false" output="screen" />
+
+  <!-- Voice Node Client-->
+  <node name="e2_voice_client" pkg="e2_voice" type="e2_voice_client" respawn="false" output="screen" />
+
+</launch>
