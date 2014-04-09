@@ -148,7 +148,7 @@ void RobotInterface::NeckAction(int action,int sub_action)
 		ac_nc->sendGoal(n_goal);
 	}
 	else
-		ROS_INFO("[IRobot::Neck]:: Neck is not enabled. No action taken. ");
+		ROS_INFO("[IRobot::Neck]:: Neck is not enabled. Action %d - %d Aborted",action,sub_action);
 }
 
 //=================================================================
