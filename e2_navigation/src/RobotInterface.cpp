@@ -205,45 +205,48 @@ char *RobotInterface::getBatteryStatus()
 //=================================================================
 bool RobotInterface::TrainUserFace(string user_name)
 {
-	face_recognition::FaceRecognitionGoal goal;
-
-	ac_fr->waitForServer();
-
-	// Clean old face data
-	goal.order_id = 5;
-	goal.order_argument = user_name;
-
-	ac_fr->sendGoal(goal);
-	ac_fr->waitForResult(ros::Duration(5.0));
-
-	goal.order_id = 2;
-	goal.order_argument = user_name;
-
-	ac_fr->sendGoal(goal);
-
-	//wait for the action to return
-	bool finished_before_timeout = ac_fr->waitForResult(ros::Duration(30.0));
-
-	if (finished_before_timeout)
+	if(train_enabled)
 	{
-		ROS_INFO("[IRobot]:: New face saved.");
+		face_recognition::FaceRecognitionGoal goal;
 
-		goal.order_id = 3;
+		ac_fr->waitForServer();
+
+		// Clean old face data
+		goal.order_id = 5;
 		goal.order_argument = user_name;
 
 		ac_fr->sendGoal(goal);
-		ac_fr->waitForResult(ros::Duration(10.0));
+		ac_fr->waitForResult(ros::Duration(5.0));
 
-		ROS_INFO("[IRobot]:: Face Database Updated.");
-		return true;
-	}
-	else
-	{
-		ROS_INFO("[IRobot]:: Problem saving new face...timeout occurred.");
-		return false;
-	}
+		goal.order_id = 2;
+		goal.order_argument = user_name;
 
-	return false;
+		ac_fr->sendGoal(goal);
+
+		//wait for the action to return
+		bool finished_before_timeout = ac_fr->waitForResult(ros::Duration(30.0));
+
+		if (finished_before_timeout)
+		{
+			ROS_INFO("[IRobot]:: New face saved.");
+
+			goal.order_id = 3;
+			goal.order_argument = user_name;
+
+			ac_fr->sendGoal(goal);
+			ac_fr->waitForResult(ros::Duration(10.0));
+
+			ROS_INFO("[IRobot]:: Face Database Updated.");
+			return true;
+		}
+		else
+		{
+			ROS_INFO("[IRobot]:: Problem saving new face...timeout occurred.");
+			return false;
+		}
+
+	}else
+		return true;	//train disabled
 
 }
 

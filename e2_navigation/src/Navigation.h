@@ -16,6 +16,15 @@
 #include "RobotInterface.h"
 #include "yaml-operator.h"
 
+//===========================
+#include "e2_msgs/Goto.h"
+#include "e2_msgs/Train.h"
+#include "e2_msgs/Talk.h"
+#include "e2_msgs/NeckAction.h"
+#include "std_srvs/Empty.h"
+#include "nav_msgs/Odometry.h"
+//===========================
+
 #define DETECT_TIMEOUT	 			60																// Define the time before fire a detection request
 #define ABORT_TIMEOUT 				300																// Navigation timeout
 #define WAIT_TIME							5
@@ -28,10 +37,12 @@ class Navigation
 		string target_name;
 		string guest_name;
 
-		RobotInterface irobot;
+	    bool active_task;				//if there's an active task
+	    bool path_planned;				// if the robot is following a navigation path
+	    bool user_recognized;			// User recognized by facerecognition
 
 		// Class constructors
-		Navigation(ros::NodeHandle *nh, string marker_config,string speech_config,int rate,bool en_neck,bool en_voice,bool en_train);
+		Navigation(string name, int rate);
 		~Navigation();
 
 		// Load speech data and navigation data in memory
@@ -60,20 +71,28 @@ class Navigation
 
 		void UpdateRobotPose(geometry_msgs::Pose pose);
 
+
+		void OdometryCb(const nav_msgs::Odometry::ConstPtr& msg);
+
+		// Define services
+		bool Abortcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
+		bool Detectcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
+		bool Gotocallback(e2_msgs::Goto::Request& request, e2_msgs::Goto::Response& response);
+		bool Startcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
+		bool Neckcallback(e2_msgs::NeckAction::Request& request, e2_msgs::NeckAction::Response& response);
+		bool Traincallback(e2_msgs::Train::Request& request, e2_msgs::Train::Response& response);
+		bool Talkcallback(e2_msgs::Talk::Request& request, e2_msgs::Talk::Response& response);
+
 	private:
-	    bool active_task;				//if there's an active task
-	    bool path_planned;				// if the robot is following a navigation path
-	    bool user_recognized;			// User recognized by facerecognition
-	    bool train_enabled;			// If face detection is enabled
 
-	    int node_rate;
-	    int marker_size,speech_size;
-
+		ros::NodeHandle nh_;
+		RobotInterface *irobot_;
+		ros::Rate r_;
 	    // Stand Location and speech data
-		Marker *markers;
-		Speech *speechs;
+		Marker *markers_;
+		Speech *speechs_;
 
-	    ros::NodeHandle *Handle;
+		int marker_size_,speech_size_;
 
 	    ros::Time initial_time;
 	    ros::Timer abort_timeout;
