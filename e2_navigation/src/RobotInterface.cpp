@@ -28,12 +28,16 @@ RobotInterface::RobotInterface(bool enable_neck,bool enable_voice,bool enable_tr
 	ac_mb = new MoveBaseClient("move_base", true);
 	ac_fr = new FRClient("face_recognition", true);
 	ac_nc = new NeckClient("e2_neck_controller",true);
+	ac_vc = new VoiceClient("e2_voice_node",true);
 
 	while (!ac_mb->waitForServer(ros::Duration(5.0)))
 		ROS_INFO("[IRobot]:: Waiting for the move_base action server to come up");
 
 	while (!ac_fr->waitForServer(ros::Duration(5.0)))
 		ROS_INFO("[IRobot]:: Waiting for the face_recognition action server to come up");
+
+	while (!ac_vc->waitForServer(ros::Duration(5.0)))
+		ROS_INFO("[IRobot]:: Waiting for the voice action server to come up");
 
 	ros::Time init_time = ros::Time::now();
 	while (!ac_nc->waitForServer(ros::Duration(1.0)) && neck_enabled)
@@ -54,6 +58,7 @@ RobotInterface::~RobotInterface()
 	ac_fr = NULL;
 	ac_nc = NULL;
 	ac_mb = NULL;
+	ac_vc = NULL;
 
 	ROS_INFO("[IRobot]:: Base disabled");
 }
@@ -77,6 +82,7 @@ void RobotInterface::CancelAllGoals()
 	ac_mb->cancelAllGoals();
 	ac_nc->cancelAllGoals();
 	ac_fr->cancelAllGoals();
+	ac_vc->cancelAllGoals();
 }
 
 //=================================================================
@@ -172,14 +178,22 @@ void RobotInterface::Talk(string text)
 	{
 		NeckAction(1,6); // Start Moving mouth
 
-		string command=SPEECH_COMMAND" "SPEECH_PARAM" '"+text+"' "SPEECH_OPT ;	// TODO - Use Svox (pico) when male voice will be added - Better voice
-		ROS_INFO("[IRobot]:: Robot say: %s",text.c_str());
-		system(command.c_str());
-
-		NeckAction(1,7); // stop Moving mouth
+		e2_voice::VoiceGoal goal;
+		goal.action_id = 1;
+		goal.text = text;
+		ac_vc->sendGoal(goal, boost::bind(&RobotInterface::VoiceCB, this, _1, _2),VoiceClient::SimpleActiveCallback(), VoiceClient::SimpleFeedbackCallback());
 	}
 	else
 		ROS_INFO("[IRobot]:: Robot can't talk. Enable voice support");
+}
+
+//=====================================
+// Voice Callback
+//=====================================
+void RobotInterface::VoiceCB(const actionlib::SimpleClientGoalState& state, const e2_voice::VoiceResultConstPtr& result)
+{
+	ROS_DEBUG("[IRobot]:: Voice CallBack");
+	NeckAction(1,7); // stop Moving mouth
 }
 
 //=================================================================
@@ -250,7 +264,7 @@ bool RobotInterface::CheckFace(string guest_user)
     goal.order_id = 0;
     goal.order_argument = guest_user;
 
-    ac_fr->sendGoal(goal, boost::bind(&RobotInterface::FaceRecognCb, this, _1, _2),FRClient::SimpleActiveCallback(), FRClient::SimpleFeedbackCallback());
+    ac_fr->sendGoal(goal, boost::bind(&RobotInterface::FaceRecognCB, this, _1, _2),FRClient::SimpleActiveCallback(), FRClient::SimpleFeedbackCallback());
     ac_fr->waitForResult(ros::Duration(2.0));
 
     if(strcmp(detected_user.name.c_str(),guest_user.c_str())==0)
@@ -262,7 +276,7 @@ bool RobotInterface::CheckFace(string guest_user)
 //=====================================
 // Face Recognition Callback
 //=====================================
-void RobotInterface::FaceRecognCb(const actionlib::SimpleClientGoalState& state, const face_recognition::FaceRecognitionResultConstPtr& result)
+void RobotInterface::FaceRecognCB(const actionlib::SimpleClientGoalState& state, const face_recognition::FaceRecognitionResultConstPtr& result)
 {
 	detected_user.name = "";
 	detected_user.distance = 0;

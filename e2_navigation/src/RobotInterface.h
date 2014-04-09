@@ -13,23 +13,21 @@
 
 #define BASE_ROTATION_ANGLE 0.785		// Radians 45°
 
-#define SPEECH_COMMAND "espeak"
-#define SPEECH_PARAM " -s 150 -v it "
-#define SPEECH_OPT "--stdout | paplay" 		// Fix bug with alsa and pulseaudio
-
 #include "tf/tf.h"
 #include "common.h"
-#include <actionlib/client/simple_action_client.h>
+#include <e2_voice/VoiceAction.h>
 #include <e2_neck_controller/NeckAction.h>
+#include <actionlib/client/simple_action_client.h>
 #include <face_recognition/FaceRecognitionAction.h>
 #include <face_recognition/FaceRecognitionFeedback.h>
 #include <face_recognition/FaceRecognitionActionResult.h>
 
 
 typedef move_base_msgs::MoveBaseGoal MBGoal;
+typedef actionlib::SimpleActionClient<e2_voice::VoiceAction> VoiceClient;
+typedef actionlib::SimpleActionClient<e2_neck_controller::NeckAction> NeckClient;
 typedef actionlib::SimpleActionClient<face_recognition::FaceRecognitionAction> FRClient;
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
-typedef actionlib::SimpleActionClient<e2_neck_controller::NeckAction> NeckClient;
 
 typedef struct
 {
@@ -66,6 +64,7 @@ class RobotInterface
 		MBGoal current;
 		FRClient * ac_fr; 														// Face recognition
 		NeckClient *ac_nc;
+		VoiceClient *ac_vc;
 		MoveBaseClient *ac_mb;
 
 		bool neck_enabled;
@@ -75,7 +74,8 @@ class RobotInterface
 		t_user detected_user;
 		geometry_msgs::Pose robot_pose;
 
-		void FaceRecognCb(const actionlib::SimpleClientGoalState& state, const face_recognition::FaceRecognitionResultConstPtr& result);
+		void VoiceCB(const actionlib::SimpleClientGoalState& state, const e2_voice::VoiceResultConstPtr& result);
+		void FaceRecognCB(const actionlib::SimpleClientGoalState& state, const face_recognition::FaceRecognitionResultConstPtr& result);
 };
 
 #endif /* ROBOTINTERFACE_H_ */
