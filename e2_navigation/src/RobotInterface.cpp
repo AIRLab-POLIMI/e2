@@ -36,21 +36,16 @@ RobotInterface::RobotInterface(bool enable_neck,bool enable_voice,bool enable_tr
 	while (!ac_fr->waitForServer(ros::Duration(5.0)))
 		ROS_INFO("[IRobot]:: Waiting for the face_recognition action server to come up");
 
-	while (!ac_vc->waitForServer(ros::Duration(5.0)))
-		ROS_INFO("[IRobot]:: Waiting for the voice action server to come up");
+	if(voice_enabled)
+		while (!ac_vc->waitForServer(ros::Duration(5.0)))
+			ROS_INFO("[IRobot]:: Waiting for the voice action server to come up");
 
-	ros::Time init_time = ros::Time::now();
-	while (!ac_nc->waitForServer(ros::Duration(1.0)) && neck_enabled)
-	{
-		ROS_INFO("[IRobot]:: Waiting for the neck_controller action server to come up");
-		double elapsed = (ros::Time::now() - init_time).toSec();
-		if(elapsed > 5.0)
-		{
-			ROS_INFO("[IRobot]:: Neck connection problem. Check if neck is connected. Disabled");
-			neck_enabled=false;
-		}
-	}
+	if(neck_enabled)
+		while (!ac_nc->waitForServer(ros::Duration(5.0)))
+			ROS_INFO("[IRobot]:: Waiting for the neck_controller action server to come up");
+
 	ROS_INFO("[IRobot]:: Base ready");
+
 }
 
 RobotInterface::~RobotInterface()
