@@ -1,3 +1,7 @@
+- id: hi
+  text: "Ciao, il mio nome è edueee. Sono un androide venuto dallo spazio per sterminare la razza umana."
+  duration: 150
+
 - id: train
   text: "Per favore, resta immobile mentre memorizzo il tuo volto. Non ci vorrà molto."
   duration: 150
@@ -12,6 +16,10 @@
 
 - id: follow_me
   text: "Seguimi. Ti portero nel nostro stand."
+  duration: 150
+
+- id: joke_0
+  text: "Trote e maiali sono triviali, di lor nessuna stima, ratti e sorci han più fortuna dei porci, però io l'avrò prima."
   duration: 150
 
 - id: joke_1
