@@ -58,23 +58,23 @@ public:
 			return;
 		}
 
-		ROS_INFO("["ROS_NODE_NAME"]:: Received action %d ",goal_id_);
+		ROS_DEBUG("["ROS_NODE_NAME"]:: Received action %d ",goal_id_);
 
-			switch(goal_id_)
-			{
-				case 0:
-					ROS_INFO("["ROS_NODE_NAME"]:: Abort current action");
-					as_.setAborted();
-					break;
-				case 1:
-					ROS_INFO("["ROS_NODE_NAME"]:: Received text %s ",msg->text.c_str());
-					//string command=SPEECH_COMMAND" "SPEECH_PARAM" '"+msg->text+"' "SPEECH_OPT ;
-					string command="pico2wave -l it-IT -w /tmp/e2.wav  '"+msg->text+"' && play /tmp/e2.wav pitch -500 treble 10 4.0k  loudness 5 >/dev/null 2>&1";
-					system(command.c_str());
-					break;
-			}
-			as_.setSucceeded();
-			ROS_INFO("["ROS_NODE_NAME"]:: Action completed");
+		switch(goal_id_)
+		{
+			case 0:
+				ROS_INFO("["ROS_NODE_NAME"]:: Abort current action");
+				as_.setAborted();
+				break;
+			case 1:
+				ROS_INFO("["ROS_NODE_NAME"]:: Received text %s ",msg->text.c_str());
+				//string command=SPEECH_COMMAND" "SPEECH_PARAM" '"+msg->text+"' "SPEECH_OPT ;
+				string command="pico2wave -l it-IT -w /tmp/e2.wav  '"+msg->text+"' && play /tmp/e2.wav pitch -500 treble 10 4.0k  loudness 5 >/dev/null 2>&1";
+				system(command.c_str());
+				break;
+		}
+		as_.setSucceeded();
+		ROS_INFO("["ROS_NODE_NAME"]:: Action completed");
 	}
 
 private:
