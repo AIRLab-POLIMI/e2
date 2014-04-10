@@ -28,18 +28,18 @@ int main(int argc, char **argv)
 	Navigation nav(ros::this_node::getName(),ROS_NODE_RATE);
 
 	// Enable Services
-	ros::Subscriber odom_sub= nh.subscribe("/odom", 10,&Navigation::OdometryCb,&nav);
+	ros::Subscriber odom_sub= nh.subscribe("/odom", 10,&Navigation::odometry_callback,&nav);
 
-	ros::ServiceServer abort_service = nh.advertiseService(ROS_NODE_NAME"/abort",&Navigation::Abortcallback,&nav);
-	ros::ServiceServer detect_service = nh.advertiseService(ROS_NODE_NAME"/detect",&Navigation::Detectcallback,&nav);
-	ros::ServiceServer start_service = nh.advertiseService(ROS_NODE_NAME"/start",&Navigation::Startcallback,&nav);
-	ros::ServiceServer goto_service = nh.advertiseService(ROS_NODE_NAME"/goto",&Navigation::Gotocallback,&nav);
-	ros::ServiceServer neck_service = nh.advertiseService(ROS_NODE_NAME"/neckaction",&Navigation::Neckcallback,&nav);
-	ros::ServiceServer talk_service = nh.advertiseService(ROS_NODE_NAME"/talk",&Navigation::Talkcallback,&nav);
-	ros::ServiceServer train_service = nh.advertiseService(ROS_NODE_NAME"/train",&Navigation::Traincallback,&nav);
+	ros::ServiceServer abort_service = nh.advertiseService(ROS_NODE_NAME"/abort",&Navigation::abort_callback,&nav);
+	ros::ServiceServer detect_service = nh.advertiseService(ROS_NODE_NAME"/detect",&Navigation::detect_callback,&nav);
+	ros::ServiceServer start_service = nh.advertiseService(ROS_NODE_NAME"/start",&Navigation::start_callback,&nav);
+	ros::ServiceServer goto_service = nh.advertiseService(ROS_NODE_NAME"/goto",&Navigation::goto_callback,&nav);
+	ros::ServiceServer neck_service = nh.advertiseService(ROS_NODE_NAME"/neckaction",&Navigation::neck_callback,&nav);
+	ros::ServiceServer talk_service = nh.advertiseService(ROS_NODE_NAME"/talk",&Navigation::talk_callback,&nav);
+	ros::ServiceServer train_service = nh.advertiseService(ROS_NODE_NAME"/train",&Navigation::train_callback,&nav);
 
 	// Start Navigation Controller
-	nav.Controller();
+	nav.controller();
 
 	return 0;
 }
