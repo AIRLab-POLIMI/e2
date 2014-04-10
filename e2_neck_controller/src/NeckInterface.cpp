@@ -177,7 +177,7 @@ void NeckInterface::composite_actions(int action)
 			pE2PololuInterface->expressSurprise();
 			break;
 		case 2:
-			ROS_INFO("[INeck::Neck]:: Reach straight position");
+			ROS_INFO("[INeck::Composite]:: Reach straight position");
 			pE2PololuInterface->reachStraightPosition();
 			break;
 	}
@@ -191,7 +191,8 @@ void NeckInterface::other_actions(int action)
 	switch(action)
 	{
 		case 1:
-			ROS_INFO("[INeck::Composite]:: Chiudi comunicazione pololu....toglie tensione motori !");
+			ROS_INFO("[INeck::Other]:: Chiudi comunicazione pololu....toglie tensione motori !");
+			pE2PololuInterface->stopScriptAndGoHome();
 			delete pE2PololuInterface;
 			break;
 	}

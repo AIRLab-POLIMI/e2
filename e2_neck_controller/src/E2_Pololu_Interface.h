@@ -96,6 +96,7 @@ public:
 	void setLowAcc();
 	void setNormalAcc();
 	void setHighAcc();
+	void stopScriptAndGoHome();
 
 private:
 	void runSubroutine(const int);
@@ -108,6 +109,6 @@ private:
 	void waitForControllerScriptToComplete();
 	void initializePololuCommunication();
 	void destroyPololuCommunication();
-	void stopScriptAndGoHome();
+	void stopScript();
 	void transformParameter (const int, char&, char&);
 };

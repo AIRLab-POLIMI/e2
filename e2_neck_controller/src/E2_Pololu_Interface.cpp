@@ -33,6 +33,11 @@ void E2_Pololu_Interface::stopScriptAndGoHome()
 	pololuComm->Write( (char)GoHome );
 }
 
+void E2_Pololu_Interface::stopScript()
+{
+	pololuComm->Write( (char)StopScript );
+}
+
 void E2_Pololu_Interface::runSubroutine(const int sub)
 {
 	pololuComm->Write( (char)RunSubroutine );
@@ -146,7 +151,7 @@ void E2_Pololu_Interface::start_speakingFace()
 }
 void E2_Pololu_Interface::stop_speakingFace()
 {
-	stopScriptAndGoHome();
+	stopScript();
 }
 
 //==================================================
