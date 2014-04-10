@@ -32,7 +32,8 @@ typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseCl
 typedef struct
 {
 	string name;
-	int distance;
+	float distance;	//	mm
+	float angle; 	// degree
 }t_user;
 
 class RobotInterface

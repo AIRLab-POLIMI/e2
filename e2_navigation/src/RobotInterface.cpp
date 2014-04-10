@@ -285,7 +285,7 @@ void RobotInterface::FaceRecognCB(const actionlib::SimpleClientGoalState& state,
 
 	if( result->order_id==0)
 	{
-		ROS_INFO("[IRobot]:: Detected User: %s",result->names[0].c_str());
+		ROS_INFO("[IRobot]:: Detected User: %s at %f mm",result->names[0].c_str(),result->distance[0]);
 		detected_user.name = result->names[0];
 		detected_user.distance = result->distance[0];
 	}

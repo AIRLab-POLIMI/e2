@@ -62,6 +62,8 @@ class Navigation
 	    void Controller(); 				// Navigation controller loop
 
 	    void NavigateTo(string name);	// Navigate to known location
+	    void NavigateTo(float distance,float angle);
+
 	    void getNavigationStatus(); 	// Print navigation info in console
 	    void Wait();
 
@@ -94,9 +96,9 @@ class Navigation
 
 		int marker_size_,speech_size_;
 
-	    ros::Time initial_time;
-	    ros::Timer abort_timeout;
-	    ros::Timer detect_timeout;
+	    ros::Time initial_time_;
+	    ros::Timer abort_timeout_;
+	    ros::Timer detect_timeout_;
 
 		move_base_msgs::MoveBaseGoal last_user_detection;
 

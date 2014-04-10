@@ -47,13 +47,13 @@ Navigation::Navigation(string name, int rate) :	nh_("~"),r_(rate)
 	// Default config
 	base_name = "base";
 	target_name ="airlab";
-	guest_name = "Lorenzo";		// Detected to be detected
+	guest_name = "Lorenzo";		// User to be detected
 
 	active_task = false;
 	path_planned = false;
 	user_recognized = false;
 
-	initial_time = ros::Time::now();
+	initial_time_ = ros::Time::now();
 
 	ROS_INFO("[Navigation]:: Neck Enabled '%s' ",(en_neck ? "true" : "false"));
 	ROS_INFO("[Navigation]:: Voice Enabled '%s' ",(en_voice ? "true" : "false"));
@@ -65,13 +65,14 @@ Navigation::Navigation(string name, int rate) :	nh_("~"),r_(rate)
 	ROS_INFO("[Navigation]:: Loaded Marker Config %s with %d markers", marker_config.c_str(),(int)doc_marker.size());
 	ROS_INFO("[Navigation]:: Loaded Speech Config %s with %d conversations", speech_config.c_str(),(int)doc_speech.size());
 
+	//	Enable Robot interface
 	irobot_= new RobotInterface(en_neck,en_voice,en_train);
 	irobot_->NeckAction(2,1); // Staigth neck position
 }
 
 Navigation::~Navigation()
 {
-	irobot_->NeckAction(4,1); // Turn off neck
+	irobot_->NeckAction(4,1); 		// Turn off neck
 	irobot_->~RobotInterface();
 }
 
@@ -96,8 +97,8 @@ void Navigation::Controller()
 			if(!path_planned)
 			{
 				NavigateTo(target_name);
-				abort_timeout.start();
-				detect_timeout.start();
+				abort_timeout_.start();
+				detect_timeout_.start();
 				path_planned = true;
 			}
 			else if(path_planned)
@@ -107,11 +108,10 @@ void Navigation::Controller()
 
 		}
 		else
-		{	/* Looking for user */
-
-			//NewTask();
-
+		{
+			/* Looking for user */
 		}
+
 		r_.sleep();
 	}
 	irobot_->StopBase();
@@ -136,12 +136,12 @@ void Navigation::NewTask()
 
 			if(irobot_->train_enabled)
 			{
-				abort_timeout = nh_.createTimer(ros::Duration(ABORT_TIMEOUT), &Navigation::AbortTask,this,true,false);
-				detect_timeout = nh_.createTimer(ros::Duration(DETECT_TIMEOUT), &Navigation::DetectTimer,this,false,false);
+				abort_timeout_ = nh_.createTimer(ros::Duration(ABORT_TIMEOUT), &Navigation::AbortTask,this,true,false);
+				detect_timeout_ = nh_.createTimer(ros::Duration(DETECT_TIMEOUT), &Navigation::DetectTimer,this,false,false);
 			}
 
 			// Save current position as first user detection position
-			initial_time = ros::Time::now();
+			initial_time_ = ros::Time::now();
 			setUserDetection(true);
 		}
 		else
@@ -171,8 +171,8 @@ void Navigation::AbortTask()
 
 	if(irobot_->train_enabled)
 	{
-		abort_timeout.stop();
-		detect_timeout.stop();
+		abort_timeout_.stop();
+		detect_timeout_.stop();
 	}
 }
 
@@ -185,7 +185,6 @@ void Navigation::AbortTask(const ros::TimerEvent& e)
 
 	AbortTask();
 	NavigateTo(base_name);
-
 }
 
 //=================================================================
@@ -195,6 +194,28 @@ void Navigation::NavigateTo(string name)
 {
 	ROS_INFO("[Navigation]:: Going to %s ",name.c_str());
 	irobot_->setGoal(getMarkerById(name));
+}
+//=================================================================
+// Navigate to position given angle and distance
+//=================================================================
+void Navigation::NavigateTo(float distance,float deg_angle)
+{
+	ROS_INFO("[Navigation]:: Received a goal at distance %f and angle respect camera of %f ",distance,angle);
+
+	// calculate new goal
+	float rad_angle =  (deg_angle * M_PI)	/ 180 ;
+
+	double th = tf::getYaw(irobot_->robot_pose.orientation);
+	double th_new= th - rad_angle;
+
+	MBGoal goal;
+
+	goal.target_pose.header.frame_id = "map";
+	goal.target_pose.pose = irobot_->robot_pose;
+	goal.target_pose.pose.orientation.z = sin(th_new/2);
+	goal.target_pose.pose.orientation.w = cos(th_new/2);
+
+	//irobot_->setGoal(getMarkerById(name));
 }
 
 //=================================================================
@@ -294,7 +315,7 @@ void Navigation::RecoverUser(void)
 //=================================================================
 void Navigation::getNavigationStatus()
 {
-	double elapsed = (ros::Time::now() - initial_time).toSec();
+	double elapsed = (ros::Time::now() - initial_time_).toSec();
 
 	int minutes = (((int)elapsed/60)%60);
 	int seconds = ((int)elapsed%60) ;
@@ -405,6 +426,7 @@ void Navigation::loadSpeakData(YAML::Node& doc)
 	for(unsigned i=0;i<doc.size();i++)
 		doc[i] >> speechs_[i];
 }
+
 
 //=====================================
 // Service definitions
