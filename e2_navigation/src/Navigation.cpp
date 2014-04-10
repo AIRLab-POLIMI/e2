@@ -200,22 +200,29 @@ void Navigation::NavigateTo(string name)
 //=================================================================
 void Navigation::NavigateTo(float distance,float deg_angle)
 {
-	ROS_INFO("[Navigation]:: Received a goal at distance %f and angle respect camera of %f ",distance,angle);
+	ROS_INFO("[Navigation]:: Received a goal at distance %f and angle respect camera of %f ",distance,deg_angle);
 
 	// calculate new goal
 	float rad_angle =  (deg_angle * M_PI)	/ 180 ;
 
-	double th = tf::getYaw(irobot_->robot_pose.orientation);
+	double th = tf::getYaw(irobot_->getRobotPose().orientation);
 	double th_new= th - rad_angle;
 
 	MBGoal goal;
 
 	goal.target_pose.header.frame_id = "map";
-	goal.target_pose.pose = irobot_->robot_pose;
+	goal.target_pose.pose = irobot_->getRobotPose();
 	goal.target_pose.pose.orientation.z = sin(th_new/2);
 	goal.target_pose.pose.orientation.w = cos(th_new/2);
 
-	//irobot_->setGoal(getMarkerById(name));
+	//	Polar coordinate calculate delta
+	double delta_x = distance * cos(th_new);
+	double delta_y = distance * sin(th_new);
+
+	goal.target_pose.pose.position.x += delta_x;
+	goal.target_pose.pose.position.y += delta_y;
+
+	irobot_->setGoal(goal);
 }
 
 //=================================================================
@@ -481,6 +488,8 @@ bool Navigation::Gotocallback(e2_msgs::Goto::Request& request, e2_msgs::Goto::Re
 bool Navigation::Detectcallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
 {
 	DetectUser();
+	t_user user= irobot_->getDetectedUser();
+	NavigateTo(user.distance,user.angle);
 	return true;
 }
 

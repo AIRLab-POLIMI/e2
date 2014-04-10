@@ -36,6 +36,8 @@ typedef struct
 	float angle; 	// degree
 }t_user;
 
+using namespace geometry_msgs;
+
 class RobotInterface
 {
 	public:
@@ -61,22 +63,24 @@ class RobotInterface
 		bool TrainUserFace(string user_name);
 		bool CheckFace(string guest_user);
 
-		geometry_msgs::Pose getRobotPose();
+		Pose getRobotPose();
 		void setRobotPose(geometry_msgs::Pose pose);
 
-	private:
+		t_user getDetectedUser();
+		void setDetectedUser(t_user detectedUser);
 
-		MBGoal current;
-		FRClient * ac_fr; 														// Face recognition
+private:
+	MBGoal current;
+	FRClient* ac_fr;
 		NeckClient *ac_nc;
 		VoiceClient *ac_vc;
 		MoveBaseClient *ac_mb;
 
-		t_user detected_user;
-		geometry_msgs::Pose robot_pose;
+		t_user detected_user_;
+		geometry_msgs::Pose robot_pose_;
 
-		void VoiceCB(const actionlib::SimpleClientGoalState& state, const e2_voice::VoiceResultConstPtr& result);
-		void FaceRecognCB(const actionlib::SimpleClientGoalState& state, const face_recognition::FaceRecognitionResultConstPtr& result);
+		void voice_callback(const actionlib::SimpleClientGoalState& state, const e2_voice::VoiceResultConstPtr& result);
+		void facerecognition_callback(const actionlib::SimpleClientGoalState& state, const face_recognition::FaceRecognitionResultConstPtr& result);
 };
 
 #endif /* ROBOTINTERFACE_H_ */

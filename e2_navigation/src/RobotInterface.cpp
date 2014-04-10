@@ -18,8 +18,8 @@ using namespace std;
 RobotInterface::RobotInterface(bool enable_neck,bool enable_voice,bool enable_train)
 {
 
-	detected_user.name="";
-	detected_user.distance=0;
+	detected_user_.name="";
+	detected_user_.distance=0;
 
 	neck_enabled = enable_neck;
 	voice_enabled = enable_voice;								// Voice enabled
@@ -56,6 +56,17 @@ RobotInterface::~RobotInterface()
 	ac_vc = NULL;
 
 	ROS_INFO("[IRobot]:: Base disabled");
+}
+
+
+t_user RobotInterface::getDetectedUser()
+{
+	return detected_user_;
+}
+
+void RobotInterface::setDetectedUser(t_user detectedUser)
+{
+	detected_user_ = detectedUser;
 }
 
 //=================================================================
@@ -101,7 +112,7 @@ void RobotInterface::RotateBase(char *direction,float angle)
 {
 	ROS_INFO("[IRobot]:: Rotating %s of %f rad ",direction,angle);
 
-	double th = tf::getYaw(robot_pose.orientation);
+	double th = tf::getYaw(robot_pose_.orientation);
 	double th_new;
 
 	if(strcmp(direction,"RIGHT") == 0)
@@ -110,7 +121,7 @@ void RobotInterface::RotateBase(char *direction,float angle)
 		th_new = th + angle;
 
 	current.target_pose.header.frame_id = "map";
-	current.target_pose.pose = robot_pose;
+	current.target_pose.pose = robot_pose_;
 	current.target_pose.pose.orientation.z = sin(th_new/2);
 	current.target_pose.pose.orientation.w = cos(th_new/2);
 
@@ -151,8 +162,8 @@ void RobotInterface::NeckAction(int action,int sub_action)
 //=================================================================
 geometry_msgs::Pose RobotInterface::getRobotPose()
 {
-	ROS_DEBUG("[IRobot]:: Robot current pose x,y [%f,%f] ",robot_pose.position.x,robot_pose.position.y);
-	return robot_pose;
+	ROS_DEBUG("[IRobot]:: Robot current pose x,y [%f,%f] ",robot_pose_.position.x,robot_pose_.position.y);
+	return robot_pose_;
 }
 
 //=================================================================
@@ -160,8 +171,8 @@ geometry_msgs::Pose RobotInterface::getRobotPose()
 //=================================================================
 void RobotInterface::setRobotPose(geometry_msgs::Pose pose)
 {
-	robot_pose = pose;
-	ROS_DEBUG("[IRobot]:: Update robot pose [x,y][%f,%f] - [z][%f]",robot_pose.position.x,robot_pose.position.y,robot_pose.orientation.z);
+	robot_pose_ = pose;
+	ROS_DEBUG("[IRobot]:: Update robot pose [x,y][%f,%f] - [z][%f]",robot_pose_.position.x,robot_pose_.position.y,robot_pose_.orientation.z);
 }
 
 //=================================================================
@@ -176,7 +187,7 @@ void RobotInterface::Talk(string text)
 		e2_voice::VoiceGoal goal;
 		goal.action_id = 1;
 		goal.text = text;
-		ac_vc->sendGoal(goal, boost::bind(&RobotInterface::VoiceCB, this, _1, _2),VoiceClient::SimpleActiveCallback(), VoiceClient::SimpleFeedbackCallback());
+		ac_vc->sendGoal(goal, boost::bind(&RobotInterface::voice_callback, this, _1, _2),VoiceClient::SimpleActiveCallback(), VoiceClient::SimpleFeedbackCallback());
 	}
 	else
 		ROS_INFO("[IRobot]:: Robot can't talk. Enable voice support");
@@ -185,7 +196,7 @@ void RobotInterface::Talk(string text)
 //=====================================
 // Voice Callback
 //=====================================
-void RobotInterface::VoiceCB(const actionlib::SimpleClientGoalState& state, const e2_voice::VoiceResultConstPtr& result)
+void RobotInterface::voice_callback(const actionlib::SimpleClientGoalState& state, const e2_voice::VoiceResultConstPtr& result)
 {
 	ROS_DEBUG("[IRobot]:: Voice CallBack");
 	NeckAction(1,7); // stop Moving mouth
@@ -262,10 +273,10 @@ bool RobotInterface::CheckFace(string guest_user)
     goal.order_id = 0;
     goal.order_argument = guest_user;
 
-    ac_fr->sendGoal(goal, boost::bind(&RobotInterface::FaceRecognCB, this, _1, _2),FRClient::SimpleActiveCallback(), FRClient::SimpleFeedbackCallback());
+    ac_fr->sendGoal(goal, boost::bind(&RobotInterface::facerecognition_callback, this, _1, _2),FRClient::SimpleActiveCallback(), FRClient::SimpleFeedbackCallback());
     ac_fr->waitForResult(ros::Duration(2.0));
 
-    if(strcmp(detected_user.name.c_str(),guest_user.c_str())==0)
+    if(strcmp(detected_user_.name.c_str(),guest_user.c_str())==0)
     	return true;
 
     return false;
@@ -274,10 +285,11 @@ bool RobotInterface::CheckFace(string guest_user)
 //=====================================
 // Face Recognition Callback
 //=====================================
-void RobotInterface::FaceRecognCB(const actionlib::SimpleClientGoalState& state, const face_recognition::FaceRecognitionResultConstPtr& result)
+void RobotInterface::facerecognition_callback(const actionlib::SimpleClientGoalState& state, const face_recognition::FaceRecognitionResultConstPtr& result)
 {
-	detected_user.name = "";
-	detected_user.distance = 0;
+	detected_user_.name = "";
+	detected_user_.distance = 0;
+	detected_user_.angle = 0;
 
 	ROS_DEBUG("[IRobot]:: Goal [%i] Finished in state [%s]", result->order_id,state.toString().c_str());
 
@@ -285,9 +297,10 @@ void RobotInterface::FaceRecognCB(const actionlib::SimpleClientGoalState& state,
 
 	if( result->order_id==0)
 	{
-		ROS_INFO("[IRobot]:: Detected User: %s at %f mm",result->names[0].c_str(),result->distance[0]);
-		detected_user.name = result->names[0];
-		detected_user.distance = result->distance[0];
+		ROS_INFO("[IRobot]:: Detected User: %s at %f m",result->names[0].c_str(),result->distance[0]);
+		detected_user_.name = result->names[0];
+		detected_user_.distance = result->distance[0]/1000; // convert mm from kinect to meters
+		detected_user_.angle = result->angle[0];
 	}
 
 	if( result->order_id==2)
