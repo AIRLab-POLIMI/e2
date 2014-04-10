@@ -4,12 +4,14 @@ string order_argument
 ---
 #result definition
 uint8 order_id
+float32[] angle
 float32[] distance
 string[] names
 float32[] confidence
 ---
 #feedback
 uint8 order_id
+float32[] angle
 float32[] distance
 string[] names
 float32[] confidence

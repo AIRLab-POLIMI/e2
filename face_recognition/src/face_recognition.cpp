@@ -322,7 +322,19 @@ public:
 		cvCircle(img_depth, cvPoint(faceRect.x+faceRect.width/2, faceRect.y+faceRect.height/2), 10,  CV_RGB(255,0,0), 3, 8, 0 );
 		float x = faceRect.x+faceRect.width/2;
 		float y = faceRect.y+faceRect.height/2;
+
 		float distance = cv_ptr_depth->image.at<float>(x,y);
+		/*
+		 *	Angle calculation - Approximate
+		 *	Computing the angle requires only simple linear interpolation.
+		 * For kinect horizontal angle of view is 57 degree for a resolution of 640x480 pixels
+		 * So, compute the distance from the center (in pixels), multiply by 57/(640^2+480^2)^1/2 , and you have its angle from the center
+		 */
+		const float angle_pixel_kinect = 0.07125;
+		float angle = (320 - x) * angle_pixel_kinect;
+
+		ROS_INFO("[FaceRecognition]:: X: %f", x);
+		ROS_INFO("[FaceRecognition]:: Angle: %f", angle);
 
 		text_image.str("");
 		text_image << "Distance:  " <<  distance << "mm" <<endl;
@@ -479,6 +491,7 @@ public:
 				{
 					result_.names.push_back(frl.personNames[nearest - 1].c_str());
 					result_.confidence.push_back(confidence);
+					result_.angle.push_back(angle);
 					result_.distance.push_back(distance);
 					as_.setSucceeded(result_);
 				}
@@ -488,9 +501,11 @@ public:
 					ROS_INFO("[FaceRecognition]:: detected %s  confidence %f ", frl.personNames[nearest-1].c_str(), confidence);
 					feedback_.names.clear();
 					feedback_.confidence.clear();
+					feedback_.angle.clear();
 					feedback_.distance.clear();
 					feedback_.names.push_back(frl.personNames[nearest - 1].c_str());
 					feedback_.confidence.push_back(confidence);
+					feedback_.angle.push_back(angle);
 					feedback_.distance.push_back(distance);
 					as_.publishFeedback(feedback_);
 				}
