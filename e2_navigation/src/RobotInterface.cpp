@@ -51,11 +51,7 @@ RobotInterface::RobotInterface(bool enable_neck,bool enable_voice,bool enable_tr
 
 RobotInterface::~RobotInterface()
 {
-	ac_fr = NULL;
-	ac_nc = NULL;
-	ac_mb = NULL;
-	ac_vc = NULL;
-
+	cancell_all_goal();
 	ROS_INFO("[IRobot]:: Base disabled");
 }
 
@@ -197,7 +193,7 @@ void RobotInterface::voice_callback(const actionlib::SimpleClientGoalState& stat
 //=================================================================
 char *RobotInterface::get_battery_status()
 {
-	// TODO - Read Battery status motor board.
+	// TODO - Read Battery status from motor board.
 	return const_cast<char *>("GOOD");
 }
 
@@ -264,7 +260,7 @@ bool RobotInterface::robot_check_user(string user_name)
     goal.order_argument = user_name;
 
     ac_fr->sendGoal(goal, boost::bind(&RobotInterface::facerecognition_callback, this, _1, _2),FRClient::SimpleActiveCallback(), FRClient::SimpleFeedbackCallback());
-    ac_fr->waitForResult(ros::Duration(2.0));
+    ac_fr->waitForResult();
 
     if(strcmp(detected_user_.name.c_str(),user_name.c_str())==0)
     	return true;
@@ -283,14 +279,21 @@ void RobotInterface::facerecognition_callback(const actionlib::SimpleClientGoalS
 
 	ROS_DEBUG("[IRobot]:: Goal [%i] Finished in state [%s]", result->order_id,state.toString().c_str());
 
-	if(state.toString() != "SUCCEEDED") return;
+	if(state.toString() != "SUCCEEDED")
+	{
+		ROS_DEBUG("[IRobot]:: Face Recognition  [%s]",state.toString().c_str());
+		return;
+	}
 
 	if( result->order_id==0)
 	{
-		ROS_INFO("[IRobot]:: Detected User: %s at %f mm",result->names[0].c_str(),result->distance[0]);
-		detected_user_.name = result->names[0];
-		detected_user_.distance = result->distance[0]/1000; 				// convert mm from kinect to meters
-		detected_user_.angle = result->angle[0];
+		if(result->distance[0]/1000 < 10)	//	If distance is greater than 10m there's something wrong
+		{
+			ROS_INFO("[IRobot]:: Detected User: %s at %f mm",result->names[0].c_str(),result->distance[0]);
+			detected_user_.name = result->names[0];
+			detected_user_.distance = result->distance[0]/1000; 				// convert mm from kinect to meters
+			detected_user_.angle = result->angle[0];
+		}
 	}
 
 	if( result->order_id==2)

@@ -21,6 +21,21 @@ Navigation::Navigation(string name, int rate) :	nh_("~"),r_(rate)
     string marker_config,speech_config;
     bool en_neck,en_voice,en_train;
 
+	// Default config
+	base_name_     = "base";
+	target_name_  = "airlab";
+	god_name_	   = "Lorenzo";
+	guest_name_   = "Lorenzo";				// User to be detected
+
+	en_auto_ =  false;
+	active_task_ 		= false;
+	path_planned_  = false;
+	path_to_user_   = false;
+	user_recognized_ = false;
+
+	initial_time_ = ros::Time::now();
+
+    nh_.param<bool>("en_auto", en_auto_, true);
 	nh_.param<bool>("en_neck", en_neck, true);
 	nh_.param<bool>("en_voice", en_voice, true);
 	nh_.param<bool>("en_train", en_train, true);
@@ -44,18 +59,7 @@ Navigation::Navigation(string name, int rate) :	nh_("~"),r_(rate)
 	marker_size_=doc_marker.size();
 	speech_size_=doc_speech.size();
 
-	// Default config
-	base_name_     = "base";
-	target_name_  = "airlab";
-	god_name_	   = "Lorenzo";
-	guest_name_   = "guest";				// User to be detected
-
-	active_task_ = false;
-	path_planned_ = false;
-	user_recognized_ = false;
-
-	initial_time_ = ros::Time::now();
-
+	ROS_INFO("[Navigation]:: Auto Enabled '%s' ",(en_auto_ ? "true" : "false"));
 	ROS_INFO("[Navigation]:: Neck Enabled '%s' ",(en_neck ? "true" : "false"));
 	ROS_INFO("[Navigation]:: Voice Enabled '%s' ",(en_voice ? "true" : "false"));
 	ROS_INFO("[Navigation]:: Train Enabled '%s' ",(en_train ? "true" : "false"));
@@ -68,7 +72,7 @@ Navigation::Navigation(string name, int rate) :	nh_("~"),r_(rate)
 
 	//	Enable Robot interface
 	irobot_= new RobotInterface(en_neck,en_voice,en_train);
-	irobot_->neck_action(2,1); // Staigth neck position
+	irobot_->neck_action(2,1);		// Staigth neck position
 }
 
 Navigation::~Navigation()
@@ -83,39 +87,45 @@ Navigation::~Navigation()
 void Navigation::controller()
 {
 
-	while(ros::ok())
+	// Check Battery status
+	if(strcasecmp(irobot_->get_battery_status(),"LOW") == 0)
 	{
-		ros::spinOnce();
-
-		// Check Battery status
-		if(strcasecmp(irobot_->get_battery_status(),"LOW") == 0)
+		ROS_INFO("[Navigation]:: WARNING ! Battery Low, go to base to refill");
+		nav_goto(base_name_);
+	}
+	else if(active_task_)
+	{
+		if(!path_planned_)
 		{
-			ROS_INFO("[Navigation]:: WARNING ! Battery Low, go to base to refill");
-			nav_goto(base_name_);
+			nav_goto(target_name_);
+			abort_timeout_.start();
+			detect_timeout_.start();
+			path_planned_ = true;
 		}
-		else if(active_task_)
+		else if(path_planned_)
 		{
-			if(!path_planned_)
-			{
-				nav_goto(target_name_);
-				abort_timeout_.start();
-				detect_timeout_.start();
-				path_planned_ = true;
-			}
-			else if(path_planned_)
-			{
-				//getNavigationStatus();
-			}
-
+			//getNavigationStatus();
 		}
-		else
+	}
+	else if (en_auto_)
+	{
+		if(!path_planned_)
+		{
+			nav_random_path();			// Ramdom navigation
+		}
+		else	 if(user_recognized_)
+		{
+			// Robot just find someone. Go toward him
+			nav_goto_detected_user();
+			user_recognized_= false;	// Set path just once
+			path_to_user_ = true;			// Set following user path
+		}
+		else if(!path_to_user_)
 		{
 			/* Looking for user */
+			user_detect("none");
 		}
-
-		r_.sleep();
 	}
-	irobot_->base_stop();
 }
 
 //=================================================================
@@ -166,8 +176,11 @@ void Navigation::nav_abortTask()
 {
 	ROS_INFO("[Navigator]:: Abort Task");
 
-	active_task_ = false;
-	path_planned_ = false;
+	active_task_ 		= false;
+	path_planned_  = false;
+	path_to_user_   = false;
+	user_recognized_ = false;
+
 	irobot_->cancell_all_goal();
 
 	if(irobot_->train_enabled)
@@ -196,6 +209,7 @@ void Navigation::nav_goto(string name)
 	ROS_INFO("[Navigation]:: Going to %s ",name.c_str());
 	irobot_->base_setGoal(get_marker_by_name(name));
 }
+
 //=================================================================
 // Navigate to position given angle and distance
 //=================================================================
@@ -225,23 +239,51 @@ void Navigation::nav_goto(float distance,float deg_angle)
 
 	irobot_->base_setGoal(goal);
 }
-
-void Navigation::nav_goto_user()
+//=================================================================
+// Navigate to unknown user
+//=================================================================
+void Navigation::nav_goto_detected_user()
 {
-	user_detect("none");
 	t_user user= irobot_->getDetectedUser();
-	nav_goto(user.distance,user.angle);
+	user.distance = user.distance - APPROACH_DISTANCE > APPROACH_DISTANCE ? (user.distance - APPROACH_DISTANCE) : 0 ;
+	ROS_DEBUG("[Navigation]:: Detected %s at %f m delta angle %f degree",user.name.c_str(),user.distance,user.angle);
+	nav_goto(user.distance- APPROACH_DISTANCE,user.angle);	// We want the robot to keep a small distance from detection point
 }
 
 //=================================================================
-// Wait in position till one condition is verified
+// Navigate using random path
+//=================================================================
+void Navigation::nav_random_path()
+{
+	MBGoal goal;
+	unsigned long long x,y;
+
+	goal.target_pose.header.frame_id = "/map";
+	goal.target_pose.header.stamp = ros::Time::now();
+
+	if(map_.info.width != 0 && map_.info.height != 0 && path_planned_ == false)
+	{
+		//ROS_INFO("%d %d",map_.info.width,map_.info.height);
+		x = rand() % map_.info.width;
+		y = rand() % map_.info.height;
+
+		goal.target_pose.pose.position.x = x*map_.info.resolution;
+		goal.target_pose.pose.position.y = y*map_.info.resolution;
+		goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(0.0);
+
+		irobot_->base_setGoal(goal);
+		path_planned_ = true;
+	}
+
+}
+
+//=================================================================
+// Wait in position till one condition is verified	- TODO Finish
 //=================================================================
 void Navigation::nav_wait()
 {
 	ROS_INFO("[Navigation]:: Waiting  for user.....");
-
 	sleep(WAIT_TIME);
-
 }
 
 //=================================================================
@@ -263,27 +305,36 @@ void Navigation::nav_get_status()
 		ROS_INFO("[Navigator]:: Waiting for an action");
 }
 
-//=====================================
-// Check user face and start backtract action if none detected
-//=====================================
+//=================================================================
+//	Check user face and start backtract action if none detected
+//=================================================================
 void Navigation::user_detect(string user_name)
 {
-	ROS_INFO("[Navigator]:: Start detection procedure.");
+	if(irobot_->robot_check_user(guest_name_))
+		setUserDetection(true);
+}
 
+//=================================================================
+//	Fire a Detection timeout - TODO Test
+//=================================================================
+void Navigation::user_detectTimer(const ros::TimerEvent& e)
+{
+	ROS_INFO("[Navigator]:: Detect timeout. Check user presence.");
+
+	//	First Stop every robot action
+	irobot_->cancell_all_goal();
 	// Remove current navigation goal
 	path_planned_=false;
 	user_recognized_=false;
-
-	irobot_->cancell_all_goal();
 
 	ros::Time init_detection = ros::Time::now();
 	ros::Duration timeout(30.0);
 
 	while((ros::Time::now() - init_detection < timeout) && !user_recognized_)
 	{
+		irobot_->base_rotate(const_cast<char *>("LEFT"));	// Rotate robot base because he should be on the robot side
 
-		irobot_->base_rotate(const_cast<char *>("LEFT"));
-
+		//Check user presence
 		if(irobot_->robot_check_user(guest_name_))
 			setUserDetection(true);
 
@@ -291,26 +342,15 @@ void Navigation::user_detect(string user_name)
 		r_.sleep();
 	}
 
-	irobot_->cancell_all_goal();	// Force stop face detection still alive
+	irobot_->cancell_all_goal();						// Force to stop face detection still alive or rotations
 
-	if(user_recognized_)
+	if(active_task_ && user_recognized_)
 	{
-		path_planned_=false;
-		user_recognized_=false;
-
+		path_planned_=false;							//	Not usefull but to remember that	 now the controller had to recalculate new robot path to target
+		user_recognized_=false;					//	User found no more interesting
 	}
-	else if(active_task_)								// Recover user only if there's a navigation goal. Not used in testing
-		user_recover(guest_name_);			// User not found start Backtracking procedure
-
-}
-
-//=================================================================
-//	Fire a Detection timeout
-//=================================================================
-void Navigation::user_detectTimer(const ros::TimerEvent& e)
-{
-	ROS_INFO("[Navigator]:: Detect timeout. Check user presence.");
-	user_detect(guest_name_);
+	else if(active_task_)								// Recover user only if there's a navigation goal to target location.
+		user_recover(guest_name_);				// User not found start Backtracking procedure
 }
 
 //=====================================
@@ -320,18 +360,18 @@ void Navigation::user_recover(string user_name)
 {
 	ROS_INFO("[Navigator]:: Start backtracking user.");
 
-	irobot_->cancell_all_goal();
-	irobot_->base_setGoal(last_user_detection_);
+	irobot_->cancell_all_goal();															// Force to stop face detection still alive or rotations
+	irobot_->base_setGoal(last_user_detection_);						//	Go to last detection position of user
 
-	user_recognized_=false;	// Just in case
+	user_recognized_=false;															// Just in case
 
-	while(!irobot_->base_getStatus() || !user_recognized_)
+	while(!irobot_->base_getStatus() || !user_recognized_)		//	Check if reached last detection position or if the user has been found
 	{
 		if(irobot_->robot_check_user(guest_name_))
 		{
 			active_task_=true;
-			path_planned_=false;
-			setUserDetection(true);
+			path_planned_=false;															//	Recalc path to target location
+			setUserDetection(true);														//	Set new detection location
 		}
 		ros::spinOnce();
 		r_.sleep();
@@ -339,7 +379,7 @@ void Navigation::user_recover(string user_name)
 
 	if(!user_recognized_)
 	{
-		ROS_INFO("[Navigator]:: No user found while navigating in last detected position. He disappear. Task Aborted. ");
+		ROS_INFO("[Navigator]:: No user found during Backtracking. He disappear. Task Aborted. ");
 		nh_.createTimer(ros::Duration(0), &Navigation::nav_abortTask,this,true,true);
 	}
 }
@@ -448,6 +488,18 @@ void Navigation::odometry_callback(const nav_msgs::Odometry::ConstPtr& msg)
 }
 
 //=====================================
+// Map callback
+//=====================================
+void Navigation::map_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
+{
+	map_.info.width = msg->info.width;
+	map_.info.height = msg->info.height;
+	map_.info.resolution = msg->info.resolution;
+	ROS_DEBUG("[Map]:: Map height %d - width %d",map_.info.height,map_.info.width);
+}
+
+
+//=====================================
 // Kill everything and shutdown
 //=====================================
 bool Navigation::abort_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
@@ -487,8 +539,13 @@ bool Navigation::goto_callback(e2_msgs::Goto::Request& request, e2_msgs::Goto::R
 bool Navigation::detect_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
 {
 	user_detect(guest_name_);
-	t_user user= irobot_->getDetectedUser();
-	nav_goto(user.distance,user.angle);
+
+	if(user_recognized_)
+	{
+		nav_goto_detected_user();
+		user_recognized_ = false;
+	}
+
 	return true;
 }
 

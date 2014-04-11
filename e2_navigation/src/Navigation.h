@@ -22,9 +22,13 @@
 #include "e2_msgs/NeckAction.h"
 #include "std_srvs/Empty.h"
 #include "nav_msgs/Odometry.h"
+#include "nav_msgs/OccupancyGrid.h"
 
-#define DETECT_TIMEOUT	 			60																// Define the time before fire a detection request
-#define ABORT_TIMEOUT 				300																// Navigation timeout
+#include <stdlib.h>
+
+#define APPROACH_DISTANCE		0.5 					// Define distance where robot had to place once detected a user (m)
+#define DETECT_TIMEOUT	 			60					// Define the time before fire a detection request
+#define ABORT_TIMEOUT 				300					// Navigation timeout
 #define WAIT_TIME							5
 
 class Navigation
@@ -46,7 +50,8 @@ class Navigation
 	    void nav_get_status(); 														// Print navigation info in console
 	    void nav_goto(string name);											// Navigate to known location
 	    void nav_goto(float distance,float angle);					// Navigate to new position given angle and distance
-	    void nav_goto_user();														//	Check user in the video frame and navigate to him
+	    void nav_goto_detected_user();									//	go to the last position of detected user
+	    void nav_random_path();													//	Create a random navigation path
 	    void nav_wait();
 
 		void user_detect(string user_name); 								// Detect user face and check if it's the last trained person
@@ -62,6 +67,7 @@ class Navigation
 		bool train_callback(e2_msgs::Train::Request& request, e2_msgs::Train::Response& response);
 		bool talk_callback(e2_msgs::Talk::Request& request, e2_msgs::Talk::Response& response);
 		void odometry_callback(const nav_msgs::Odometry::ConstPtr& msg);
+		void map_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg);
 
 	private:
 
@@ -81,9 +87,13 @@ class Navigation
 		int marker_size_,speech_size_;
 		string base_name_,target_name_,god_name_,guest_name_;
 
+		bool en_auto_;							//	If true the robot will start to randomly navigate in the ambient looking for people
 		bool active_task_;					//if there's an active task
 	    bool path_planned_;				// if the robot is following a navigation path
+	    bool path_to_user_;				// true if the robot is following a path to reach a user
 	    bool user_recognized_;			// User recognized by facerecognition
+
+	    nav_msgs::OccupancyGrid map_;
 
 		void setUserDetection(bool status);	// Set new position for user detection
 

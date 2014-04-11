@@ -6,6 +6,7 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /Odometry1
         - /Polygon1
       Splitter Ratio: 0.5
     Tree Height: 318
@@ -201,7 +202,7 @@ Visualization Manager:
       Class: rviz/Odometry
       Color: 118; 159; 21
       Enabled: true
-      Keep: 100
+      Keep: 2
       Length: 1
       Name: Odometry
       Position Tolerance: 0.1
@@ -246,22 +247,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 19.9209
+      Distance: 21.0538
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -1.21672
-        Y: -0.360512
-        Z: 0.0383106
+        X: -0.753066
+        Y: 1.27461
+        Z: -0.578323
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.344798
+      Pitch: 0.764798
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 1.44585
+      Yaw: 1.56085
     Saved: ~
 Window Geometry:
   Displays:

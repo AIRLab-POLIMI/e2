@@ -58,7 +58,7 @@ public:
 
 		textColor = CV_RGB(0,255,255); 								// light blue text
 		confidence_value = 0.82;											//a face recognized with confidence value higher than the confidence_value threshold is accepted as valid.
-		show_screen_flag = true;											//if output screen is shown
+		show_screen_flag = false;											//if output screen is shown
 		add_face_number = 25;												//a parameter for the "add_face_images" goal which determines the number of training images for a new face (person) to be acquired from the video stream
 		person_number = 0;														//the number of persons in the training file (train.txt)
 
@@ -315,6 +315,7 @@ public:
 			r.sleep();
 
 			mutex_.unlock();
+			as_.setAborted();
 			return;
 		}
 
@@ -331,10 +332,10 @@ public:
 		 * So, compute the distance from the center (in pixels), multiply by 57/(640^2+480^2)^1/2 , and you have its angle from the center
 		 */
 		const float angle_pixel_kinect = 0.07125;
-		float angle = (320 - x) * angle_pixel_kinect;
+		float angle = -(320 - x) * angle_pixel_kinect;
 
-		ROS_INFO("[FaceRecognition]:: X: %f", x);
-		ROS_INFO("[FaceRecognition]:: Angle: %f", angle);
+		//ROS_INFO("[FaceRecognition]:: X: %f", x);
+		//ROS_INFO("[FaceRecognition]:: Angle: %f", angle);
 
 		text_image.str("");
 		text_image << "Distance:  " <<  distance << "mm" <<endl;
