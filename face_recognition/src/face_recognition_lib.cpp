@@ -1,158 +1,135 @@
-/*************************************************************
- * Library for face recognition
- *************************************************************/
-
 using namespace std;
 
-//#define USE_MAHALANOBIS_DISTANCE	// You might get better recognition accuracy if you enable this.
-class FaceRecognitionLib
-{
-	public:
+#define USE_MAHALANOBIS_DISTANCE	// You might get better recognition accuracy if you enable this.
 
-		char *dataFolder;
-		char *train_filename;
-		char *facedata_filename;
-		char *faceCascade_filename;
-		char *original_train_filename;
-		char *original_data_filename;
+class FaceRecognitionLib{
 
-		string data_folder;
-		string original_train_file;
-		string original_data_folder;
+public:
+	string path;
+	string data_folder;
+	string original_train_file;
+	string original_data_folder;
 
-		string path;
-		string train_file;
-		string facedata_file;
-		string faceCascade_file;
+	string train_file;
+	string facedata_file;
+	string faceCascade_filename;
 
 
-		// Global variables
-		int SAVE_EIGENFACE_IMAGES; 											// Set to 0 if you don't want images of the Eigenvectors saved to files (for debugging).
-		IplImage ** faceImgArr; 															// array of face images
-		vector<string> personNames; 												// array of person names (indexed by the person number). Added by Shervin.
+	// Global variables
+	int SAVE_EIGENFACE_IMAGES; 											// Set to 0 if you don't want images of the Eigenvectors saved to files (for debugging).
+	IplImage ** faceImgArr; 															// array of face images
+	vector<string> personNames; 												// array of person names (indexed by the person number). Added by Shervin.
 
-		int faceWidth; 																			// Default dimensions for faces in the face recognition database. Added by Shervin.
-		int faceHeight; 																			//	"		"		"		"		"		"
-		int nPersons; 																			// the number of people in the training set. Added by Shervin.
-		int nTrainFaces;																		// the number of training images
-		int nEigens; 																				// the number of eigenvalues
+	int faceWidth; 																			// Default dimensions for faces in the face recognition database. Added by Shervin.
+	int faceHeight; 																			//	"		"		"		"		"		"
+	int nPersons; 																			// the number of people in the training set. Added by Shervin.
+	int nTrainFaces;																		// the number of training images
+	int nEigens; 																				// the number of eigenvalues
 
-		IplImage * pAvgTrainImg;														// the average image
-		IplImage ** eigenVectArr; 														// eigenvectors
-		CvMat * eigenValMat;																// eigenvalues
-		CvMat * projectedTrainFaceMat; 											// projected training faces
-		CvHaarClassifierCascade* faceCascade;
-		CvMat * trainPersonNumMat; 												// the person numbers during training
-		bool database_updated;
+	IplImage * pAvgTrainImg;														// the average image
+	IplImage ** eigenVectArr; 														// eigenvectors
+	CvMat * eigenValMat;																// eigenvalues
+	CvMat * projectedTrainFaceMat; 											// projected training faces
+	CvHaarClassifierCascade* faceCascade;
+	CvMat * trainPersonNumMat; 												// the person numbers during training
+	bool database_updated;
 
-		//Functions:
-		bool learn(char *szFileTrain);
-		void doPCA();
-		void storeTrainingData();
-		int loadTrainingData(CvMat ** pTrainPersonNumMat);
-		int findNearestNeighbor(float * projectedTestFace);
-		int findNearestNeighbor(float * projectedTestFace, float *pConfidence);
-		int loadFaceImgArray(char * filename);
-		void storeEigenfaceImages();
-		IplImage* convertImageToGreyscale(const IplImage *imageSrc);
-		IplImage* cropImage(const IplImage *img, const CvRect region);
-		IplImage* resizeImage(const IplImage *origImg, int newWidth, int newHeight);
-		IplImage* convertFloatImageToUcharImage(const IplImage *srcImg);
-		CvRect detectFaceInImage(const IplImage *inputImg,	const CvHaarClassifierCascade* cascade);
-		bool retrainOnline(void);
+	//Functions:
+	bool learn(const char *szFileTrain);
+	void doPCA();
+	bool retrainOnline(void);
+	void storeTrainingData();
+	int loadTrainingData(CvMat ** pTrainPersonNumMat);
+	int findNearestNeighbor(float * projectedTestFace);
+	int findNearestNeighbor(float * projectedTestFace, float *pConfidence);
+	int loadFaceImgArray(const char * filename);
+	void storeEigenfaceImages();
+	IplImage* convertImageToGreyscale(const IplImage *imageSrc);
+	IplImage* cropImage(const IplImage *img, const CvRect region);
+	IplImage* resizeImage(const IplImage *origImg, int newWidth, int newHeight);
+	IplImage* convertFloatImageToUcharImage(const IplImage *srcImg);
+	CvRect detectFaceInImage(const IplImage *inputImg,	const CvHaarClassifierCascade* cascade);
 
-		FaceRecognitionLib() {
-			SAVE_EIGENFACE_IMAGES = 1;
-			faceImgArr = 0;
-			faceWidth = 120;
-			faceHeight = 90;
-			nPersons = 0;
-			nTrainFaces = 0;
-			nEigens = 0;
-			pAvgTrainImg = 0;
-			eigenVectArr = 0;
-			eigenValMat = 0;
-			projectedTrainFaceMat = 0;
-			database_updated = false;
+	FaceRecognitionLib()
+	{
+		SAVE_EIGENFACE_IMAGES = 1;
+		faceImgArr = 0;
+		faceWidth = 120;
+		faceHeight = 90;
+		nPersons = 0;
+		nTrainFaces = 0;
+		nEigens = 0;
+		pAvgTrainImg = 0;
+		eigenVectArr = 0;
+		eigenValMat = 0;
+		projectedTrainFaceMat = 0;
+		database_updated = false;
 
-			path = ros::package::getPath("face_recognition");
+		path = ros::package::getPath("face_recognition");
 
-			data_folder = path + "/data";
-			original_train_file = path + "/backup/train.txt";
-			original_data_folder = path + "/backup";
+		data_folder = path + "/data";
+		original_train_file = path + "/backup/train.txt";
+		original_data_folder = path + "/backup";
 
-			train_file = path + "/config/train.txt";
-			facedata_file = path + "/config/facedata.xml";
-			faceCascade_file = path + "/haarcascade_frontalface_alt.xml";
+		train_file = path + "/config/train.txt";
+		facedata_file = path + "/config/facedata.xml";
+		faceCascade_filename = path + "/haarcascade_frontalface_alt.xml";
 
-			dataFolder = new char[data_folder.length() + 1];
-			train_filename = new char[train_file.length() + 1];
-			facedata_filename = new char[facedata_file.length() + 1];
-			faceCascade_filename = new char[faceCascade_file.length() + 1];
-			original_data_filename = new char[original_data_folder.length() + 1];
-			original_train_filename = new char[original_train_file.length() + 1];
+		// Load the HaarCascade classifier for face detection.
+		faceCascade = (CvHaarClassifierCascade*) cvLoad(faceCascade_filename.c_str(), 0,	0, 0);
 
-			std::strcpy(dataFolder, data_folder.c_str());
-			std::strcpy(train_filename, train_file.c_str());
-			std::strcpy(facedata_filename, facedata_file.c_str());
-			std::strcpy(faceCascade_filename, faceCascade_file.c_str());
-			std::strcpy(original_data_filename, original_data_folder.c_str());
-			std::strcpy(original_train_filename, original_train_file.c_str());
-
-			// Load the HaarCascade classifier for face detection.
-			faceCascade = (CvHaarClassifierCascade*) cvLoad(faceCascade_filename, 0,	0, 0);
-
-			if (!faceCascade) {
-				ROS_INFO("Could not load Haarcascade Face detection classifier in '%s'.",faceCascade_filename);
-				exit(1);
-			}
-
-			// Make sure there is a "data" folder, for storing the new person.
-			mkdir(dataFolder, S_IRWXU | S_IRWXG | S_IRWXO);
-
-			// Load the previously saved training data
-			trainPersonNumMat = 0;
-			if (loadTrainingData(&trainPersonNumMat)) {
-				faceWidth = pAvgTrainImg->width;
-				faceHeight = pAvgTrainImg->height;
-				database_updated = true;
-			} else {
-				ROS_INFO("Will try to train from images");
-				if (!retrainOnline())
-					ROS_INFO("Could not train from images");
-			}
+		if (!faceCascade) {
+			ROS_INFO("Could not load Haarcascade Face detection classifier in '%s'.",faceCascade_filename.c_str());
+			exit(1);
 		}
 
-		~FaceRecognitionLib(void)
-		{
-			cvReleaseHaarClassifierCascade(&faceCascade);
-			if (trainPersonNumMat)
-				cvReleaseMat(&trainPersonNumMat);
-			int i;
-			if (faceImgArr) {
-				for (i = 0; i < nTrainFaces; i++)
-					if (faceImgArr[i])
-						cvReleaseImage(&faceImgArr[i]);
-				cvFree(&faceImgArr);
-			}
-			if (eigenVectArr) {
-				for (i = 0; i < nEigens; i++)
-					if (eigenVectArr[i])
-						cvReleaseImage(&eigenVectArr[i]);
-				cvFree(&eigenVectArr);
-			}
-			if (trainPersonNumMat)
-				cvReleaseMat(&trainPersonNumMat);
-			personNames.clear();
-			if (pAvgTrainImg)
-				cvReleaseImage(&pAvgTrainImg);
-			if (eigenValMat)
-				cvReleaseMat(&eigenValMat);
-			if (projectedTrainFaceMat)
-				cvReleaseMat(&projectedTrainFaceMat);
+		// Make sure there is a "data" folder, for storing the new person.
+		mkdir(data_folder.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
+
+		// Load the previously saved training data
+		trainPersonNumMat = 0;
+		if (loadTrainingData(&trainPersonNumMat)) {
+			faceWidth = pAvgTrainImg->width;
+			faceHeight = pAvgTrainImg->height;
+			database_updated = true;
+		} else {
+			ROS_INFO("Will try to train from images");
+			if (!retrainOnline())
+				ROS_INFO("Could not train from images");
 		}
+	}
+
+	~FaceRecognitionLib(void)
+	{
+		cvReleaseHaarClassifierCascade(&faceCascade);
+		if (trainPersonNumMat)
+			cvReleaseMat(&trainPersonNumMat);
+		int i;
+		if (faceImgArr) {
+			for (i = 0; i < nTrainFaces; i++)
+				if (faceImgArr[i])
+					cvReleaseImage(&faceImgArr[i]);
+			cvFree(&faceImgArr);
+		}
+		if (eigenVectArr) {
+			for (i = 0; i < nEigens; i++)
+				if (eigenVectArr[i])
+					cvReleaseImage(&eigenVectArr[i]);
+			cvFree(&eigenVectArr);
+		}
+		if (trainPersonNumMat)
+			cvReleaseMat(&trainPersonNumMat);
+		personNames.clear();
+		if (pAvgTrainImg)
+			cvReleaseImage(&pAvgTrainImg);
+		if (eigenValMat)
+			cvReleaseMat(&eigenValMat);
+		if (projectedTrainFaceMat)
+			cvReleaseMat(&projectedTrainFaceMat);
+	}
 
 };
+
 //=============================================================================================
 // Perform face detection on the input image, using the given Haar cascade classifier.
 // Returns a rectangle for the detected region in the given image.
@@ -168,7 +145,6 @@ CvRect FaceRecognitionLib::detectFaceInImage(const IplImage *inputImg, const CvH
 	IplImage *greyImg = 0;
 	CvMemStorage* storage;
 	CvRect rc;
-	double t;
 	CvSeq* rects;
 
 	storage = cvCreateMemStorage(0);
@@ -202,8 +178,10 @@ CvRect FaceRecognitionLib::detectFaceInImage(const IplImage *inputImg, const CvH
 	return rc; // Return the biggest face found, or (-1,-1,-1,-1).
 }
 
+//=============================================================================
 // Return a new image that is always greyscale, whether the input image was RGB or Greyscale.
 // Remember to free the returned image using cvReleaseImage() when finished.
+//=============================================================================
 IplImage* FaceRecognitionLib::convertImageToGreyscale(const IplImage *imageSrc)
 {
 	IplImage *imageGrey;
@@ -218,8 +196,10 @@ IplImage* FaceRecognitionLib::convertImageToGreyscale(const IplImage *imageSrc)
 	return imageGrey;
 }
 
+//=============================================================================
 // Creates a new image copy that is of a desired size.
 // Remember to free the new image later.
+//=============================================================================
 IplImage* FaceRecognitionLib::resizeImage(const IplImage *origImg, int newWidth,	int newHeight)
 {
 	IplImage *outImg = 0;
@@ -253,7 +233,9 @@ IplImage* FaceRecognitionLib::resizeImage(const IplImage *origImg, int newWidth,
 	return outImg;
 }
 
+//=============================================================================
 // Returns a new image that is a cropped version of the original image.
+//=============================================================================
 IplImage* FaceRecognitionLib::cropImage(const IplImage *img,const CvRect region)
 {
 	IplImage *imageTmp;
@@ -284,8 +266,10 @@ IplImage* FaceRecognitionLib::cropImage(const IplImage *img,const CvRect region)
 	return imageRGB;
 }
 
+//=============================================================================
 // Get an 8-bit equivalent of the 32-bit Float image.
 // Returns a new image, so remember to call 'cvReleaseImage()' on the result.
+//=============================================================================
 IplImage* FaceRecognitionLib::convertFloatImageToUcharImage(const IplImage *srcImg)
 {
 	IplImage *dstImg = 0;
@@ -313,6 +297,9 @@ IplImage* FaceRecognitionLib::convertFloatImageToUcharImage(const IplImage *srcI
 	return dstImg;
 }
 
+//=============================================================================
+//	Store EigenFace
+//=============================================================================
 void FaceRecognitionLib::storeEigenfaceImages()
 {
 	// Store the average image to a file
@@ -352,8 +339,10 @@ void FaceRecognitionLib::storeEigenfaceImages()
 	}
 }
 
+//=============================================================================
 // Train from the data in the given text file, and store the trained data into the file 'facedata.xml'.
-bool FaceRecognitionLib::learn(char *szFileTrain)
+//=============================================================================
+bool FaceRecognitionLib::learn(const char *szFileTrain)
 {
 	int i, offset;
 
@@ -387,16 +376,16 @@ bool FaceRecognitionLib::learn(char *szFileTrain)
 
 }
 
+//=============================================================================
 // Open the training data from the file 'facedata.xml'.
+//=============================================================================
 int FaceRecognitionLib::loadTrainingData(CvMat ** pTrainPersonNumMat)
 {
 	CvFileStorage * fileStorage;
 	int i;
 
-
-
 	// create a file-storage interface
-	fileStorage = cvOpenFileStorage(facedata_filename, 0, CV_STORAGE_READ);
+	fileStorage = cvOpenFileStorage(facedata_file.c_str(), 0, CV_STORAGE_READ);
 	if (!fileStorage) {
 		ROS_INFO("Can't open training database file 'facedata.xml'.");
 		return 0;
@@ -451,14 +440,16 @@ int FaceRecognitionLib::loadTrainingData(CvMat ** pTrainPersonNumMat)
 	return 1;
 }
 
+//=============================================================================
 // Save the training data to the file 'facedata.xml'.
+//=============================================================================
 void FaceRecognitionLib::storeTrainingData()
 {
 	CvFileStorage * fileStorage;
 	int i;
 
 	// create a file-storage interface
-	fileStorage = cvOpenFileStorage(facedata_filename, 0, CV_STORAGE_WRITE);
+	fileStorage = cvOpenFileStorage(facedata_file.c_str(), 0, CV_STORAGE_WRITE);
 
 	// Store the person names. Added by Shervin.
 	cvWriteInt(fileStorage, "nPersons", nPersons);
@@ -488,7 +479,9 @@ void FaceRecognitionLib::storeTrainingData()
 	cvReleaseFileStorage(&fileStorage);
 }
 
+//=============================================================================
 // Find the most likely person based on a detection. Returns the index, and stores the confidence value into pConfidence.
+//=============================================================================
 int FaceRecognitionLib::findNearestNeighbor(float * projectedTestFace,	float *pConfidence)
 {
 	//double leastDistSq = 1e12;
@@ -503,11 +496,12 @@ int FaceRecognitionLib::findNearestNeighbor(float * projectedTestFace,	float *pC
 		{
 			float d_i = projectedTestFace[i] - projectedTrainFaceMat->data.fl[iTrain * nEigens + i];
 
-			#ifdef USE_MAHALANOBIS_DISTANCE
-						distSq += d_i*d_i / eigenValMat->data.fl[i]; // Mahalanobis distance (might give better results than Eucalidean distance)
-			#else
-						distSq += d_i * d_i; // Euclidean distance.
-			#endif
+#ifdef USE_MAHALANOBIS_DISTANCE
+	distSq += d_i*d_i / eigenValMat->data.fl[i]; // Mahalanobis distance (might give better results than Eucalidean distance)
+#else
+	distSq += d_i * d_i; // Euclidean distance.
+#endif
+
 		}
 
 		if (distSq < leastDistSq)
@@ -526,8 +520,10 @@ int FaceRecognitionLib::findNearestNeighbor(float * projectedTestFace,	float *pC
 	return iNearest;
 }
 
+//=============================================================================
 // Do the Principal Component Analysis, finding the average image
 // and the eigenfaces that represent any image in the given dataset.
+//=============================================================================
 void FaceRecognitionLib::doPCA()
 {
 	int i;
@@ -559,8 +555,10 @@ void FaceRecognitionLib::doPCA()
 	cvNormalize(eigenValMat, eigenValMat, 1, 0, CV_L1, 0);
 }
 
+//=============================================================================
 // Read the names & image filenames of people from a text file, and load all those images listed.
-int FaceRecognitionLib::loadFaceImgArray(char * filename)
+//=============================================================================
+int FaceRecognitionLib::loadFaceImgArray(const char * filename)
 {
 	FILE * imgListFile = 0;
 	char imgFilename[512];
@@ -650,8 +648,10 @@ int FaceRecognitionLib::loadFaceImgArray(char * filename)
 	return nFaces;
 }
 
+//=============================================================================
 // Re-train the new face rec database 
 // Depending on the number of images in the training set and number of people, it might take 30 seconds or so.
+//=============================================================================
 bool FaceRecognitionLib::retrainOnline(void)
 {
 	// Free & Re-initialize the global variables.
@@ -679,8 +679,8 @@ bool FaceRecognitionLib::retrainOnline(void)
 				cvReleaseImage(&eigenVectArr[i]);
 			}
 
-			cvFree(&eigenVectArr); // eigenvectors
-			eigenVectArr = 0;
+		cvFree(&eigenVectArr); // eigenvectors
+		eigenVectArr = 0;
 	}
 
 	if (trainPersonNumMat)
@@ -709,7 +709,7 @@ bool FaceRecognitionLib::retrainOnline(void)
 		projectedTrainFaceMat = 0;
 	} // projected training faces
 	// Retrain from the data in the files
-	if (!learn(train_filename))
+	if (!learn(train_file.c_str()))
 		return (false);
 
 	database_updated = true;

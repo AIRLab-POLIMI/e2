@@ -6,21 +6,24 @@
   	
 	<!-- Publish odom -->
   	<node pkg="e2_simulator" type="e2_fake_odom" name="e2_fake_odom"/> 
-	
-	<!-- Static Transform -->
+  	
+  	<!-- Static Transform -->
 	<node pkg="tf" type="static_transform_publisher" name="odom_to_map"
     	args="0.0 0 0 0 0 0  /map /odom 100" /> 
-	
-    <!-- Kinect launch and scanner info -->
+    	
+	<!-- Kinect launch and scanner info -->
 	<include file="$(find e2_launch)/launch/simulation_scanner.launch" />
 
 	<!-- Face Recognition Node -->
 	<include file="$(find e2_launch)/launch/face_recognition.launch" />
-  
-	<!-- Run the map server -->
+    
+	<!-- Voice Node Server-->
+  	<node name="e2_voice_node" pkg="e2_voice" type="e2_voice_node" respawn="false" output="screen" />
+  	
+  	<!-- Run the map server -->
     <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_fiera)"/>
-
-	<!-- Run Move Base -->
+    
+    <!-- Run Move Base -->
 	<include file="$(find e2_launch)/launch/move_base.launch" />
 	
 	<!-- Navigation Node -->
@@ -31,10 +34,7 @@
 	  	<param name="en_train" type="bool" value="false" /> <!-- Disabled in simulation beacause not good train with meshes-->
 		<param name="marker_config" type="string" value="$(arg stand_fiera)" />
 	</node>
-	
-	<!-- Voice Node Server-->
-  	<node name="e2_voice_node" pkg="e2_voice" type="e2_voice_node" respawn="false" output="screen" />
-  	
+	  	
     <!-- Rviz -->
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find e2_launch)/launch/config/simulation.rviz"/>
     

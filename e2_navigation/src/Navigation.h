@@ -27,7 +27,7 @@
 #include <stdlib.h>
 
 #define APPROACH_DISTANCE		0.5 					// Define distance where robot had to place once detected a user (m)
-#define DETECT_TIMEOUT	 			60					// Define the time before fire a detection request
+#define DETECT_TIMEOUT	 			20					// Define the time before fire a detection request
 #define ABORT_TIMEOUT 				300					// Navigation timeout
 #define WAIT_TIME							5
 
@@ -51,6 +51,7 @@ class Navigation
 	    void nav_goto(string name);											// Navigate to known location
 	    void nav_goto(float distance,float angle);					// Navigate to new position given angle and distance
 	    void nav_goto_detected_user();									//	go to the last position of detected user
+	    bool nav_is_goal_reached();											//	check if navigatation goal is reached
 	    void nav_random_path();													//	Create a random navigation path
 	    void nav_wait();
 
@@ -66,6 +67,8 @@ class Navigation
 		bool neck_callback(e2_msgs::NeckAction::Request& request, e2_msgs::NeckAction::Response& response);
 		bool train_callback(e2_msgs::Train::Request& request, e2_msgs::Train::Response& response);
 		bool talk_callback(e2_msgs::Talk::Request& request, e2_msgs::Talk::Response& response);
+		bool auto_engage_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
+
 		void odometry_callback(const nav_msgs::Odometry::ConstPtr& msg);
 		void map_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg);
 

@@ -65,7 +65,7 @@ public:
 		as_.start();																		//starting the actionlib server
 
 		//if the number of persons in the training file is not equal with the number of persons in the trained database, the database is not updated and user should be notified to retrain the database if new tarining images are to be considered.
-		if (calcNumTrainingPerson(frl.train_filename) != frl.nPersons)
+		if (calcNumTrainingPerson(frl.train_file.c_str()) != frl.nPersons)
 		{
 			frl.database_updated = false;
 			ROS_INFO("[FaceRecognition]:: Alert: Database is not updated, You better (re)train from images!");
@@ -123,15 +123,15 @@ public:
 			case 5:
 				ROS_INFO("[FaceRecognition]::  * Restore to initial config");
 
-				std::remove(frl.train_filename);
-				boost::filesystem::remove_all(frl.dataFolder);
-				boost::filesystem::create_directory(frl.dataFolder);
-				boost::filesystem::copy_file(frl.original_train_filename, frl.train_filename);
+				std::remove(frl.train_file.c_str());
+				boost::filesystem::remove_all(frl.data_folder.c_str());
+				boost::filesystem::create_directory(frl.data_folder.c_str());
+				boost::filesystem::copy_file(frl.original_train_file.c_str(), frl.train_file.c_str());
 
 				DIR *dir;
 				struct dirent *ent;
 
-				if ((dir = opendir(frl.original_data_filename)) != NULL) {
+				if ((dir = opendir(frl.original_data_folder.c_str())) != NULL) {
 
 					/* print all the files and directories within directory */
 					while ((ent = readdir(dir)) != NULL)
@@ -139,7 +139,7 @@ public:
 						string src_file = frl.original_data_folder + "/" + ent->d_name;
 						string dst_file = frl.data_folder + "/" + ent->d_name;
 
-						if (!boost::filesystem::is_directory(src_file))
+						if (!boost::filesystem::is_directory(src_file.c_str()))
 							boost::filesystem::copy_file(src_file.c_str(),dst_file.c_str());
 					}
 					closedir(dir);
@@ -163,8 +163,9 @@ public:
 				r.sleep();
 				ros::shutdown();
 				break;
-			case 3:
+
 				//(train_database) Goal is to (re)train the database from training images
+			case 3:
 				if (frl.retrainOnline())
 					as_.setSucceeded(result_);
 				else
@@ -205,7 +206,7 @@ public:
 	//==============================================================
 	//	Calculate number training person from file
 	//==============================================================
-	int calcNumTrainingPerson(char * filename)
+	int calcNumTrainingPerson(const char * filename)
 	{
 		FILE * imgListFile = 0;
 		char imgFilename[512];
@@ -258,18 +259,19 @@ public:
 			mutex_.unlock();
 			return;
 		}
+
 		cv_bridge::CvImagePtr cv_ptr_rgb,cv_ptr_depth;
-		//convert from ros image format to opencv image format
 		try
 		{
+			//convert from ros image format to opencv image format
 			cv_ptr_rgb = cv_bridge::toCvCopy(msg_rgb);
 			cv_ptr_depth = cv_bridge::toCvCopy(msg_depth,image_encodings::TYPE_32FC1);
 		}
 		catch (cv_bridge::Exception& e)
 		{
 			ROS_ERROR("cv_bridge exception: %s", e.what());
-			as_.setPreempted();
 			ROS_INFO("[FaceRecognition]:: Goal %d is preempted", goal_id_);
+			as_.setPreempted();
 			mutex_.unlock();
 			return;
 		}
@@ -321,18 +323,17 @@ public:
 
 		cvRectangle(img_rgb, cvPoint(faceRect.x, faceRect.y),cvPoint(faceRect.x + faceRect.width - 1,faceRect.y + faceRect.height - 1), CV_RGB(0,255,0), 1,8, 0);
 		cvCircle(img_depth, cvPoint(faceRect.x+faceRect.width/2, faceRect.y+faceRect.height/2), 10,  CV_RGB(255,0,0), 3, 8, 0 );
+
+		// Angle calculation - Approximate
+		// Computing the angle requires only simple linear interpolation.
+		// For kinect horizontal angle of view is 57 degree for a resolution of 640x480 pixels
+		// So, compute the distance from the center (in pixels), multiply by 57/(640^2+480^2)^1/2 , and you have its angle from the center
+
+		const float angle_pixel_kinect = 0.07125;
 		float x = faceRect.x+faceRect.width/2;
 		float y = faceRect.y+faceRect.height/2;
-
-		float distance = cv_ptr_depth->image.at<float>(x,y);
-		/*
-		 *	Angle calculation - Approximate
-		 *	Computing the angle requires only simple linear interpolation.
-		 * For kinect horizontal angle of view is 57 degree for a resolution of 640x480 pixels
-		 * So, compute the distance from the center (in pixels), multiply by 57/(640^2+480^2)^1/2 , and you have its angle from the center
-		 */
-		const float angle_pixel_kinect = 0.07125;
 		float angle = -(320 - x) * angle_pixel_kinect;
+		float distance = cv_ptr_depth->image.at<float>(x,y);
 
 		//ROS_INFO("[FaceRecognition]:: X: %f", x);
 		//ROS_INFO("[FaceRecognition]:: Angle: %f", angle);
@@ -341,7 +342,8 @@ public:
 		text_image << "Distance:  " <<  distance << "mm" <<endl;
 		cvPutText(img_rgb, text_image.str().c_str(), cvPoint(20, 50), &font,CV_RGB(255,0,0));
 
-		faceImg = frl.cropImage(greyImg, faceRect); // Get the detected face image.
+		// Get the detected face image.
+		faceImg = frl.cropImage(greyImg, faceRect);
 
 		// Make sure the image is the same dimensions as the training images.
 		sizedImg = frl.resizeImage(faceImg, frl.faceWidth, frl.faceHeight);
@@ -362,7 +364,6 @@ public:
 			cvReleaseImage(&img_rgb);
 			cvReleaseImage(&img_depth);
 			as_.setPreempted();
-			ROS_INFO("[FaceRecognition]:: Goal %d is preempted", goal_id_);
 			mutex_.unlock();
 			return;
 		}
@@ -376,7 +377,7 @@ public:
 			if (add_face_count == 0)
 			{
 				//assign the correct number for the new person
-				person_number = calcNumTrainingPerson(frl.train_filename) + 1;
+				person_number = calcNumTrainingPerson(frl.train_file.c_str()) + 1;
 			}
 			char cstr[500];
 			char cstr_absolute[500];
@@ -391,7 +392,7 @@ public:
 			cvSaveImage(cstr, equalizedImg, NULL);
 
 			// Append the new person to the end of the training data.
-			trainFile = fopen(frl.train_filename, "a");
+			trainFile = fopen(frl.train_file.c_str(), "a");
 			fprintf(trainFile, "%d %s %s\n", person_number, &goal_argument_[0],cstr_absolute);
 			fclose(trainFile);
 
@@ -481,6 +482,7 @@ public:
 				ROS_INFO("[FaceRecognition]:: Confidence is less than %f, detected face is not considered.", (float)confidence_value);
 				text_image << "Confidence is less than " << confidence_value;
 				cvPutText(img_rgb, text_image.str().c_str(),cvPoint(faceRect.x, faceRect.y + faceRect.height + 25),&font, textColor);
+				as_.setAborted();
 			}
 			else
 			{
@@ -510,16 +512,16 @@ public:
 					feedback_.distance.push_back(distance);
 					as_.publishFeedback(feedback_);
 				}
-
 			}
-
 		}
+
 		if (show_screen_flag)
 		{
 			cvShowImage("rgb", img_rgb);
 			cvShowImage("depth", img_depth);
 			cvWaitKey(1);
 		}
+
 		cvReleaseImage(&equalizedImg);
 		cvReleaseImage(&img_rgb);
 		cvReleaseImage(&img_depth);
@@ -531,20 +533,24 @@ public:
 protected:
 	boost::mutex mutex_; 																				//for synchronization between executeCB and imageCB
 	std::string goal_argument_;
-	int goal_id_;
-	face_recognition::FaceRecognitionFeedback feedback_;
-	face_recognition::FaceRecognitionResult result_;
-	int add_face_count; 																					//help variable to count the number of training images already taken in the add_face_images goal
-	FILE *trainFile;
-	double confidence_value; 																			//a face recognized with confidence value higher than confidence_value threshold is accepted as valid.
-	bool show_screen_flag;		 																		//if output window is shown
-	int add_face_number; 																				//the number of training images to be taken in add_face_images goal
-	CvFont font;
-	CvScalar textColor;
-	ostringstream text_image;
 
 	ros::NodeHandle nh_;
 	FaceRecognitionLib frl;
+	face_recognition::FaceRecognitionFeedback feedback_;
+	face_recognition::FaceRecognitionResult result_;
+
+	FILE *trainFile;
+
+	int goal_id_;
+	int add_face_count; 																					//help variable to count the number of training images already taken in the add_face_images goal
+	double confidence_value; 																			//a face recognized with confidence value higher than confidence_value threshold is accepted as valid.
+	bool show_screen_flag;		 																		//if output window is shown
+	int add_face_number; 																				//the number of training images to be taken in add_face_images goal
+	int person_number; 																					//the number of persons in the train file (train.txt)
+
+	CvFont font;
+	CvScalar textColor;
+	ostringstream text_image;
 
 	typedef message_filters::Subscriber< sensor_msgs::Image > ImageSubscriber;
 	image_transport::ImageTransport it_;
@@ -554,19 +560,16 @@ protected:
 	message_filters::Synchronizer< MySyncPolicy > sync;
 
 	actionlib::SimpleActionServer<face_recognition::FaceRecognitionAction> as_;
-	int person_number; 																					//the number of persons in the train file (train.txt)
-
 };
-
 
 //--------------------------------------------------------------------------------------------
 //		Main code
 //--------------------------------------------------------------------------------------------
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
 	ros::init(argc, argv, "face_recognition");
 	FaceRecognition face_recognition(ros::this_node::getName());
 
 	ros::spin();
 	return 0;
 }
-

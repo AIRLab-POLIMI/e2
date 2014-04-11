@@ -101,11 +101,6 @@ int main(int argc,char* argv[]){
 	// Create a ROS node :
 	int _argc = 0;
 	char** _argv = NULL;
-	struct timeval tv;
-	unsigned int timeVal=0;
-
-	if (gettimeofday(&tv,NULL)==0)
-		timeVal=(tv.tv_sec*1000+tv.tv_usec/1000)&0x00ffffff;
 
 	std::string nodeName("e2_base_controller");
 	ros::init(_argc,_argv,nodeName);

@@ -67,9 +67,6 @@ int main(int argc, char** argv){
 
 		current_time = ros::Time::now();
 
-		//all odometry is 6DOF use quaternion
-		//geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(e2_pose.pose.);
-		double yaw = asin(1);
 		geometry_msgs::Quaternion odom_quat = e2_pose.pose.orientation;
 
 		geometry_msgs::TransformStamped odom_trans;
@@ -96,7 +93,6 @@ int main(int argc, char** argv){
 		odom.pose.pose= e2_pose.pose;
 		odom.pose.pose.position.z = 0.0;
 
-
 		// Set the velocity
 		odom.child_frame_id = "base_footprint";
 		odom.twist.twist=e2_twist.twist;
@@ -107,7 +103,7 @@ int main(int argc, char** argv){
 		last_time = current_time;
 
 		r.sleep();
-
 	}
 	ROS_INFO("Fake odom ended......");
+	ros::shutdown();
 }

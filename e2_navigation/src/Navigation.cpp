@@ -126,6 +126,11 @@ void Navigation::controller()
 			user_detect("none");
 		}
 	}
+	else
+	{
+		//nav_is_goal_reached();
+	}
+
 }
 
 //=================================================================
@@ -141,28 +146,23 @@ void Navigation::nav_newTask()
 
 		// Save new user face
 		if(irobot_->robot_train_user(guest_name_))
-		{
-			active_task_ = true;
 			irobot_->robot_talk(get_speech_by_name("train_success"));
-
-			if(irobot_->train_enabled)
-			{
-				abort_timeout_ = nh_.createTimer(ros::Duration(ABORT_TIMEOUT), &Navigation::nav_abortTask,this,true,false);
-				detect_timeout_ = nh_.createTimer(ros::Duration(DETECT_TIMEOUT), &Navigation::user_detectTimer,this,false,false);
-			}
-
-			// Save current position as first user detection position
-			initial_time_ = ros::Time::now();
-			setUserDetection(true);
-		}
 		else
 		{
-			active_task_ = false;
 			irobot_->robot_talk(get_speech_by_name("train_failed"));
+			return;
 		}
+
 	}
-	else
-		active_task_ = true;
+
+	active_task_ = true;
+
+	// Save current position as first user detection position
+	initial_time_ = ros::Time::now();
+	setUserDetection(true);
+
+	abort_timeout_ = nh_.createTimer(ros::Duration(ABORT_TIMEOUT), &Navigation::nav_abortTask,this,true,false);
+	detect_timeout_ = nh_.createTimer(ros::Duration(DETECT_TIMEOUT), &Navigation::user_detectTimer,this,false,false);
 
 	irobot_->neck_action(2,2);	//	Invitation Left
 	irobot_->robot_talk(get_speech_by_name("follow_me"));
@@ -181,13 +181,10 @@ void Navigation::nav_abortTask()
 	path_to_user_   = false;
 	user_recognized_ = false;
 
-	irobot_->cancell_all_goal();
+	abort_timeout_.stop();
+	detect_timeout_.stop();
 
-	if(irobot_->train_enabled)
-	{
-		abort_timeout_.stop();
-		detect_timeout_.stop();
-	}
+	irobot_->cancell_all_goal();
 }
 
 //=================================================================
@@ -261,6 +258,8 @@ void Navigation::nav_random_path()
 	goal.target_pose.header.frame_id = "/map";
 	goal.target_pose.header.stamp = ros::Time::now();
 
+	srand (time(NULL));
+
 	if(map_.info.width != 0 && map_.info.height != 0 && path_planned_ == false)
 	{
 		//ROS_INFO("%d %d",map_.info.width,map_.info.height);
@@ -275,6 +274,14 @@ void Navigation::nav_random_path()
 		path_planned_ = true;
 	}
 
+}
+
+//=================================================================
+// Check if navigation goal is reached
+//=================================================================
+bool Navigation::nav_is_goal_reached()
+{
+	return irobot_->base_getStatus();
 }
 
 //=================================================================
@@ -346,11 +353,17 @@ void Navigation::user_detectTimer(const ros::TimerEvent& e)
 
 	if(active_task_ && user_recognized_)
 	{
+		ROS_INFO("NICE.....GO ON");
 		path_planned_=false;							//	Not usefull but to remember that	 now the controller had to recalculate new robot path to target
 		user_recognized_=false;					//	User found no more interesting
 	}
 	else if(active_task_)								// Recover user only if there's a navigation goal to target location.
-		user_recover(guest_name_);				// User not found start Backtracking procedure
+	//	user_recover(guest_name_);				// User not found start Backtracking procedure
+		ROS_INFO("FUCK RECOVER");
+	else
+	{
+		//nav_abortTask();
+	}
 }
 
 //=====================================
@@ -596,6 +609,25 @@ bool Navigation::talk_callback(e2_msgs::Talk::Request& request, e2_msgs::Talk::R
 	return true;
 }
 
+//=====================================
+// TODO - Fix this
+//=====================================
+bool Navigation::auto_engage_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
+{
+
+	nav_abortTask();
+	en_auto_ = true;
+
+	/*
+	nav_random_path();			// Ramdom navigation
+
+	while(!user_recognized_)
+		user_detect(guest_name_);
+
+	nav_goto_detected_user();
+	*/
+	return true;
+}
 
 //=====================================
 // Common operator for yaml file reading

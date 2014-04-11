@@ -151,13 +151,13 @@ void Odometry::UpdateOdometryEncoder()
 	if(fabs(vx)>0 && fabs(vr)>0 )
 	{
 		calc_delta_th(phi_1,phi_2,phi_3);
-		//calc_delta_xy(phi_1,phi_2,phi_3);
-		calc_delta_xy(0,phi_2,-phi_2);	 // Used to solve problem with triskar encoder bug
+		calc_delta_xy(phi_1,phi_2,phi_3);
+		//calc_delta_xy(0,phi_2,-phi_2);	 // Used to solve problem with triskar encoder bug
 	}
 	else if(fabs(vx)>0 && fabs(vr) == 0)
 	{
-		//calc_delta_xy(phi_1,phi_2,phi_3);
-		calc_delta_xy(0,phi_2,-phi_2);	// Used to solve problem with triskar encoder bug
+		calc_delta_xy(phi_1,phi_2,phi_3);
+		//calc_delta_xy(0,phi_2,-phi_2);	// Used to solve problem with triskar encoder bug
 	}
 	else if(fabs(vx)==0 && fabs(vr) > 0)
 	{
