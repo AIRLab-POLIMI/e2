@@ -1,6 +1,6 @@
 using namespace std;
 
-#define USE_MAHALANOBIS_DISTANCE	// You might get better recognition accuracy if you enable this.
+//#define USE_MAHALANOBIS_DISTANCE	// You might get better recognition accuracy if you enable this.
 
 class FaceRecognitionLib{
 
@@ -13,7 +13,6 @@ public:
 	string train_file;
 	string facedata_file;
 	string faceCascade_filename;
-
 
 	// Global variables
 	int SAVE_EIGENFACE_IMAGES; 											// Set to 0 if you don't want images of the Eigenvectors saved to files (for debugging).
@@ -55,7 +54,7 @@ public:
 		SAVE_EIGENFACE_IMAGES = 1;
 		faceImgArr = 0;
 		faceWidth = 120;
-		faceHeight = 90;
+		faceHeight = 120;
 		nPersons = 0;
 		nTrainFaces = 0;
 		nEigens = 0;
@@ -160,7 +159,7 @@ CvRect FaceRecognitionLib::detectFaceInImage(const IplImage *inputImg, const CvH
 	}
 
 	// Detect faces.
-	rects = cvHaarDetectObjects(detectImg, (CvHaarClassifierCascade*) cascade,storage, search_scale_factor, 3, flags, minFeatureSize);
+	rects = cvHaarDetectObjects(detectImg, (CvHaarClassifierCascade*) cascade,storage, search_scale_factor, 4, flags, minFeatureSize);
 	//ROS_INFO("[FaceRecognition]:: Detected %d faces!",rects->total);
 
 	// Get the first detected face (the biggest).

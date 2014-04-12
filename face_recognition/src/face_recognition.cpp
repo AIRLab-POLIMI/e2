@@ -43,7 +43,7 @@ public:
 	FaceRecognition(std::string name) :
 		frl(),
 		it_(nh_),
-		rgb_image_sub_( nh_ , "/camera/rgb/image_raw", 1 ),
+		rgb_image_sub_( nh_ , "/camera/rgb/image_color", 1 ),
 		depth_image_sub_( nh_ , "/camera/depth/image_raw", 1 ),
 		sync( MySyncPolicy( 10 ), rgb_image_sub_, depth_image_sub_ ),
 		as_(nh_, name,boost::bind(&FaceRecognition::executeCB, this, _1), false)
@@ -57,8 +57,8 @@ public:
 		goal_id_ = -99;
 
 		textColor = CV_RGB(0,255,255); 								// light blue text
-		confidence_value = 0.82;											//a face recognized with confidence value higher than the confidence_value threshold is accepted as valid.
-		show_screen_flag = false;											//if output screen is shown
+		confidence_value = 0.77;											//a face recognized with confidence value higher than the confidence_value threshold is accepted as valid.
+		show_screen_flag = true;											//if output screen is shown
 		add_face_number = 25;												//a parameter for the "add_face_images" goal which determines the number of training images for a new face (person) to be acquired from the video stream
 		person_number = 0;														//the number of persons in the training file (train.txt)
 
@@ -71,8 +71,8 @@ public:
 			ROS_INFO("[FaceRecognition]:: Alert: Database is not updated, You better (re)train from images!");
 		}
 
-		ROS_INFO("[FaceRecognition]:: rgb camera: %s","/camera/rgb/image_raw");
-		ROS_INFO("[FaceRecognition]:: depth camera: %s","/camera/depth/image_raw");
+		ROS_INFO("[FaceRecognition]:: rgb camera: %s","/camera/rgb/image_color");
+		ROS_INFO("[FaceRecognition]:: depth camera: %s","/camera/depth_registered/image_raw");
 
 		sync.registerCallback( boost::bind( &FaceRecognition::imageCB, this, _1, _2 ) );
 
@@ -265,7 +265,7 @@ public:
 		{
 			//convert from ros image format to opencv image format
 			cv_ptr_rgb = cv_bridge::toCvCopy(msg_rgb);
-			cv_ptr_depth = cv_bridge::toCvCopy(msg_depth,image_encodings::TYPE_32FC1);
+			cv_ptr_depth = cv_bridge::toCvCopy(msg_depth);
 		}
 		catch (cv_bridge::Exception& e)
 		{
@@ -317,7 +317,9 @@ public:
 			r.sleep();
 
 			mutex_.unlock();
-			as_.setAborted();
+			if(goal_id_ != 2)
+				as_.setAborted();
+
 			return;
 		}
 
