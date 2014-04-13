@@ -3,7 +3,8 @@
 	<!-- Parameters -->
   	<arg name="map_fiera" value="$(find e2_navigation)/map/fiera_final.yaml" /> 
   	<arg name="stand_fiera" value="$(find e2_navigation)/config/marker_config.yaml" />
-  	
+  	<param name="use_sim_time" value="false" />
+  	  
 	<!-- Publish odom -->
   	<node pkg="e2_simulator" type="e2_fake_odom" name="e2_fake_odom"/> 
   	

@@ -10,7 +10,7 @@
  *
  */
 
-#define ROS_NODE_RATE	50
+#define ROS_NODE_RATE	10
 #define ROS_NODE_NAME	"depth_to_img"
 
 #include <ros/ros.h>
@@ -25,7 +25,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-#define KINECT_MAX_DISTANCE 12000 // mm max distance revealed by vrep vision sensor.
+#define KINECT_MAX_DISTANCE 15000 // mm max distance revealed by vrep vision sensor.
 
 #include <string>
 
@@ -38,8 +38,8 @@ class DepthToImage
 public:
 	void depth_cb (const vrep_common::VisionSensorDepthBuffConstPtr& msg)
 	{
-		cv::Mat depth(480,640, CV_32FC1);
-		cv::Mat depth_rotate(480,640, CV_32FC1);
+		cv::Mat depth(480,640, CV_16UC1);
+		cv::Mat depth_rotate(480,640, CV_16UC1);
 		// Fill Matrix with depth data
 		std::vector<float>::const_iterator it = msg->data.data.begin();
 		for (int h=0; h<depth.rows; h++)
@@ -47,7 +47,7 @@ public:
 			for (int w=0; w<depth.cols; w++)
 			{
 				//Depth value from vrep are in [0,1] range so we adapt for the kinect in this way
-				depth.at<float>(h,w) =*it*KINECT_MAX_DISTANCE;
+				depth.at<uint16_t>(h,w) =*it*KINECT_MAX_DISTANCE;
 				++it;
 			}
 		}
@@ -62,18 +62,18 @@ public:
 
 		out_msg.header.frame_id = "/kinect_visionSensor";
 		out_msg.header.stamp = ros::Time::now();
-		out_msg.encoding = sensor_msgs::image_encodings::TYPE_32FC1;
+		out_msg.encoding = sensor_msgs::image_encodings::TYPE_16UC1;
 		out_msg.image    = depth_rotate;
 
 		image_pub_depth_.publish(out_msg.toImageMsg());
 	}
 
 	DepthToImage () :
-		depth_buff_topic_("/camera/depth_map"),
-		image_depth_topic_("/camera/depth/image_raw")
+		depth_buff_topic_("input"),
+		image_depth_topic_("output")
 	{
-		sub_ = nh_.subscribe (depth_buff_topic_, 30, &DepthToImage::depth_cb, this);
-		image_pub_depth_ = nh_.advertise<sensor_msgs::Image> (image_depth_topic_, 30);
+		sub_ = nh_.subscribe (depth_buff_topic_, 10, &DepthToImage::depth_cb, this);
+		image_pub_depth_ = nh_.advertise<sensor_msgs::Image> (image_depth_topic_, 10);
 
 		//print some info about the node
 		std::string r_ct = nh_.resolveName (depth_buff_topic_);

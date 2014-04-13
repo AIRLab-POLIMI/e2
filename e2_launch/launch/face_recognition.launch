@@ -7,8 +7,8 @@
    
   <!-- Recognition Nodes -->
   <node name="face_recognition" pkg="face_recognition" type="face_recognition_node" respawn="false" output="screen">
-	<param name="rgb_camera" type="string" value="$(arg camera_kinect)" />
-	<param name="depth_camera" type="string" value="$(arg camera_depth)" />
+	<remap from="input_rgb" to="$(arg camera_kinect)"/>
+	<remap from="input_depth" to="$(arg camera_depth)"/>
   </node>
   
 </launch>

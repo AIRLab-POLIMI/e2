@@ -34,6 +34,7 @@
 
 using namespace std;
 using namespace sensor_msgs;
+namespace enc = sensor_msgs::image_encodings;
 
 class FaceRecognition {
 
@@ -43,8 +44,10 @@ public:
 	FaceRecognition(std::string name) :
 		frl(),
 		it_(nh_),
-		rgb_image_sub_( nh_ , "/camera/rgb/image_color", 1 ),
-		depth_image_sub_( nh_ , "/camera/depth/image_raw", 1 ),
+		image_topic_rgb_("input_rgb"),
+		image_topic_depth_("input_depth"),
+		rgb_image_sub_( nh_ , image_topic_rgb_, 10 ),
+		depth_image_sub_( nh_ , image_topic_depth_, 10 ),
 		sync( MySyncPolicy( 10 ), rgb_image_sub_, depth_image_sub_ ),
 		as_(nh_, name,boost::bind(&FaceRecognition::executeCB, this, _1), false)
 	{
@@ -58,7 +61,7 @@ public:
 
 		textColor = CV_RGB(0,255,255); 								// light blue text
 		confidence_value = 0.77;											//a face recognized with confidence value higher than the confidence_value threshold is accepted as valid.
-		show_screen_flag = true;											//if output screen is shown
+		show_screen_flag = false;											//if output screen is shown
 		add_face_number = 25;												//a parameter for the "add_face_images" goal which determines the number of training images for a new face (person) to be acquired from the video stream
 		person_number = 0;														//the number of persons in the training file (train.txt)
 
@@ -71,8 +74,8 @@ public:
 			ROS_INFO("[FaceRecognition]:: Alert: Database is not updated, You better (re)train from images!");
 		}
 
-		ROS_INFO("[FaceRecognition]:: rgb camera: %s","/camera/rgb/image_color");
-		ROS_INFO("[FaceRecognition]:: depth camera: %s","/camera/depth_registered/image_raw");
+		ROS_INFO("[FaceRecognition]:: rgb camera: %s",nh_.resolveName (image_topic_rgb_).c_str());
+		ROS_INFO("[FaceRecognition]:: depth camera: %s",nh_.resolveName (image_topic_depth_).c_str());
 
 		sync.registerCallback( boost::bind( &FaceRecognition::imageCB, this, _1, _2 ) );
 
@@ -265,7 +268,7 @@ public:
 		{
 			//convert from ros image format to opencv image format
 			cv_ptr_rgb = cv_bridge::toCvCopy(msg_rgb);
-			cv_ptr_depth = cv_bridge::toCvCopy(msg_depth);
+			cv_ptr_depth = cv_bridge::toCvCopy(msg_depth,enc::TYPE_16UC1);
 		}
 		catch (cv_bridge::Exception& e)
 		{
@@ -335,7 +338,7 @@ public:
 		float x = faceRect.x+faceRect.width/2;
 		float y = faceRect.y+faceRect.height/2;
 		float angle = -(320 - x) * angle_pixel_kinect;
-		float distance = cv_ptr_depth->image.at<float>(x,y);
+		float distance = cv_ptr_depth->image.at<uint16_t>(x,y);
 
 		//ROS_INFO("[FaceRecognition]:: X: %f", x);
 		//ROS_INFO("[FaceRecognition]:: Angle: %f", angle);
@@ -484,7 +487,12 @@ public:
 				ROS_INFO("[FaceRecognition]:: Confidence is less than %f, detected face is not considered.", (float)confidence_value);
 				text_image << "Confidence is less than " << confidence_value;
 				cvPutText(img_rgb, text_image.str().c_str(),cvPoint(faceRect.x, faceRect.y + faceRect.height + 25),&font, textColor);
-				as_.setAborted();
+
+				result_.names.push_back("unknown");
+				result_.confidence.push_back(confidence);
+				result_.angle.push_back(angle);
+				result_.distance.push_back(distance);
+				as_.setSucceeded(result_);
 			}
 			else
 			{
@@ -535,6 +543,8 @@ public:
 protected:
 	boost::mutex mutex_; 																				//for synchronization between executeCB and imageCB
 	std::string goal_argument_;
+	std::string image_topic_rgb_;
+	std::string image_topic_depth_;
 
 	ros::NodeHandle nh_;
 	FaceRecognitionLib frl;

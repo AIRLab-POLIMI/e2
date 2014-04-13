@@ -11,6 +11,9 @@
   </node> 
   
   <!-- Publish Fake kinect images -->
-  <node pkg="e2_simulator" type="e2_depthbuffer_to_img" name="e2_depthbuffer_to_img"/> 
+  <node pkg="e2_simulator" type="e2_depthbuffer_to_img" name="e2_depthbuffer_to_img" output="screen">
+	<remap from="input" to="/camera/depth_map"/>
+	<remap from="output" to="/camera/depth/image_raw"/>
+  </node>
   
 </launch>
