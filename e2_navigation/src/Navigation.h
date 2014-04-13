@@ -98,7 +98,6 @@ class Navigation
 	    bool path_to_user_;				// true if the robot is following a path to reach a user
 	    bool user_recognized_;			// User recognized by facerecognition
 
-	    nav_msgs::GridCells inflated_;
 	    nav_msgs::OccupancyGrid map_;
 
 		void setUserDetection(bool status);	// Set new position for user detection
