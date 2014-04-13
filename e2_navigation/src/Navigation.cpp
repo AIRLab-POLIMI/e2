@@ -176,6 +176,8 @@ void Navigation::nav_abortTask()
 {
 	ROS_INFO("[Navigator]:: Abort Task");
 
+	irobot_->cancell_all_goal();
+
 	active_task_ 		= false;
 	path_planned_  = false;
 	path_to_user_   = false;
@@ -183,8 +185,7 @@ void Navigation::nav_abortTask()
 
 	abort_timeout_.stop();
 	detect_timeout_.stop();
-
-	irobot_->cancell_all_goal();
+	r_.sleep();
 }
 
 //=================================================================
@@ -259,8 +260,8 @@ void Navigation::nav_random_path()
 	goal.target_pose.header.stamp = ros::Time::now();
 
 	srand (time(NULL));
-
-	if(map_.info.width != 0 && map_.info.height != 0 && path_planned_ == false)
+/*
+	do
 	{
 		//ROS_INFO("%d %d",map_.info.width,map_.info.height);
 		x = rand() % map_.info.width;
@@ -270,9 +271,11 @@ void Navigation::nav_random_path()
 		goal.target_pose.pose.position.y = y*map_.info.resolution;
 		goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(0.0);
 
-		irobot_->base_setGoal(goal);
-		path_planned_ = true;
-	}
+	}while(!checkCell(x, y));
+
+	irobot_->base_setGoal(goal);
+	path_planned_ = true;
+*/
 
 }
 
@@ -285,11 +288,11 @@ bool Navigation::nav_is_goal_reached()
 }
 
 //=================================================================
-// Wait in position till one condition is verified	- TODO Finish
+// Wait in position till one condition is verified
 //=================================================================
 void Navigation::nav_wait()
 {
-	ROS_INFO("[Navigation]:: Waiting  for user.....");
+	ROS_INFO("[Navigation]:: Waiting...");
 	sleep(WAIT_TIME);
 }
 
@@ -317,12 +320,12 @@ void Navigation::nav_get_status()
 //=================================================================
 void Navigation::user_detect(string user_name)
 {
-	if(irobot_->robot_check_user(guest_name_))
+	if(irobot_->robot_check_user(user_name))
 		setUserDetection(true);
 }
 
 //=================================================================
-//	Fire a Detection timeout - TODO Test
+//	Fire a Detection timeout
 //=================================================================
 void Navigation::user_detectTimer(const ros::TimerEvent& e)
 {
@@ -330,6 +333,7 @@ void Navigation::user_detectTimer(const ros::TimerEvent& e)
 
 	//	First Stop every robot action
 	irobot_->cancell_all_goal();
+
 	// Remove current navigation goal
 	path_planned_=false;
 	user_recognized_=false;
@@ -342,28 +346,48 @@ void Navigation::user_detectTimer(const ros::TimerEvent& e)
 		irobot_->base_rotate(const_cast<char *>("LEFT"));	// Rotate robot base because he should be on the robot side
 
 		//Check user presence
-		if(irobot_->robot_check_user(guest_name_))
+		if(irobot_->robot_check_user(guest_name_))					//	Check for guest user
 			setUserDetection(true);
 
 		ros::spinOnce();
 		r_.sleep();
 	}
 
-	irobot_->cancell_all_goal();						// Force to stop face detection still alive or rotations
-
 	if(active_task_ && user_recognized_)
 	{
-		ROS_INFO("NICE.....GO ON");
+		/*
+		if(irobot_->getDetectedUser().distance > WAIT_DISTANCE)
+		{
+			init_detection = ros::Time::now();
+			ros::Duration timeout(WAIT_TIMEOUT);
+			while((ros::Time::now() - init_detection < timeout) && irobot_->getDetectedUser().distance > WAIT_DISTANCE)
+			{
+				//Check user presence
+				if(irobot_->robot_check_user(guest_name_))					//	Check for guest user
+					setUserDetection(true);
+
+				nav_wait();
+
+				ros::spinOnce();
+				r_.sleep();
+			}
+			if(irobot_->getDetectedUser().distance > WAIT_DISTANCE)
+			{
+				nav_abortTask();
+				return;
+			}
+		}
+		*/
 		path_planned_=false;							//	Not usefull but to remember that	 now the controller had to recalculate new robot path to target
 		user_recognized_=false;					//	User found no more interesting
 	}
 	else if(active_task_)								// Recover user only if there's a navigation goal to target location.
-	//	user_recover(guest_name_);				// User not found start Backtracking procedure
-		ROS_INFO("FUCK RECOVER");
-	else
-	{
-		//nav_abortTask();
-	}
+		user_recover(guest_name_);				// User not found start Backtracking procedure
+
+
+	// Reset timers
+	abort_timeout_.stop();
+	detect_timeout_.stop();
 }
 
 //=====================================
@@ -373,19 +397,15 @@ void Navigation::user_recover(string user_name)
 {
 	ROS_INFO("[Navigator]:: Start backtracking user.");
 
-	irobot_->cancell_all_goal();															// Force to stop face detection still alive or rotations
 	irobot_->base_setGoal(last_user_detection_);						//	Go to last detection position of user
 
 	user_recognized_=false;															// Just in case
 
-	while(!irobot_->base_getStatus() || !user_recognized_)		//	Check if reached last detection position or if the user has been found
+	while(!irobot_->base_getStatus() && !user_recognized_)		//	Check if reached last detection position or if the user has been found
 	{
-		if(irobot_->robot_check_user(guest_name_))
-		{
-			active_task_=true;
-			path_planned_=false;															//	Recalc path to target location
-			setUserDetection(true);														//	Set new detection location
-		}
+
+		user_detect(user_name);
+
 		ros::spinOnce();
 		r_.sleep();
 	}
@@ -393,7 +413,7 @@ void Navigation::user_recover(string user_name)
 	if(!user_recognized_)
 	{
 		ROS_INFO("[Navigator]:: No user found during Backtracking. He disappear. Task Aborted. ");
-		nh_.createTimer(ros::Duration(0), &Navigation::nav_abortTask,this,true,true);
+		nav_abortTask();
 	}
 }
 
@@ -505,12 +525,9 @@ void Navigation::odometry_callback(const nav_msgs::Odometry::ConstPtr& msg)
 //=====================================
 void Navigation::map_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
 {
-	map_.info.width = msg->info.width;
-	map_.info.height = msg->info.height;
-	map_.info.resolution = msg->info.resolution;
-	ROS_DEBUG("[Map]:: Map height %d - width %d",map_.info.height,map_.info.width);
+	map_=*msg;
+	ROS_DEBUG("[Map]:: Received map");
 }
-
 
 //=====================================
 // Kill everything and shutdown
@@ -551,7 +568,7 @@ bool Navigation::goto_callback(e2_msgs::Goto::Request& request, e2_msgs::Goto::R
 //=====================================
 bool Navigation::detect_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
 {
-	user_detect(guest_name_);
+	user_detect("unknown");
 
 	if(user_recognized_)
 	{
@@ -616,8 +633,8 @@ bool Navigation::auto_engage_callback(std_srvs::Empty::Request& request, std_srv
 {
 
 	nav_abortTask();
-	en_auto_ = true;
-
+	//en_auto_ = true;
+	nav_random_path();
 	/*
 	nav_random_path();			// Ramdom navigation
 

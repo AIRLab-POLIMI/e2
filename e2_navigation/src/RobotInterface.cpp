@@ -70,11 +70,11 @@ void RobotInterface::base_setGoal(MBGoal goal)
 //=================================================================
 void RobotInterface::cancell_all_goal()
 {
-	ROS_DEBUG("[IRobot]:: All goal cancelled ");
 	ac_mb->cancelAllGoals();
 	ac_nc->cancelAllGoals();
 	ac_fr->cancelAllGoals();
 	ac_vc->cancelAllGoals();
+	ROS_DEBUG("[IRobot]:: All goal cancelled");
 }
 
 //=================================================================
@@ -96,7 +96,7 @@ bool RobotInterface::base_getStatus()
 //=================================================================
 void RobotInterface::base_rotate(char *direction,float angle)
 {
-	ROS_INFO("[IRobot::Base]:: Rotating %s of %f rad ",direction,angle);
+	ROS_DEBUG("[IRobot::Base]:: Rotating %s of %f rad ",direction,angle);
 
 	double th = tf::getYaw(robot_pose_.orientation);
 	double th_new;
@@ -287,7 +287,7 @@ void RobotInterface::facerecognition_callback(const actionlib::SimpleClientGoalS
 
 	if( result->order_id==0)
 	{
-		if(result->distance[0]/1000 < 10)	//	If distance is greater than 10m there's something wrong
+		if(result->distance[0]/1000 < 15)	//	If distance is greater than 15m there's something wrong
 		{
 			ROS_INFO("[IRobot]:: Detected User: %s at %f mm",result->names[0].c_str(),result->distance[0]);
 			detected_user_.name = result->names[0];

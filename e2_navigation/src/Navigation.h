@@ -27,9 +27,11 @@
 #include <stdlib.h>
 
 #define APPROACH_DISTANCE		0.5 					// Define distance where robot had to place once detected a user (m)
-#define DETECT_TIMEOUT	 			20					// Define the time before fire a detection request
+#define DETECT_TIMEOUT	 			60					// Define the time before fire a detection request
 #define ABORT_TIMEOUT 				300					// Navigation timeout
-#define WAIT_TIME							5
+#define WAIT_TIMEOUT					30					//	Min time the robot will wait in position before abort task
+#define WAIT_DISTANCE					2						//	Min distance the robot will stop to wait user
+#define WAIT_TIME							5						//	Time the robot wait in position
 
 class Navigation
 {
@@ -96,6 +98,7 @@ class Navigation
 	    bool path_to_user_;				// true if the robot is following a path to reach a user
 	    bool user_recognized_;			// User recognized by facerecognition
 
+	    nav_msgs::GridCells inflated_;
 	    nav_msgs::OccupancyGrid map_;
 
 		void setUserDetection(bool status);	// Set new position for user detection
