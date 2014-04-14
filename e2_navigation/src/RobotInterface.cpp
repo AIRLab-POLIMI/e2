@@ -287,7 +287,7 @@ void RobotInterface::facerecognition_callback(const actionlib::SimpleClientGoalS
 
 	if( result->order_id==0)
 	{
-		if(result->distance[0]/1000 < 15)	//	If distance is greater than 15m there's something wrong
+		if(result->distance[0]/1000 < ERROR_DISTANCE)	//	If distance is greater than 15m there's something wrong
 		{
 			ROS_INFO("[IRobot]:: Detected User: %s at %f mm",result->names[0].c_str(),result->distance[0]);
 			detected_user_.name = result->names[0];

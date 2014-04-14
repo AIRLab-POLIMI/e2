@@ -12,6 +12,7 @@
 #define ROBOTINTERFACE_H_
 
 #define BASE_ROTATION_ANGLE 0.785		// Radians 45°
+#define ERROR_DISTANCE	15						// distance greater than this will be considered as kinect error and so discarded. Mainly used for simulation bug
 
 #include "tf/tf.h"
 #include "common.h"
