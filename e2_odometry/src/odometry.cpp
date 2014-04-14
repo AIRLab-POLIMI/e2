@@ -140,7 +140,6 @@ void Odometry::UpdateOdometryEncoder()
 	current_time=ros::Time::now();
 	elapsed = (current_time - last_time).toSec();
 
-	// TODO - Solve bug on triskar encoders
 	double phi_1,phi_2,phi_3;
 
 	//Add calc for phi
@@ -150,18 +149,20 @@ void Odometry::UpdateOdometryEncoder()
 
 	if(fabs(vx)>0 && fabs(vr)>0 )
 	{
-		calc_delta_th(phi_1,phi_2,phi_3);
-		calc_delta_xy(phi_1,phi_2,phi_3);
-		//calc_delta_xy(0,phi_2,-phi_2);	 // Used to solve problem with triskar encoder bug
+		calc_delta_th(phi_1,-phi_2,phi_3);		// Used to solve problem with triskar. One encoder is mounted backwards
+		calc_delta_xy(phi_1,phi_2,-phi_3);		// Used to solve problem with triskar. One encoder is mounted backwards
+		//calc_delta_th(phi_1,phi_2,phi_3);
+		//calc_delta_xy(phi_1,phi_2,phi_3);
 	}
 	else if(fabs(vx)>0 && fabs(vr) == 0)
 	{
-		calc_delta_xy(phi_1,phi_2,phi_3);
-		//calc_delta_xy(0,phi_2,-phi_2);	// Used to solve problem with triskar encoder bug
+		calc_delta_xy(phi_1,phi_2,-phi_3);		// Used to solve problem with triskar. One encoder is mounted backwards
+		//calc_delta_xy(phi_1,phi_2,phi_3);
 	}
 	else if(fabs(vx)==0 && fabs(vr) > 0)
 	{
-		calc_delta_th(-phi_1,-phi_2,-phi_3);
+		calc_delta_th(phi_1,-phi_2,phi_3);		// Used to solve problem with triskar. One encoder is mounted backwards
+		//calc_delta_th(phi_1,phi_2,phi_3);
 	}
 
 	// Update odom quaternion
