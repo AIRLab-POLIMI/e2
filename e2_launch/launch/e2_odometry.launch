@@ -4,9 +4,9 @@
   <node name="odom" pkg="e2_odometry" type="e2_odometry_node" respawn="true" output="screen">
   	<param name="odom_type" type="string" value="encoder" />
   	<param name="vel_topic" type="string" value="/triskar/velocity" />
-  	<param name="enc_1" type="string" value="/triskar/encoder1" />
-  	<param name="enc_2" type="string" value="/triskar/encoder2" />
-  	<param name="enc_3" type="string" value="/triskar/encoder3" />
+  	<param name="enc_1" type="string" value="/triskar/encoder3" />
+  	<param name="enc_2" type="string" value="/triskar/encoder1" />
+  	<param name="enc_3" type="string" value="/triskar/encoder2" />
   </node>
   
   <!-- Transformations Node -->

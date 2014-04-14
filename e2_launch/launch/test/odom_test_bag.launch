@@ -16,5 +16,5 @@
    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find e2_launch)/launch/config/robot.rviz"/>
 
    <!-- RosBag-->
-   <node pkg="rosbag" type="play" name="play" args="--clock -l $(find e2_launch)/launch/test/bag/2014-03-17-18-05-40.bag --topics /triskar/encoder1 /triskar/encoder2 /triskar/encoder3 /triskar/velocity"/>
+   <node pkg="rosbag" type="play" name="play" args="--clock -l $(find e2_launch)/launch/test/bag/2014-04-14-16-59-34.bag --topics /triskar/encoder1 /triskar/encoder2 /triskar/encoder3 /triskar/velocity"/>
 </launch>
