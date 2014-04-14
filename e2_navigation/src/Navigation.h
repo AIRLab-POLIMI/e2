@@ -23,7 +23,6 @@
 #include "std_srvs/Empty.h"
 #include <angles/angles.h>
 #include "nav_msgs/Odometry.h"
-#include "nav_msgs/OccupancyGrid.h"
 
 #include <stdlib.h>
 
@@ -74,7 +73,6 @@ class Navigation
 		bool auto_engage_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
 
 		void odometry_callback(const nav_msgs::Odometry::ConstPtr& msg);
-		void map_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg);
 
 	private:
 
@@ -99,8 +97,6 @@ class Navigation
 	    bool path_planned_;				// if the robot is following a navigation path
 	    bool path_to_user_;				// true if the robot is following a path to reach a user
 	    bool user_recognized_;			// User recognized by facerecognition
-
-	    nav_msgs::OccupancyGrid map_;
 
 		void setUserDetection(bool status);	// Set new position for user detection
 

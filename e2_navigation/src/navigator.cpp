@@ -62,8 +62,8 @@ int main(int argc, char **argv)
 	Navigation *nav = new Navigation(ros::this_node::getName(),ROS_NODE_RATE);
 
 	//	Suscribers
-	ros::Subscriber map_sub = nh.subscribe("/map", 1, &Navigation::map_callback, nav);
 	ros::Subscriber odom_sub= nh.subscribe("/odom", 10,&Navigation::odometry_callback,nav);
+
 	// Enable Services
 	ros::ServiceServer abort_service = nh.advertiseService(ROS_NODE_NAME"/abort",&Navigation::abort_callback,nav);
 	ros::ServiceServer detect_service = nh.advertiseService(ROS_NODE_NAME"/detect",&Navigation::detect_callback,nav);

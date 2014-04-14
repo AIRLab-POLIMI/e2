@@ -15,7 +15,7 @@ using namespace std;
 //=================================================================
 // Class Constructor
 //=================================================================
-Navigation::Navigation(string name, int rate) :	nh_("~"),r_(rate)
+Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 {
 
     string marker_config,speech_config;
@@ -358,6 +358,7 @@ void Navigation::user_detectTimer(const ros::TimerEvent& e)
 
 	if(active_task_ && user_recognized_)
 	{
+		// TODO - Distance check
 		/*
 		if(irobot_->getDetectedUser().distance > WAIT_DISTANCE)
 		{
@@ -387,7 +388,6 @@ void Navigation::user_detectTimer(const ros::TimerEvent& e)
 	else if(active_task_)								// Recover user only if there's a navigation goal to target location.
 		user_recover(guest_name_);				// User not found start Backtracking procedure
 
-
 	// Reset timers
 	abort_timeout_.stop();
 	detect_timeout_.stop();
@@ -406,7 +406,6 @@ void Navigation::user_recover(string user_name)
 
 	while(!irobot_->base_getStatus() && !user_recognized_)		//	Check if reached last detection position or if the user has been found
 	{
-
 		user_detect(user_name);
 
 		ros::spinOnce();
@@ -427,7 +426,7 @@ void Navigation::setUserDetection(bool status)
 {
 	if(status)
 	{
-		user_recognized_ =true;
+		user_recognized_  = true;
 		last_user_detection_.target_pose.header.frame_id = "map";
 		last_user_detection_.target_pose.header.stamp = ros::Time::now();
 		last_user_detection_.target_pose.pose = irobot_->getRobotPose();
@@ -524,15 +523,6 @@ void Navigation::odometry_callback(const nav_msgs::Odometry::ConstPtr& msg)
 }
 
 //=====================================
-// Map callback
-//=====================================
-void Navigation::map_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
-{
-	map_=*msg;
-	ROS_DEBUG("[Map]:: Received map");
-}
-
-//=====================================
 // Kill everything and shutdown
 //=====================================
 bool Navigation::abort_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
@@ -618,7 +608,6 @@ bool Navigation::neck_callback(e2_msgs::NeckAction::Request& request, e2_msgs::N
 //=====================================
 bool Navigation::talk_callback(e2_msgs::Talk::Request& request, e2_msgs::Talk::Response& response)
 {
-
 	if(strcmp(request.text.c_str(), "") == 0)
 	{
 		ROS_INFO("[Navigator]:: Empty string. Cant test voice. Abort");
