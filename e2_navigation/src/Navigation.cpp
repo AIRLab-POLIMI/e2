@@ -107,6 +107,7 @@ void Navigation::controller()
 			//getNavigationStatus();
 		}
 	}
+	/*
 	else if (en_auto_)
 	{
 		if(!path_planned_)
@@ -122,7 +123,7 @@ void Navigation::controller()
 		}
 		else if(!path_to_user_)
 		{
-			/* Looking for user */
+
 			user_detect("none");
 		}
 	}
@@ -130,6 +131,7 @@ void Navigation::controller()
 	{
 		//nav_is_goal_reached();
 	}
+*/
 
 }
 
@@ -209,6 +211,15 @@ void Navigation::nav_goto(string name)
 }
 
 //=================================================================
+// Navigate to goal position
+//=================================================================
+void Navigation::nav_goto(MBGoal goal)
+{
+	ROS_INFO("[Navigation]:: Going to point [x,y] :: %f, %f",goal.target_pose.pose.position.x,goal.target_pose.pose.position.y);
+	irobot_->base_setGoal(goal);
+}
+
+//=================================================================
 // Navigate to position given angle and distance
 //=================================================================
 void Navigation::nav_goto(float distance,float deg_angle)
@@ -254,29 +265,21 @@ void Navigation::nav_goto_detected_user()
 void Navigation::nav_random_path()
 {
 	MBGoal goal;
-	unsigned long long x,y;
 
 	goal.target_pose.header.frame_id = "/map";
 	goal.target_pose.header.stamp = ros::Time::now();
 
 	srand (time(NULL));
-/*
-	do
-	{
-		//ROS_INFO("%d %d",map_.info.width,map_.info.height);
-		x = rand() % map_.info.width;
-		y = rand() % map_.info.height;
 
-		goal.target_pose.pose.position.x = x*map_.info.resolution;
-		goal.target_pose.pose.position.y = y*map_.info.resolution;
-		goal.target_pose.pose.orientation = tf::createQuaternionMsgFromYaw(0.0);
+	//ROS_INFO("%d %d",map_.info.width,map_.info.height);
+	int rand_point = rand() % marker_size_;
 
-	}while(!checkCell(x, y));
+	goal.target_pose.pose.position.x = markers_[rand_point].position.x;
+	goal.target_pose.pose.position.y = markers_[rand_point].position.y;
+	goal.target_pose.pose.orientation.z = markers_[rand_point].orientation.z;
+	goal.target_pose.pose.orientation.w = markers_[rand_point].orientation.w;
 
-	irobot_->base_setGoal(goal);
-	path_planned_ = true;
-*/
-
+	nav_goto(goal);
 }
 
 //=================================================================

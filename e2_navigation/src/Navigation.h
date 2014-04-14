@@ -21,6 +21,7 @@
 #include "e2_msgs/Talk.h"
 #include "e2_msgs/NeckAction.h"
 #include "std_srvs/Empty.h"
+#include <angles/angles.h>
 #include "nav_msgs/Odometry.h"
 #include "nav_msgs/OccupancyGrid.h"
 
@@ -51,6 +52,7 @@ class Navigation
 
 	    void nav_get_status(); 														// Print navigation info in console
 	    void nav_goto(string name);											// Navigate to known location
+	    void nav_goto(MBGoal goal);											// Navigate to known location
 	    void nav_goto(float distance,float angle);					// Navigate to new position given angle and distance
 	    void nav_goto_detected_user();									//	go to the last position of detected user
 	    bool nav_is_goal_reached();											//	check if navigatation goal is reached
