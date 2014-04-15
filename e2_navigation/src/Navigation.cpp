@@ -73,6 +73,7 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 	//	Enable Robot interface
 	irobot_= new RobotInterface(en_neck,en_voice,en_train);
 	irobot_->neck_action(2,1);		// Staigth neck position
+	irobot_->neck_action(1,1);
 }
 
 Navigation::~Navigation()
