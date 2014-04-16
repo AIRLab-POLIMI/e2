@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 	  nh.param<string>("vel_topic", vel_topic, "/cmd_vel");
 	  nh.param<string>("triskar_topic", triskar_topic, "/triskar/velocity");
 
-	  sub_cmd_vel= nh.subscribe(vel_topic, 10, getVelocityCmd);
+	  sub_cmd_vel= nh.subscribe(vel_topic, 50, getVelocityCmd);
 	  pub_triskar_vel =  nh.advertise<r2p::Velocity>(triskar_topic, 1000);
 
 	  ROS_INFO("["ROS_NODE_NAME"]:: Node started");
