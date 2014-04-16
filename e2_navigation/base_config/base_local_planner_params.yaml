@@ -4,7 +4,7 @@ clearing_rotation_allowed: true
 
 TrajectoryPlannerROS:
    max_vel_x: 1.2
-   min_vel_x: 0.5
+   min_vel_x: 0.65
    max_rotational_vel: 1.2
    min_in_place_vel_theta: 0.6
    escape_vel: -0.6
