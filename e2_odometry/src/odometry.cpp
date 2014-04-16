@@ -176,7 +176,9 @@ void Odometry::UpdateOdometryEncoder()
 
 	last_time=current_time;
 
-	getOdometryInfo();
+	if(debug)
+		getOdometryInfo();
+
 	clear();
 
 };
@@ -217,7 +219,9 @@ void Odometry::UpdateOdometryVelocity()
 
 	last_time=current_time;
 
-	getOdometryInfo();
+	if(debug)
+			getOdometryInfo();
+
 	clear();
 };
 

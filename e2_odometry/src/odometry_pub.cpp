@@ -71,12 +71,16 @@ int main(int argc, char **argv)
 
 	  odom = new Odometry();
 
+	  // Check if debug info is enabled
+	  nh.param<bool>("debug", odom->debug, false);
+
 	  if(strcmp(odometry_type.c_str(),string("encoder").c_str()) == 0)
 		  odom->encoder_enabled=true;
 	  else
 		  odom->encoder_enabled=false;
 
 	  ROS_INFO("[Odometry]:: Node started");
+	  ROS_INFO("[Odometry]:: Debug : %s ", (odom->debug ? "true" : "false"));
 	  ROS_INFO("[Odometry]:: Odometry updated by : %s ", odometry_type.c_str());
 	  ROS_INFO("[Odometry]:: Velocity Topic  : %s ", vel_topic.c_str());
 

@@ -41,7 +41,7 @@ class Odometry
 		double vy; // linear velocity along y
 		double vr ; // angular velocity
 
-		bool encoder_enabled;
+		bool encoder_enabled,debug;
 		double enc1_vel,enc2_vel,enc3_vel;
 
 		ros::Time current_time, last_time;
