@@ -7,19 +7,13 @@
     	args="0.0 0 0 0 0 0  /map /odom 100" />
     	
    <!-- Odom & Tf -->
-   <include file="$(find e2_launch)/launch/test/e2_odometry.launch" /> 
+   <include file="$(find e2_launch)/launch/e2_odometry.launch" /> 
 
    <!-- Run the map server -->
    <node name="map_server" pkg="map_server" type="map_server" args="$(find e2_navigation)/map/airlab/map.yaml"/>
-
-   <!-- Run Move Base -->
-   <include file="$(find e2_launch)/launch/move_base.launch" />
-
-   <!-- Nav Messages converter for triskar base -->	
-   <node name="e2_nav_messages" pkg="e2_nav_messages" type="e2_nav_messages_node"/>  	
   	
    <!-- Joystick -->
-   <!-- <node name="joy" pkg="triskar" type="map_server" args="$(find triskar)/launch/teleop_joy.launch"/> -->
+   <include file="$(find triskar)/launch/teleop_joy.launch" />
    
    <!-- Rviz -->
    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find e2_launch)/launch/config/robot.rviz"/>
