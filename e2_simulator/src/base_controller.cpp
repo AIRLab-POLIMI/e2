@@ -19,7 +19,7 @@
 #include "vrep_common/simRosEnablePublisher.h"
 #include "vrep_common/simRosEnableSubscriber.h"
 
-#define RATE 50 // Hz
+#define RATE 30 // Hz
 #define ROBOT_WIDTH 0.6
 
 // Global variables (modified by topic subscribers):
