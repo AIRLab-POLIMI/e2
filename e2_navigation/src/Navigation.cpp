@@ -562,12 +562,15 @@ bool Navigation::goto_callback(e2_msgs::Goto::Request& request, e2_msgs::Goto::R
 //=====================================
 bool Navigation::detect_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
 {
+	user_recognized_ = false;
 	user_detect("unknown");
 
 	if(user_recognized_)
 	{
 		nav_goto_detected_user();
+
 		user_recognized_ = false;
+		irobot_->clearDetectedUser();
 	}
 
 	return true;
@@ -620,22 +623,24 @@ bool Navigation::talk_callback(e2_msgs::Talk::Request& request, e2_msgs::Talk::R
 }
 
 //=====================================
-// TODO - Fix this
+// Service to start autonomous navigation with known user
 //=====================================
 bool Navigation::auto_engage_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
 {
-
-	nav_abortTask();
-	//en_auto_ = true;
 	nav_random_path();
-	/*
-	nav_random_path();			// Ramdom navigation
 
-	while(!user_recognized_)
+	while(!user_recognized_ && !irobot_->base_getStatus())
+	{
 		user_detect(guest_name_);
+		ros::spinOnce();			// To get ride of odom info
+		r_.sleep();
+	}
+	if(user_recognized_)
+		nav_goto_detected_user();
 
-	nav_goto_detected_user();
-	*/
+	user_recognized_=false;
+	irobot_->clearDetectedUser();
+
 	return true;
 }
 

@@ -70,6 +70,7 @@ class RobotInterface
 		Pose getRobotPose();
 		void setRobotPose(geometry_msgs::Pose pose);
 
+		void clearDetectedUser();
 		t_user getDetectedUser();
 		void setDetectedUser(t_user detectedUser);
 

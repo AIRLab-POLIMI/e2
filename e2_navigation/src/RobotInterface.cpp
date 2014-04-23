@@ -158,7 +158,7 @@ Pose RobotInterface::getRobotPose()
 void RobotInterface::setRobotPose(Pose pose)
 {
 	robot_pose_ = pose;
-	ROS_DEBUG("[IRobot]:: Update robot pose [x,y][%f,%f] - [z][%f]",robot_pose_.position.x,robot_pose_.position.y,robot_pose_.orientation.z);
+	ROS_DEBUG("[IRobot]:: Update robot pose [x,y][%f,%f] - [z,w][%f , %f]",robot_pose_.position.x,robot_pose_.position.y,robot_pose_.orientation.z,robot_pose_.orientation.w);
 }
 
 //=================================================================
@@ -273,10 +273,7 @@ bool RobotInterface::robot_check_user(string user_name)
 //=====================================
 void RobotInterface::facerecognition_callback(const actionlib::SimpleClientGoalState& state, const FaceRecognitionResultConstPtr& result)
 {
-	detected_user_.name = "";
-	detected_user_.distance = 0;
-	detected_user_.angle = 0;
-
+	clearDetectedUser();
 	ROS_DEBUG("[IRobot]:: Goal [%i] Finished in state [%s]", result->order_id,state.toString().c_str());
 
 	if(state.toString() != "SUCCEEDED")
@@ -293,7 +290,8 @@ void RobotInterface::facerecognition_callback(const actionlib::SimpleClientGoalS
 			detected_user_.name = result->names[0];
 			detected_user_.distance = result->distance[0]/1000; 				// convert mm from kinect to meters
 			detected_user_.angle = result->angle[0];
-		}
+		}else
+			clearDetectedUser();
 	}
 
 	if( result->order_id==2)
@@ -304,6 +302,13 @@ void RobotInterface::facerecognition_callback(const actionlib::SimpleClientGoalS
 //=================================================================
 // Getters and setters for detected user
 //=================================================================
+void RobotInterface::clearDetectedUser()
+{
+	detected_user_.angle=0.0;
+	detected_user_.distance=0.0;
+	detected_user_.name="";
+}
+
 t_user RobotInterface::getDetectedUser()
 {
 	return detected_user_;

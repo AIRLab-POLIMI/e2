@@ -12,7 +12,7 @@
 #include "Navigation.h"
 #include <ros/xmlrpc_manager.h>
 
-#define ROS_NODE_RATE	30
+#define ROS_NODE_RATE	5
 #define ROS_NODE_NAME	"e2_navigation"
 
 using namespace std;

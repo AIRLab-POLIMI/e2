@@ -75,7 +75,7 @@ class Navigation
 		void odometry_callback(const nav_msgs::Odometry::ConstPtr& msg);
 
 	private:
-
+		bool abort;							// to quit loop
 		ros::NodeHandle nh_;
 		ros::Rate r_;
 	    ros::Time initial_time_;
