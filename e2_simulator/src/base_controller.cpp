@@ -19,7 +19,7 @@
 #include "vrep_common/simRosEnablePublisher.h"
 #include "vrep_common/simRosEnableSubscriber.h"
 
-#define RATE 30 // Hz
+#define RATE 50 // Hz
 #define ROBOT_WIDTH 0.6
 
 // Global variables (modified by topic subscribers):
@@ -62,8 +62,8 @@ void controllerCallback(const geometry_msgs::Twist::ConstPtr& msg){
 	RightMotorSpeed = msg->linear.x + msg->angular.z * (ROBOT_WIDTH/2);
 
 	// Fix due to problem in simulator. Too slow
-	LeftMotorSpeed *=24;
-	RightMotorSpeed *=24;
+	LeftMotorSpeed *=20;
+	RightMotorSpeed *=20;
 	// Push data back to vrep
 	motorSpeeds.handles.data.push_back(leftMotorHandle);
 	motorSpeeds.handles.data.push_back(rightMotorHandle);
