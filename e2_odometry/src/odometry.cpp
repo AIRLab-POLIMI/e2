@@ -220,7 +220,7 @@ void Odometry::UpdateOdometryVelocity()
 	last_time=current_time;
 
 	if(debug)
-			getOdometryInfo();
+		getOdometryInfo();
 
 	clear();
 };

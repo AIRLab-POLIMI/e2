@@ -131,7 +131,7 @@ void RobotInterface::neck_action(int action,int sub_action)
 {
 	if(neck_enabled)
 	{
-		ROS_INFO("[IRobot::Neck]:: Received Neck action %d - %d",action,sub_action);
+		ROS_DEBUG("[IRobot::Neck]:: Received Neck action %d - %d",action,sub_action);
 
 		NeckGoal n_goal;
 		n_goal.action=action;

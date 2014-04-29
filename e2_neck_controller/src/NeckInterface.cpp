@@ -56,24 +56,24 @@ void NeckInterface::executeCB(const e2_neck_controller::NeckGoalConstPtr &goal)
 		as_.setPreempted();
 		return;
 	}
-	ROS_INFO("[INeck]:: Received action %d ",goal_id_);
+	ROS_DEBUG("[INeck]:: Received action %d ",goal_id_);
 
 	switch(goal_id_)
 	{
 		case 1:
-			ROS_INFO("[INeck]:: Face Action ");
+			ROS_DEBUG("[INeck]:: Face Action ");
 			face_actions(goal->sub_action);
 			break;
 		case 2:
-			ROS_INFO("[INeck]:: Neck Action");
+			ROS_DEBUG("[INeck]:: Neck Action");
 			neck_actions(goal->sub_action);
 			break;
 		case 3:
-			ROS_INFO("[INeck]:: Composite Action");
+			ROS_DEBUG("[INeck]:: Composite Action");
 			composite_actions(goal->sub_action);
 			break;
 		case 4:
-			ROS_INFO("[INeck]:: Other Actions");
+			ROS_DEBUG("[INeck]:: Other Actions");
 			other_actions(goal->sub_action);
 			break;
 	}
