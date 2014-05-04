@@ -53,7 +53,7 @@ public:
 		//check if the name of the person has been provided for the add-face-images goal
 		if (goal_id_ >= 2 || goal_id_ < 0 )
 		{
-			ROS_INFO("["ROS_NODE_NAME"]:: %d is not a valid action. Abort",goal_id_);
+			ROS_DEBUG("["ROS_NODE_NAME"]:: %d is not a valid action. Abort",goal_id_);
 			as_.setPreempted();
 			return;
 		}
@@ -63,18 +63,18 @@ public:
 		switch(goal_id_)
 		{
 			case 0:
-				ROS_INFO("["ROS_NODE_NAME"]:: Abort current action");
+				ROS_DEBUG("["ROS_NODE_NAME"]:: Abort current action");
 				as_.setAborted();
 				break;
 			case 1:
-				ROS_INFO("["ROS_NODE_NAME"]:: Received text %s ",msg->text.c_str());
+				ROS_INFO("["ROS_NODE_NAME"]:: %s ",msg->text.c_str());
 				//string command=SPEECH_COMMAND" "SPEECH_PARAM" '"+msg->text+"' "SPEECH_OPT ;
-				string command="pico2wave -l it-IT -w /tmp/e2.wav  '"+msg->text+"' && play /tmp/e2.wav  pitch -200 stretch 0.85 band 2000 500 treble 10 4.0k >/dev/null 2>&1";
+				string command="pico2wave -l it-IT -w /tmp/e2.wav  '"+msg->text+"' && play /tmp/e2.wav  pitch -190 stretch 0.9 band 3000 500 treble 10 >/dev/null 2>&1";
 				system(command.c_str());
 				break;
 		}
 		as_.setSucceeded();
-		ROS_INFO("["ROS_NODE_NAME"]:: Action completed");
+		ROS_DEBUG("["ROS_NODE_NAME"]:: Action completed");
 	}
 
 private:
