@@ -25,7 +25,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-#define KINECT_MAX_DISTANCE 15000 // mm max distance revealed by vrep vision sensor.
+#define KINECT_MAX_DISTANCE 10000 // mm max distance revealed by vrep vision sensor.
 
 #include <string>
 
