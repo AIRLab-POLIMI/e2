@@ -18,4 +18,7 @@
 	<!-- Voice Node Server-->
   	<node name="e2_voice_node" pkg="e2_voice" type="e2_voice_node" respawn="false" output="screen" />
   	
+  	<!-- Kinect Motor-->
+  	<node name="kinect_aux_node" pkg="kinect_aux" type="kinect_aux_node" respawn="false" output="screen" />
+  	
 </launch>

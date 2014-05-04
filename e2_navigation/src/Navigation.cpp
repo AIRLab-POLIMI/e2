@@ -105,18 +105,38 @@ void Navigation::controller()
 		}
 		else if(path_planned_)
 		{
+			irobot_->robot_talk(get_random_speech(string("nav_")));
+
+			if(strcmp(irobot_->base_getStatus().c_str(),"ABORTED") ==0)
+			{
+				irobot_->neck_action(1,3); 	// Angry face
+				irobot_->robot_talk(get_speech_by_name("abort"),true);
+				nav_abortTask();
+			}
+			else if(strcmp(irobot_->base_getStatus().c_str(),"SUCCEEDED")==0)
+			{
+				irobot_->neck_action(1,2); 	// happy face
+				irobot_->robot_talk(get_speech_by_name("complete"),true);
+				nav_clear();
+			}
 			//getNavigationStatus();
 		}
 	}
-	/*
 	else if (en_auto_)
 	{
+		if(nav_is_goal_reached())
+		{
+			nav_clear();
+			nav_newTask();
+		}
 		if(!path_planned_)
 		{
 			nav_random_path();			// Ramdom navigation
+			path_planned_ = true;
 		}
 		else	 if(user_recognized_)
 		{
+			irobot_->neck_action(1,5); 	// happy face
 			// Robot just find someone. Go toward him
 			nav_goto_detected_user();
 			user_recognized_= false;	// Set path just once
@@ -124,15 +144,13 @@ void Navigation::controller()
 		}
 		else if(!path_to_user_)
 		{
-
-			user_detect("none");
+			user_detect("unknown");
 		}
 	}
 	else
 	{
 		//nav_is_goal_reached();
 	}
-*/
 
 }
 
@@ -143,16 +161,19 @@ void Navigation::nav_newTask()
 {
 	ROS_INFO("[Navigator]:: New navigation task started");
 
+	irobot_->neck_action(1,2); 	// happy face
+	irobot_->robot_talk(get_speech_by_name("hi"),true);
+
 	if(irobot_->train_enabled)
 	{
-		irobot_->robot_talk(get_speech_by_name("train"));
+		irobot_->robot_talk(get_speech_by_name("train"),true);
 
 		// Save new user face
 		if(irobot_->robot_train_user(guest_name_))
-			irobot_->robot_talk(get_speech_by_name("train_success"));
+			irobot_->robot_talk(get_speech_by_name("train_success"),true);
 		else
 		{
-			irobot_->robot_talk(get_speech_by_name("train_failed"));
+			irobot_->robot_talk(get_speech_by_name("train_failed"),true);
 			return;
 		}
 
@@ -168,7 +189,7 @@ void Navigation::nav_newTask()
 	detect_timeout_ = nh_.createTimer(ros::Duration(DETECT_TIMEOUT), &Navigation::user_detectTimer,this,false,false);
 
 	irobot_->neck_action(2,2);	//	Invitation Left
-	irobot_->robot_talk(get_speech_by_name("follow_me"));
+	irobot_->robot_talk(get_speech_by_name("follow_me"),true);
 	irobot_->neck_action(2,1);	//	Straight again
 }
 
@@ -200,6 +221,25 @@ void Navigation::nav_abortTask(const ros::TimerEvent& e)
 
 	nav_abortTask();
 	nav_goto(base_name_);
+}
+
+//=================================================================
+// Reset current navigation status
+//=================================================================
+void Navigation::nav_clear()
+{
+	ROS_INFO("[Navigator]:: Reset Navigation");
+
+	irobot_->cancell_all_goal();
+
+	active_task_ 		= false;
+	path_planned_  = false;
+	path_to_user_   = false;
+	user_recognized_ = false;
+
+	abort_timeout_.stop();
+	detect_timeout_.stop();
+	r_.sleep();
 }
 
 //=================================================================
@@ -288,7 +328,12 @@ void Navigation::nav_random_path()
 //=================================================================
 bool Navigation::nav_is_goal_reached()
 {
-	return irobot_->base_getStatus();
+	if(strcmp(irobot_->base_getStatus().c_str(),"SUCCEEDED")==0)
+	{
+		return true;
+	}
+
+	return false;
 }
 
 //=================================================================
@@ -353,6 +398,8 @@ void Navigation::user_detectTimer(const ros::TimerEvent& e)
 		if(irobot_->robot_check_user(guest_name_))					//	Check for guest user
 			setUserDetection(true);
 
+		irobot_->robot_talk(get_random_speech(string("joke_")));	// Just talk a little bit
+
 		ros::spinOnce();
 		r_.sleep();
 	}
@@ -405,7 +452,7 @@ void Navigation::user_recover(string user_name)
 
 	user_recognized_=false;															// Just in case
 
-	while(!irobot_->base_getStatus() && !user_recognized_)		//	Check if reached last detection position or if the user has been found
+	while(!nav_is_goal_reached() && !user_recognized_)		//	Check if reached last detection position or if the user has been found
 	{
 		user_detect(user_name);
 
@@ -484,8 +531,35 @@ string Navigation::get_speech_by_name(string name)
 		if(strcmp(speechs_[i].id.c_str(),name.c_str()) == 0)
 			break;
 	}
+
 	return speechs_[i].text;
 }
+
+//=================================================================
+// Retrieve text for a conversation using string id
+//=================================================================
+string Navigation::get_random_speech(string what)
+{
+	int i=0;
+	int topic_tot=0;
+
+	for (i=0; i < speech_size_ ; ++i)
+	{
+		// different member versions of find in the same order as above:
+		std::size_t found = speechs_[i].id.find(what);
+		if (found!=std::string::npos)
+			topic_tot++;
+	}
+
+	srand (time(NULL));
+	int rand_= rand() % topic_tot;
+	std::stringstream out;
+	out << what << rand_;
+
+	return get_speech_by_name(out.str());
+
+}
+
 
 //=====================================
 // Load Marker data
@@ -627,20 +701,8 @@ bool Navigation::talk_callback(e2_msgs::Talk::Request& request, e2_msgs::Talk::R
 //=====================================
 bool Navigation::auto_engage_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
 {
-	nav_random_path();
-
-	while(!user_recognized_ && !irobot_->base_getStatus())
-	{
-		user_detect(guest_name_);
-		ros::spinOnce();			// To get ride of odom info
-		r_.sleep();
-	}
-	if(user_recognized_)
-		nav_goto_detected_user();
-
-	user_recognized_=false;
-	irobot_->clearDetectedUser();
-
+	nav_clear();
+	en_auto_ = !en_auto_;
 	return true;
 }
 

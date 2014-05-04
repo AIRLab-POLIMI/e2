@@ -12,17 +12,20 @@
 #define ROBOTINTERFACE_H_
 
 #define BASE_ROTATION_ANGLE 0.785		// Radians 45°
-#define ERROR_DISTANCE	15						// distance greater than this will be considered as kinect error and so discarded. Mainly used for simulation bug
+#define SPEECH_DELAY		30						// Time between each speech
+#define ERROR_DISTANCE	8							// distance greater than this will be considered as kinect error and so discarded. Mainly used for simulation bug
 
 #include "tf/tf.h"
 #include "common.h"
 #include <e2_voice/VoiceAction.h>
+#include <std_msgs/Float64.h>
 #include <e2_neck_controller/NeckAction.h>
 #include <actionlib/client/simple_action_client.h>
 #include <face_recognition/FaceRecognitionAction.h>
 #include <face_recognition/FaceRecognitionFeedback.h>
 #include <face_recognition/FaceRecognitionActionResult.h>
 
+using namespace std;
 using namespace geometry_msgs;
 using namespace e2_voice;
 using namespace e2_neck_controller;
@@ -54,14 +57,16 @@ class RobotInterface
 
 		void cancell_all_goal();													//	Cancel all goal - neck, voice, base, facerec
 
+		string base_getStatus();																								//	Get current state of goal
 		void base_setGoal(MBGoal goal);																				// Set new goal for robot base
-		bool base_getStatus();																									//	Get current state of goal
 		void base_rotate(char *direction,float angle = BASE_ROTATION_ANGLE);		// Rotate Robot base
 		void base_stop();																											//	Stop moving base
 
+		void kinect_motor(float angle);																					// rotate kinect
+
 		void neck_action(int action, int sub_action);
 
-		void robot_talk(string text);
+		void robot_talk(string text,bool force = false);
 		bool robot_train_user(string user_name);
 		bool robot_check_user(string user_name);
 
@@ -80,9 +85,12 @@ private:
 		NeckClient *ac_nc;
 		VoiceClient *ac_vc;
 		MoveBaseClient *ac_mb;
+		ros::NodeHandle nh_;
+	    ros::Publisher kinect_pub_;
 
 		t_user detected_user_;
 		Pose robot_pose_;
+		ros::Time last_speech_;
 
 		void voice_callback(const actionlib::SimpleClientGoalState& state, const VoiceResultConstPtr& result);
 		void facerecognition_callback(const actionlib::SimpleClientGoalState& state, const FaceRecognitionResultConstPtr& result);

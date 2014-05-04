@@ -49,6 +49,7 @@ class Navigation
 	    void nav_abortTask(); 														// Kill a current task
 	    void nav_abortTask(const ros::TimerEvent& e); 			// Kill a current task
 
+	    void nav_clear();																	// Reset navigation status
 	    void nav_get_status(); 														// Print navigation info in console
 	    void nav_goto(string name);											// Navigate to known location
 	    void nav_goto(MBGoal goal);											// Navigate to known location
@@ -107,6 +108,7 @@ class Navigation
 		// Usefull to check the presence of a location or a string by name
 		bool marker_exist(string name);
 		string get_speech_by_name(string name);
+		string get_random_speech(string what);
 		MBGoal get_marker_by_name(string name);
 
 };

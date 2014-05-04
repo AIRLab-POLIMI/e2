@@ -10,13 +10,12 @@
 
 #include "RobotInterface.h"
 
-using namespace std;
-
 //=================================================================
 // Class Constructor
 //=================================================================
 RobotInterface::RobotInterface(bool enable_neck,bool enable_voice,bool enable_train)
 {
+	last_speech_= ros::Time::now() - ros::Duration(SPEECH_DELAY);
 
 	detected_user_.name = "";
 	detected_user_.distance = 0;
@@ -44,6 +43,8 @@ RobotInterface::RobotInterface(bool enable_neck,bool enable_voice,bool enable_tr
 	if(neck_enabled)
 		while (!ac_nc->waitForServer(ros::Duration(5.0)))
 			ROS_INFO("[IRobot]:: Waiting for the neck_controller action server to come up");
+
+	kinect_pub_ = nh_.advertise<std_msgs::Float64>("tilt_angle", 1000);
 
 	ROS_INFO("[IRobot]:: Base ready");
 
@@ -80,15 +81,21 @@ void RobotInterface::cancell_all_goal()
 //=================================================================
 // Get current goal status
 //=================================================================
-bool RobotInterface::base_getStatus()
+string RobotInterface::base_getStatus()
 {
 	// Check if the robot succeded it's task
 	if (ac_mb->getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
 	{
 		ROS_INFO("[IRobot::Base]:: Hooray, we reached the Goal ! ");
-		return true;
+		return "SUCCEEDED";
 	}
-	return false;
+	else if(ac_mb->getState() == actionlib::SimpleClientGoalState::ABORTED)
+	{
+		ROS_INFO("[IRobot::Base]:: Move Base Aborted! ");
+		return "ABORTED";
+	}
+
+	return "NULL";
 }
 
 //=================================================================
@@ -122,6 +129,17 @@ void RobotInterface::base_stop()
 {
 	ROS_DEBUG("[IRobot::Base]:: Robot Stopped ");
 	cancell_all_goal();
+}
+
+//=================================================================
+// Rotate kinect motor
+//=================================================================
+void RobotInterface::kinect_motor(float angle)
+{
+	ROS_INFO("[IRobot::Kinect]:: Motor rotate %f deg",angle);
+	std_msgs::Float64 msg;
+	msg.data = (double) angle;
+	kinect_pub_.publish(msg);
 }
 
 //=================================================================
@@ -164,19 +182,30 @@ void RobotInterface::setRobotPose(Pose pose)
 //=================================================================
 // Make the robot talk
 //=================================================================
-void RobotInterface::robot_talk(string text)
+void RobotInterface::robot_talk(string text, bool force)
 {
-	if(voice_enabled)
+	ros::Duration timeout(SPEECH_DELAY);
+	if((ros::Time::now() - last_speech_ > timeout) || force )
 	{
-		neck_action(1,6); // Start Moving mouth
 
-		VoiceGoal goal;
-		goal.action_id = 1;
-		goal.text = text;
-		ac_vc->sendGoal(goal, boost::bind(&RobotInterface::voice_callback, this, _1, _2),VoiceClient::SimpleActiveCallback(), VoiceClient::SimpleFeedbackCallback());
-	}
-	else
-		ROS_INFO("[IRobot]:: Robot can't talk. Enable voice support");
+		if(force)
+			ac_vc->waitForResult();
+
+		if(voice_enabled)
+		{
+			last_speech_=ros::Time::now();
+			neck_action(1,6); // Start Moving mouth
+
+			VoiceGoal goal;
+			goal.action_id = 1;
+			goal.text = text;
+			ac_vc->sendGoal(goal, boost::bind(&RobotInterface::voice_callback, this, _1, _2),VoiceClient::SimpleActiveCallback(), VoiceClient::SimpleFeedbackCallback());
+		}
+		else
+			ROS_INFO("[IRobot]:: Robot can't talk. Enable voice support");
+
+	}else
+		ROS_DEBUG("[IRobot]:: Passed to few time");
 }
 
 //=====================================
@@ -204,6 +233,9 @@ bool RobotInterface::robot_train_user(string user_name)
 {
 	if(train_enabled)
 	{
+		//neck_action(2,6);
+		kinect_motor(15);// To correctly get user face
+
 		FaceRecognitionGoal goal;
 
 		ac_fr->waitForServer();
@@ -222,6 +254,9 @@ bool RobotInterface::robot_train_user(string user_name)
 
 		//wait for the action to return
 		bool finished_before_timeout = ac_fr->waitForResult(ros::Duration(30.0));
+
+		//neck_action(2,1); // straight neck
+		kinect_motor(-15); //Back in orizontal position
 
 		if (finished_before_timeout)
 		{

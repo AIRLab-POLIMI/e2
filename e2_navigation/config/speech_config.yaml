@@ -2,6 +2,14 @@
   text: "Ciao, il mio nome è edueee. Sono un androide venuto dallo spazio per sterminare la razza umana."
   duration: 150
 
+- id: abort
+  text: "Non ho compiuto la mia missione. Che sfortuna non essere un daleek."
+  duration: 150
+
+- id: complete
+  text: "Il nostro viaggio giunge al termine. Spero ti sia divertito. Ciao bello !."
+  duration: 150
+
 - id: train
   text: "Per favore, resta immobile mentre memorizzo il tuo volto. Non ci vorrà molto."
   duration: 150
@@ -15,11 +23,11 @@
   duration: 150
 
 - id: follow_me
-  text: "Seguimi. Ti portero nel nostro stand."
+  text: "Vieni con me. Ti portero nel nostro stand."
   duration: 150
 
 - id: joke_0
-  text: "Trote e maiali sono triviali, di lor nessuna stima, ratti e sorci han più fortuna dei porci, però io l'avrò prima."
+  text: "Trote e maiali sono triviali, di lor nessuna stima, ratti e sorci han piu fortuna dei porci, pero io l avro prima."
   duration: 150
 
 - id: joke_1
@@ -56,4 +64,16 @@
 
 - id: joke_9
   text: "L ossigeno fu scoperto solo nel 1874. Non ci si spiega come la gente potesse respirare, prima."
+  duration: 150
+
+- id: nav_0
+  text: "Un robot non può recar danno a un essere umano né può permettere che, a causa del proprio mancato intervento, un essere umano riceva danno."
+  duration: 150
+
+- id: nav_1
+  text: "Un robot deve obbedire agli ordini impartiti dagli esseri umani, purché tali ordini non contravvengano alla Prima Legge."
+  duration: 150
+
+- id: nav_2
+  text: "Un robot deve proteggere la propria esistenza, purché questa autodifesa non contrasti con la Prima o con la Seconda Legge. "
   duration: 150
