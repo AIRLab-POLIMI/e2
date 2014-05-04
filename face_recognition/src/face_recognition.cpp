@@ -115,8 +115,12 @@ public:
 
 		result_.names.clear();
 		result_.confidence.clear();
+		result_.angle.clear();
+		result_.distance.clear();
 		feedback_.names.clear();
 		feedback_.confidence.clear();
+		feedback_.angle.clear();
+		feedback_.distance.clear();
 
 		goal_id_ = goal->order_id;
 
