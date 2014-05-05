@@ -1,0 +1,5 @@
+#request field
+uint8 angle
+---
+#response fields
+bool result

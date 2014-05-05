@@ -54,6 +54,7 @@ find_package(catkin REQUIRED std_msgs message_generation)
    NeckAction.srv
    Train.srv
    Talk.srv
+   MotorAngle.srv
  )
 
 ## Generate actions in the 'action' folder
