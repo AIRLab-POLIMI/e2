@@ -74,6 +74,7 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 	irobot_= new RobotInterface(en_neck,en_voice,en_train);
 	irobot_->neck_action(2,1);		// Staigth neck position
 	irobot_->neck_action(1,1);
+	irobot_->kinect_motor(-15);
 }
 
 Navigation::~Navigation()
@@ -116,6 +117,7 @@ void Navigation::controller()
 			else if(strcmp(irobot_->base_getStatus().c_str(),"SUCCEEDED")==0)
 			{
 				irobot_->neck_action(1,2); 	// happy face
+
 				irobot_->robot_talk(get_speech_by_name("complete"),true);
 				nav_clear();
 			}
@@ -692,6 +694,16 @@ bool Navigation::talk_callback(e2_msgs::Talk::Request& request, e2_msgs::Talk::R
 		return false;
 	}
 	irobot_->robot_talk(request.text);
+
+	return true;
+}
+
+//=====================================
+// Make kinect motor move
+//=====================================
+bool Navigation::motor_callback(e2_msgs::MotorAngle::Request& request, e2_msgs::MotorAngle::Response& response)
+{
+	irobot_->kinect_motor(request.angle);
 
 	return true;
 }

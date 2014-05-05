@@ -234,7 +234,7 @@ bool RobotInterface::robot_train_user(string user_name)
 	if(train_enabled)
 	{
 		//neck_action(2,6);
-		kinect_motor(15);// To correctly get user face
+		kinect_motor(0);// To correctly get user face
 
 		FaceRecognitionGoal goal;
 

@@ -20,6 +20,7 @@
 #include "e2_msgs/Train.h"
 #include "e2_msgs/Talk.h"
 #include "e2_msgs/NeckAction.h"
+#include "e2_msgs/MotorAngle.h"
 #include "std_srvs/Empty.h"
 #include <angles/angles.h>
 #include "nav_msgs/Odometry.h"
@@ -72,6 +73,7 @@ class Navigation
 		bool train_callback(e2_msgs::Train::Request& request, e2_msgs::Train::Response& response);
 		bool talk_callback(e2_msgs::Talk::Request& request, e2_msgs::Talk::Response& response);
 		bool auto_engage_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
+		bool motor_callback(e2_msgs::MotorAngle::Request& request, e2_msgs::MotorAngle::Response& response);
 
 		void odometry_callback(const nav_msgs::Odometry::ConstPtr& msg);
 
