@@ -41,7 +41,7 @@ int main(int argc, char** argv)
 		broadcaster.sendTransform(tf::StampedTransform(tf::Transform(tf::Quaternion(0, 0, 0, 1), tf::Vector3(WHEEL_X, WHEEL_Y, WHEEL_Z)),ros::Time::now(),"base_link", "rightWheel"));
 		broadcaster.sendTransform(tf::StampedTransform(tf::Transform(tf::Quaternion(0, 0, 0, 1), tf::Vector3(WHEEL_X, -WHEEL_Y, WHEEL_Z)),ros::Time::now(),"base_link", "leftWheel"));
 		broadcaster.sendTransform(tf::StampedTransform(tf::Transform(tf::Quaternion(0, 0, 0, 1), tf::Vector3(-WHEEL_X, 0.0, WHEEL_Z)),ros::Time::now(),"base_link", "rearWheel"));
-		r.sleep()
+		r.sleep();
 	}
 }
 
