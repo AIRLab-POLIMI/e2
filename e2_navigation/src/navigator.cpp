@@ -73,6 +73,7 @@ int main(int argc, char **argv)
 	ros::ServiceServer talk_service = nh.advertiseService(ROS_NODE_NAME"/talk",&Navigation::talk_callback,nav);
 	ros::ServiceServer train_service = nh.advertiseService(ROS_NODE_NAME"/train",&Navigation::train_callback,nav);
 	ros::ServiceServer auto_service = nh.advertiseService(ROS_NODE_NAME"/auto",&Navigation::auto_engage_callback,nav);
+	ros::ServiceServer motor_service = nh.advertiseService(ROS_NODE_NAME"/kinect_angle",&Navigation::motor_callback,nav);
 
 	// Start Navigation Controller
 	while(!g_request_shutdown)

@@ -6,7 +6,8 @@
   <arg name="camera" default="camera" />
   <arg name="tf_prefix" default="" />
   <arg name="rgb_frame_id"   default="$(arg tf_prefix)/$(arg camera)_rgb_optical_frame" />
-  <arg name="depth_frame_id" default="$(arg tf_prefix)/$(arg camera)_depth_optical_frame" />
+  <!-- <arg name="depth_frame_id" default="$(arg tf_prefix)/$(arg camera)_depth_optical_frame" /> -->
+  <arg name="depth_frame_id" default="/laser_scan" />
 
   <!-- device_id can have the following formats:
          "B00367707227042B": Use device with given serial number
