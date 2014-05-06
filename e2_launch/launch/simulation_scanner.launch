@@ -1,6 +1,5 @@
 <launch>
 
-
   <!-- Fake Laser Standalone nodelet-->
   <node pkg="nodelet" type="nodelet" name="vrep_laser" args="standalone pointcloud_to_laserscan/CloudToScan" respawn="true">
   	<param name="output_frame_id" value="/laser_scan"/>

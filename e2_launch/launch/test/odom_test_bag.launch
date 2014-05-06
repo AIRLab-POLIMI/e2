@@ -6,8 +6,19 @@
    <node pkg="tf" type="static_transform_publisher" name="odom_to_map"
     	args="0.0 0 0 0 0 0  /map /odom 100" />
 
-   <!-- Odom & Tf -->
-   <include file="$(find e2_launch)/launch/e2_odometry.launch" /> 
+  <!-- Odometry Node -->
+  <node name="odom" pkg="e2_odometry" type="e2_odometry_node" respawn="true" output="screen">
+  	<param name="debug" type="bool" value="true" />
+  	<param name="odom_type" type="string" value="encoder" />
+  	<param name="vel_topic" type="string" value="/triskar/velocity" />
+  	<param name="enc_1" type="string" value="/triskar/encoder3" />
+  	<param name="enc_2" type="string" value="/triskar/encoder1" />
+  	<param name="enc_3" type="string" value="/triskar/encoder2" />
+  </node>
+  
+  <!-- Transformations Node -->
+  <node name="transform" pkg="e2_odometry" type="e2_tf_node" respawn="false" output="screen"/>
+
 
    <!-- Run the map server -->
    <node name="map_server" pkg="map_server" type="map_server" args="$(find e2_navigation)/map/airlab/map.yaml"/>
