@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>e2_navigation</name>
+  <name>e2_brain</name>
   <version>0.0.1</version>
-  <description>The e2_navigation package</description>
+  <description>The e2_brain package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->

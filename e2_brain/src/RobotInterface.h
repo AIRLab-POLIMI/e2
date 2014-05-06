@@ -15,35 +15,7 @@
 #define SPEECH_DELAY		30						// Time between each speech
 #define ERROR_DISTANCE	8							// distance greater than this will be considered as kinect error and so discarded. Mainly used for simulation bug
 
-#include "tf/tf.h"
 #include "common.h"
-#include <e2_voice/VoiceAction.h>
-#include <std_msgs/Float64.h>
-#include <e2_neck_controller/NeckAction.h>
-#include <actionlib/client/simple_action_client.h>
-#include <face_recognition/FaceRecognitionAction.h>
-#include <face_recognition/FaceRecognitionFeedback.h>
-#include <face_recognition/FaceRecognitionActionResult.h>
-
-using namespace std;
-using namespace geometry_msgs;
-using namespace e2_voice;
-using namespace e2_neck_controller;
-using namespace move_base_msgs;
-using namespace face_recognition;
-
-typedef move_base_msgs::MoveBaseGoal MBGoal;
-typedef actionlib::SimpleActionClient<VoiceAction> VoiceClient;
-typedef actionlib::SimpleActionClient<NeckAction> NeckClient;
-typedef actionlib::SimpleActionClient<FaceRecognitionAction> FRClient;
-typedef actionlib::SimpleActionClient<MoveBaseAction> MoveBaseClient;
-
-typedef struct
-{
-	string name;
-	float distance;				//	m
-	float angle; 					// degree
-}t_user;
 
 class RobotInterface
 {

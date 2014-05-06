@@ -42,5 +42,4 @@ void operator >> (const YAML::Node& node, Vec3& v);	//Position
 void operator >> (const YAML::Node& node, Vec2& v); //Orientation
 
 void operator >> (const YAML::Node& node, Marker& marker);
-
 void operator >> (const YAML::Node& node, Speech& speech);

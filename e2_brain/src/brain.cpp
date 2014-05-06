@@ -1,5 +1,5 @@
 /*
- * navigator.cpp - AIRLab (Politecnico di Milano)
+ * brain.cpp - AIRLab (Politecnico di Milano)
  * 
  *  Author:  Lorenzo Ripani 
  *  Email: ripani.lorenzo@gmail.com
@@ -7,13 +7,13 @@
  *  Created on: 27/feb/2014
  *
  */
-#include <signal.h>
 #include "ros/ros.h"
+#include <signal.h>
 #include "Navigation.h"
 #include <ros/xmlrpc_manager.h>
 
 #define ROS_NODE_RATE	5
-#define ROS_NODE_NAME	"e2_navigation"
+#define ROS_NODE_NAME	"e2_brain"
 
 using namespace std;
 

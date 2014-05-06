@@ -1,14 +1,15 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(e2_localization)
+project(e2_brain)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS
-  ar_track_alvar
+find_package(catkin REQUIRED
+  actionlib
+  e2_neck_controller
   roscpp
   roslib
-)
+  )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -81,9 +82,9 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES e2_localization
-#  CATKIN_DEPENDS ar_track_alvar common_rosdeps roscpp roslib
-#  DEPENDS system_lib
+  LIBRARIES e2_brain
+  CATKIN_DEPENDS actionlib e2_neck_controller face_recognition roscpp roslib
+  DEPENDS system_lib
 )
 
 ###########
@@ -92,33 +93,23 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-# include_directories(include)
 include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-## Declare a cpp library
-# add_library(e2_localization
-#   src/${PROJECT_NAME}/e2_localization.cpp
-# )
-
 ## Declare a cpp executable
-add_executable(localization src/localization.cpp)
-add_executable(e2_localization src/e2_localization.cpp)
+ add_executable(e2_brain_node src/brain.cpp src/Navigation.cpp src/RobotInterface.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(e2_localization_node e2_localization_generate_messages_cpp)
+ add_dependencies(e2_brain_node e2_neck_controller_generate_messages_cpp)
+ add_dependencies(e2_brain_node e2_msgs_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
- target_link_libraries(e2_localization
-  yaml-cpp ${catkin_LIBRARIES}
- )
-
- target_link_libraries(localization
-  yaml-cpp ${catkin_LIBRARIES}
- )
-
+  target_link_libraries(e2_brain_node
+    ${catkin_LIBRARIES}
+	yaml-cpp
+  )
 
 #############
 ## Install ##
@@ -135,7 +126,7 @@ add_executable(e2_localization src/e2_localization.cpp)
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS e2_localization e2_localization_node
+# install(TARGETS e2_brain e2_brain_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -160,7 +151,7 @@ add_executable(e2_localization src/e2_localization.cpp)
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_e2_localization.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_e2_brain.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

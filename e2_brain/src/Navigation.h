@@ -22,8 +22,6 @@
 #include "e2_msgs/NeckAction.h"
 #include "e2_msgs/MotorAngle.h"
 #include "std_srvs/Empty.h"
-#include <angles/angles.h>
-#include "nav_msgs/Odometry.h"
 
 #include <stdlib.h>
 
