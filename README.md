@@ -10,8 +10,7 @@ To completely exploit each function is required
   * ROS (hydro)
   * ros-navigation-stack
   * ros-actionlib
-  * ros-ar-track-alvar
-  * espeak (robot voice)
+  * pico2wave (robot voice)
 
 
 Testing

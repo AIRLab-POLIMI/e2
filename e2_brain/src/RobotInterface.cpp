@@ -52,7 +52,13 @@ RobotInterface::RobotInterface(bool enable_neck,bool enable_voice,bool enable_tr
 
 RobotInterface::~RobotInterface()
 {
-	cancell_all_goal();
+ 	cancell_all_goal();
+
+	delete ac_mb;
+	delete ac_fr;
+	delete ac_nc;
+	delete ac_vc;
+
 	ROS_INFO("[IRobot]:: Base disabled");
 }
 
@@ -136,7 +142,7 @@ void RobotInterface::base_stop()
 //=================================================================
 void RobotInterface::kinect_motor(float angle)
 {
-	ROS_INFO("[IRobot::Kinect]:: Motor rotate %f deg",angle);
+	ROS_INFO("[IRobot::Kinect]:: Motor rotate to %f deg",angle);
 	std_msgs::Float64 msg;
 	msg.data = (double) angle;
 	kinect_pub_.publish(msg);
@@ -185,11 +191,12 @@ void RobotInterface::setRobotPose(Pose pose)
 void RobotInterface::robot_talk(string text, bool force)
 {
 	ros::Duration timeout(SPEECH_DELAY);
+
 	if((ros::Time::now() - last_speech_ > timeout) || force )
 	{
 
 		if(force)
-			ac_vc->waitForResult();
+			ac_vc->waitForResult(timeout);
 
 		if(voice_enabled)
 		{

@@ -93,6 +93,8 @@ class Navigation
 		int marker_size_,speech_size_;
 		string base_name_,target_name_,god_name_,guest_name_;
 
+		int pass_count_;
+
 		bool en_auto_;							//	If true the robot will start to randomly navigate in the ambient looking for people
 		bool active_task_;					//if there's an active task
 	    bool path_planned_;				// if the robot is following a navigation path

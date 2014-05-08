@@ -5,8 +5,8 @@
   	<param name="output_frame_id" value="/laser_scan"/>
   	<param name="min_height" value="0.10"/>
   	<param name="max_height" value="0.20"/>
-  	<param name="range_min" value="0.45"/>
-  	<param name="range_max" value="15.0"/>
+  	<param name="range_min" value="0.1"/>
+  	<param name="range_max" value="10.0"/>
   </node> 
   
   <!-- Publish Fake kinect images -->

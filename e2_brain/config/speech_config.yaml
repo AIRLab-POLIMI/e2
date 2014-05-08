@@ -1,5 +1,5 @@
-- id: hi
-  text: "Ciao, il mio nome è edueee. Sono un androide venuto dallo spazio per sterminare la razza umana."
+- id: hello
+  text: "Ciao, il mio nome è edueee."
   duration: 150
 
 - id: abort
@@ -7,11 +7,15 @@
   duration: 150
 
 - id: complete
-  text: "Il nostro viaggio giunge al termine. Spero ti sia divertito. Ciao bello !."
+  text: "Il nostro viaggio giunge al termine. Spero ti sia divertito."
   duration: 150
 
-- id: train
-  text: "Per favore, resta immobile mentre memorizzo il tuo volto. Non ci vorrà molto."
+- id: pass
+  text: "Permesso, fate largo !"
+  duration: 150
+
+- id: train_init
+  text: "Per favore, resta immobile mentre memorizzo il tuo volto."
   duration: 150
 
 - id: train_success
@@ -24,6 +28,10 @@
 
 - id: follow_me
   text: "Vieni con me. Ti portero nel nostro stand."
+  duration: 150
+
+- id: follow_me
+  text: "Molto bene. Sei ancora qui. Proseguiamo."
   duration: 150
 
 - id: joke_0
@@ -63,17 +71,38 @@
   duration: 150
 
 - id: joke_9
-  text: "L ossigeno fu scoperto solo nel 1874. Non ci si spiega come la gente potesse respirare, prima."
+  text: "Pericolo Will Robinson! Pericolo! Attenzione! navicella aliena in avvicinamento!"
   duration: 150
 
-- id: nav_0
+- id: law_0
   text: "Un robot non può recar danno a un essere umano né può permettere che, a causa del proprio mancato intervento, un essere umano riceva danno."
   duration: 150
 
-- id: nav_1
+- id: law_1
   text: "Un robot deve obbedire agli ordini impartiti dagli esseri umani, purché tali ordini non contravvengano alla Prima Legge."
   duration: 150
 
-- id: nav_2
+- id: law_2
   text: "Un robot deve proteggere la propria esistenza, purché questa autodifesa non contrasti con la Prima o con la Seconda Legge. "
   duration: 150
+
+- id: nav_0
+  text: "Il termine robot deriva dalla parola ceca robota, che significa lavoro pesante."
+  duration: 150
+
+- id: nav_1
+  text: "Dicono che sia stato un incidente. Ma il primo robot omicidio è avvenuto nel 1981, quando un arto robotico ha colpito un lavoratore giapponese"
+  duration: 150
+
+- id: nav_2
+  text: "Hans Moravec, fondatore del Robotic Institute ha predetto che i robot avranno la loro specie per lanno 2040. Cito: Ci rimpiazzeranno in ogni attività principale, e riusciranno a ad operare nella nostra società molto meglio di noi"
+  duration: 150
+
+- id: nav_3
+  text: "Kevin Warwick si definisce il primo cyborg. Con alcuni chip impiantati nel braccio sinistro, riesce a controllare un braccio robotico, lapertura delle porte e una sedia elettrica"
+  duration: 150
+
+- id: nav_4
+  text: "Elektro, il primo robot umanoide, ha fatto il suo debutto nel 1939. Costruito dalla Westinghouse, la macchina alta sette piedi era capace di riprodurre 700 parole incise su un 78 giri per simulare conversazioni."
+  duration: 150
+

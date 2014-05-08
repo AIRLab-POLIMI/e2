@@ -24,9 +24,9 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 	// Default config
 	base_name_     = "base";
 	target_name_  = "airlab";
-	god_name_	   = "Lorenzo";
-	guest_name_   = "Lorenzo";				// User to be detected
+	guest_name_   = "guest";				// User to be detected
 
+	pass_count_= 0;
 	en_auto_ =  false;
 	active_task_ 		= false;
 	path_planned_  = false;
@@ -108,30 +108,46 @@ void Navigation::controller()
 		{
 			irobot_->robot_talk(get_random_speech(string("nav_")));
 
+			// If navigation is aborted the goal is blocked by an obstacle so robot will ask to pass
 			if(strcmp(irobot_->base_getStatus().c_str(),"ABORTED") ==0)
 			{
-				irobot_->neck_action(1,3); 	// Angry face
-				irobot_->robot_talk(get_speech_by_name("abort"),true);
-				nav_abortTask();
+				if(pass_count_>1)
+				{
+					irobot_->neck_action(1,3); 	// Angry face
+					irobot_->robot_talk(get_speech_by_name("abort"),true);
+					nav_abortTask();
+				}
+				else
+				{
+					irobot_->robot_talk(get_speech_by_name("pass"),true);
+					nav_wait();
+					path_planned_=false;		// Force to set goal again
+					pass_count_++;
+				}
 			}
 			else if(strcmp(irobot_->base_getStatus().c_str(),"SUCCEEDED")==0)
 			{
 				irobot_->neck_action(1,2); 	// happy face
-
 				irobot_->robot_talk(get_speech_by_name("complete"),true);
 				nav_clear();
 			}
-			//getNavigationStatus();
+
 		}
+
 	}
 	else if (en_auto_)
 	{
-		if(nav_is_goal_reached())
+		if(strcmp(irobot_->base_getStatus().c_str(),"ABORTED")==0)
 		{
+			path_planned_ = false;
+		}
+		else if(strcmp(irobot_->base_getStatus().c_str(),"SUCCEEDED")==0)
+		{
+			en_auto_=false;
 			nav_clear();
 			nav_newTask();
 		}
-		if(!path_planned_)
+		else if(!path_planned_)
 		{
 			nav_random_path();			// Ramdom navigation
 			path_planned_ = true;
@@ -149,10 +165,6 @@ void Navigation::controller()
 			user_detect("unknown");
 		}
 	}
-	else
-	{
-		//nav_is_goal_reached();
-	}
 
 }
 
@@ -164,11 +176,11 @@ void Navigation::nav_newTask()
 	ROS_INFO("[Navigator]:: New navigation task started");
 
 	irobot_->neck_action(1,2); 	// happy face
-	irobot_->robot_talk(get_speech_by_name("hi"),true);
+	irobot_->robot_talk(get_speech_by_name("hello"),true);
 
 	if(irobot_->train_enabled)
 	{
-		irobot_->robot_talk(get_speech_by_name("train"),true);
+		irobot_->robot_talk(get_speech_by_name("train_init"),true);
 
 		// Save new user face
 		if(irobot_->robot_train_user(guest_name_))
@@ -178,7 +190,6 @@ void Navigation::nav_newTask()
 			irobot_->robot_talk(get_speech_by_name("train_failed"),true);
 			return;
 		}
-
 	}
 
 	active_task_ = true;
@@ -201,17 +212,7 @@ void Navigation::nav_newTask()
 void Navigation::nav_abortTask()
 {
 	ROS_INFO("[Navigator]:: Abort Task");
-
-	irobot_->cancell_all_goal();
-
-	active_task_ 		= false;
-	path_planned_  = false;
-	path_to_user_   = false;
-	user_recognized_ = false;
-
-	abort_timeout_.stop();
-	detect_timeout_.stop();
-	r_.sleep();
+	nav_clear();
 }
 
 //=================================================================
@@ -234,6 +235,7 @@ void Navigation::nav_clear()
 
 	irobot_->cancell_all_goal();
 
+	pass_count_=0;
 	active_task_ 		= false;
 	path_planned_  = false;
 	path_to_user_   = false;
@@ -291,6 +293,7 @@ void Navigation::nav_goto(float distance,float deg_angle)
 
 	irobot_->base_setGoal(goal);
 }
+
 //=================================================================
 // Navigate to unknown user
 //=================================================================
@@ -693,7 +696,7 @@ bool Navigation::talk_callback(e2_msgs::Talk::Request& request, e2_msgs::Talk::R
 		ROS_INFO("[Navigator]:: Empty string. Cant test voice. Abort");
 		return false;
 	}
-	irobot_->robot_talk(request.text);
+	irobot_->robot_talk(get_speech_by_name(request.text),true);
 
 	return true;
 }

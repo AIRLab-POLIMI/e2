@@ -1,8 +1,8 @@
 <launch>
 
 	<!-- Parameters -->
-  	<arg name="map_fiera" value="$(find e2_navigation)/map/fiera_final.yaml" /> 
-  	<arg name="stand_fiera" value="$(find e2_navigation)/config/marker_config.yaml" />
+  	<arg name="map_fiera" value="$(find e2_brain)/map/fiera_final.yaml" /> 
+  	<arg name="stand_fiera" value="$(find e2_brain)/config/marker_config.yaml" />
   	<param name="use_sim_time" value="false" />
   	  
 	<!-- Publish odom -->

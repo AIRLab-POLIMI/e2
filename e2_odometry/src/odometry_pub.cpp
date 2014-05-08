@@ -20,7 +20,7 @@
 #include "r2p/EncoderStamped.h"
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 
-#define ROS_NODE_RATE	100
+#define ROS_NODE_RATE	50
 #define ROS_NODE_NAME	"odometry_pub"
 
 // Tweak for velocity update. Better result
@@ -164,8 +164,8 @@ void getRobotVelocity(const r2p::VelocityConstPtr& msg)
 	if(fabs(msg->w)>=VEL_W_MOTOR_START)
 			odom->vr = msg->w;
 
-	if(!odom->encoder_enabled)
-		odom->UpdateOdometryVelocity();
+	//if(!odom->encoder_enabled)
+	//	odom->UpdateOdometryVelocity();
 
 }
 
