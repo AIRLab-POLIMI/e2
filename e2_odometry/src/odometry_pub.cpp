@@ -141,9 +141,13 @@ int main(int argc, char **argv)
 void getInitialPose(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg )
 {
 	ROS_DEBUG("[Odom]:: Received new robot pose. Update");
-	odom->~Odometry();
+	// Initialize Odometry position
+	odom->x = msg->pose.pose.position.x;
+	odom->y = msg->pose.pose.position.y;
 
-	odom = new Odometry(msg->pose.pose);
+	odom->odom_quat = msg->pose.pose.orientation;
+	odom->th = tf::getYaw(msg->pose.pose.orientation);
+
 }
 
 //======================================================
