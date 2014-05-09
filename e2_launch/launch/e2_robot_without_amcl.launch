@@ -1,0 +1,48 @@
+<launch>
+	
+    <!-- Kinect launch and scanner info -->
+	<include file="$(find e2_launch)/launch/e2_scanner.launch" />
+
+	<!-- Odom & Tf -->
+	<include file="$(find e2_launch)/launch/e2_odometry.launch" /> 
+	   
+	<!-- Face Recognition Node -->
+	<include file="$(find e2_launch)/launch/face_recognition.launch" />
+		
+	<!-- Neck Controller Node -->
+	<include file="$(find e2_launch)/launch/e2_neck_controller.launch" />
+
+  	<!-- Static Transform -->
+	<node pkg="tf" type="static_transform_publisher" name="odom_to_map"
+    	args="0.0 0 0 0 0 0  /map /odom 100" /> 
+	
+        <arg name="map_fiera" value="$(find e2_brain)/map/fiera_final.yaml" />
+        <arg name="stand_fiera" value="$(find e2_brain)/config/marker_config.yaml" />
+        <arg name="map_airlab" value="$(find e2_brain)/map/airlab/map.yaml" />
+        <arg name="stand_airlab" value="$(find e2_brain)/config/airlab_marker_config.yaml" />
+
+        <!-- Run the map server -->
+        <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_airlab)"/>
+
+        <!-- Run Move Base -->
+        <include file="$(find e2_launch)/launch/move_base.launch" />
+
+        <!-- Nav Messages converter for triskar base -->
+        <node name="e2_nav_messages" pkg="e2_nav_messages" type="e2_nav_messages_node"/>
+
+        <!-- Brain Node -->
+        <node name="e2_brain" pkg="e2_brain" type="e2_brain_node" respawn="false" output="screen">
+                <param name="en_auto" type="bool" value="false" />
+                <param name="en_neck" type="bool" value="true" />
+                <param name="en_voice" type="bool" value="true" />
+                <param name="en_train" type="bool" value="true" />
+                <param name="marker_config" type="string" value="$(arg stand_airlab)" />
+        </node>
+
+	<!-- Voice Node Server-->
+  	<node name="e2_voice_node" pkg="e2_voice" type="e2_voice_node" respawn="false" output="screen" />
+  	
+  	<!-- Kinect Motor-->
+  	<node name="kinect_aux_node" pkg="kinect_aux" type="kinect_aux_node" respawn="false" output="screen" />
+  	
+</launch>
