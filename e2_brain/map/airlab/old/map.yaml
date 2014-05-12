@@ -1,20 +1,7 @@
-# Path to the image file containing the occupancy data; can be absolute, or relative to the location of the YAML file
-#image: $(find lurch)/map/airlab.pgm
 image: airlab.pgm
-
-# Resolution of the map, meters / pixel
 resolution: 0.050000
-
-# The 2-D pose of the lower-left pixel in the map, as (x, y, yaw), with yaw as counterclockwise rotation (yaw=0 means no rotation).
-# Many parts of the system currently ignore yaw. 
-origin: [-100.000000, -100.000000, 0.000000]
-
-# Whether the white/black free/occupied semantics should be reversed (interpretation of thresholds is unaffected)
+origin: [-50.000000, -50.000000, 0.000000]
 negate: 0
-
-# Pixels with occupancy probability greater than this threshold are considered completely occupied.
 occupied_thresh: 0.65
-
-# Pixels with occupancy probability less than this threshold are considered completely free.
 free_thresh: 0.196
 
