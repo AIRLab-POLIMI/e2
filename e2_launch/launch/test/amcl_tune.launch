@@ -1,0 +1,27 @@
+<launch> 
+
+   <param name="use_sim_time" value="false" />
+	<!-- Parameters -->
+  	<arg name="map_fiera" value="$(find e2_brain)/map/fiera_final.yaml" /> 
+  	<arg name="stand_fiera" value="$(find e2_brain)/config/marker_config.yaml" />
+ 	<arg name="map_airlab" value="$(find e2_brain)/map/airlab/map.yaml" />
+ 	<arg name="stand_airlab" value="$(find e2_brain)/config/airlab_marker_config.yaml" />
+  
+   <!-- RosBag-->
+   <node pkg="rosbag" type="play" name="play" args=" -l $(find e2_launch)/launch/test/bag/2014-05-09-17-28-35.bag --topics /odom /scan /tf "/>
+   
+	<!-- Run the map server -->
+    <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_airlab)"/>
+
+
+	<!-- Run AMCL -->
+  	<include file="$(find e2_launch)/launch/amcl_diff.launch" />
+
+	<!-- Run Move Base -->
+	<include file="$(find e2_launch)/launch/move_base.launch" />
+
+   <!-- Rviz -->
+   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find e2_launch)/launch/config/robot.rviz"/>
+
+  
+</launch>
