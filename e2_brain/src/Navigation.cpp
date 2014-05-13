@@ -435,6 +435,9 @@ void Navigation::user_detectTimer(const ros::TimerEvent& e)
 			}
 		}
 		*/
+
+		irobot_->robot_talk(get_speech_by_name("check_complete"));	// Just talk a little bit
+
 		path_planned_=false;							//	Not usefull but to remember that	 now the controller had to recalculate new robot path to target
 		user_recognized_=false;					//	User found no more interesting
 	}

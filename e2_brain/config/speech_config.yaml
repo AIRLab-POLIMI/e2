@@ -30,7 +30,7 @@
   text: "Vieni con me. Ti portero nel nostro stand."
   duration: 150
 
-- id: follow_me
+- id: check_complete
   text: "Molto bene. Sei ancora qui. Proseguiamo."
   duration: 150
 
