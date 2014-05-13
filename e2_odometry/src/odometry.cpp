@@ -149,7 +149,7 @@ void Odometry::UpdateOdometryEncoder()
 
 	if(fabs(vx)>0 && fabs(vr)>0 )
 	{
-		//calc_delta_th(phi_1,-phi_2,phi_3);		// Used to solve problem with triskar. One encoder is mounted backwards
+		calc_delta_th(phi_1,-phi_2,phi_3);		// Used to solve problem with triskar. One encoder is mounted backwards
 		calc_delta_xy(phi_1,phi_2,-phi_3);		// Used to solve problem with triskar. One encoder is mounted backwards
 		//calc_delta_th(phi_1,phi_2,phi_3);
 		//calc_delta_xy(phi_1,phi_2,phi_3);
