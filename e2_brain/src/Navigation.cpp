@@ -302,7 +302,7 @@ void Navigation::nav_goto_detected_user()
 	t_user user= irobot_->getDetectedUser();
 	user.distance = user.distance - APPROACH_DISTANCE > APPROACH_DISTANCE ? (user.distance - APPROACH_DISTANCE) : 0 ;
 	ROS_DEBUG("[Navigation]:: Detected %s at %f m delta angle %f degree",user.name.c_str(),user.distance,user.angle);
-	nav_goto(user.distance- APPROACH_DISTANCE,user.angle);	// We want the robot to keep a small distance from detection point
+	nav_goto(user.distance,user.angle);	// We want the robot to keep a small distance from detection point
 }
 
 //=================================================================
@@ -642,7 +642,12 @@ bool Navigation::goto_callback(e2_msgs::Goto::Request& request, e2_msgs::Goto::R
 bool Navigation::detect_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
 {
 	user_recognized_ = false;
-	user_detect("unknown");
+
+	ros::Time init_detection = ros::Time::now();
+	ros::Duration timeout(30.0);
+
+	while((ros::Time::now() - init_detection < timeout) && !user_recognized_)
+		user_detect("unknown");
 
 	if(user_recognized_)
 	{
@@ -651,6 +656,12 @@ bool Navigation::detect_callback(std_srvs::Empty::Request& request, std_srvs::Em
 		user_recognized_ = false;
 		irobot_->clearDetectedUser();
 	}
+	else
+	{
+		ROS_INFO("[Brain::Test] Detection Failed. No face detected in 30 sec.");
+		return false;
+	}
+
 
 	return true;
 }
