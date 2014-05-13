@@ -117,11 +117,15 @@ int main(int argc, char **argv)
 					{
 						meas_progress=0;
 						
-						for (unsigned int i=0;i<8;i++)
+						for (unsigned int i=0;i<7;i++)
 						{
 							//Get Data
 							float sonarRawData = readSonar->getMeasure(i);
 							
+							// Not usefull distance. Set to zero to data
+							if(sonarRawData > 200)
+								sonarRawData = 0.0;
+
 							ROS_INFO("[SONAR]::SonarData:%d  -  %f", i, sonarRawData);
 
 							std::ostringstream stream;
