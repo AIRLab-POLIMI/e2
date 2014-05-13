@@ -18,7 +18,7 @@
 #include <tf/transform_broadcaster.h>
 
 #define L_DISTANCE	0.3 								// Wheel distance from center of mass (m)
-#define WHEEL_RADIUS  0.05						// Wheel radius
+#define WHEEL_RADIUS  0.052					// Wheel radius
 #define SCALE_VELOCITY_COST 0.645 		// Correction for velocity only
 
 class Odometry

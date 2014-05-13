@@ -161,11 +161,11 @@ void getRobotVelocity(const r2p::VelocityConstPtr& msg)
 	odom->vy = 0.0;
 	odom->vr = 0.0;
 
-	if(fabs(msg->x)>=VEL_X_MOTOR_START)
+	//if(fabs(msg->x)>=VEL_X_MOTOR_START)
 			odom->vx = msg->x;
-	if(fabs(msg->y)>=VEL_Y_MOTOR_START)
+	//if(fabs(msg->y)>=VEL_Y_MOTOR_START)
 			odom->vy = msg->y;
-	if(fabs(msg->w)>=VEL_W_MOTOR_START)
+	//if(fabs(msg->w)>=VEL_W_MOTOR_START)
 			odom->vr = msg->w;
 
 	//if(!odom->encoder_enabled)
