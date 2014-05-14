@@ -8,7 +8,7 @@
  	<arg name="stand_airlab" value="$(find e2_brain)/config/airlab_marker_config.yaml" />
   
    <!-- RosBag-->
-   <node pkg="rosbag" type="play" name="play" args=" -l $(find e2_launch)/launch/test/bag/2014-05-09-17-28-35.bag --topics /odom /scan /tf "/>
+   <node pkg="rosbag" type="play" name="play" args=" --pause -l $(find e2_launch)/launch/test/bag/sonar.bag $(find e2_launch)/launch/test/bag/amcl_tune.bag --topics /odom /scan /tf /e2_sonar"/>
    
 	<!-- Run the map server -->
     <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_airlab)"/>
