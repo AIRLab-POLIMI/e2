@@ -143,6 +143,8 @@ void NeckInterface::neck_actions(int action)
 			break;
 		case 4:
 			ROS_INFO("[INeck::Neck]:: Give a Bow");
+			pE2PololuInterface->setLowSpeed();
+			pE2PololuInterface->setLowAcc();
 			pE2PololuInterface->give_a_bow();
 			break;
 		case 5:
