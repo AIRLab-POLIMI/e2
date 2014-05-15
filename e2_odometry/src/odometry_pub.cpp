@@ -141,6 +141,7 @@ int main(int argc, char **argv)
 void getInitialPose(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg )
 {
 	ROS_DEBUG("[Odom]:: Received new robot pose. Update");
+
 	// Initialize Odometry position
 	odom->x = msg->pose.pose.position.x;
 	odom->y = msg->pose.pose.position.y;
@@ -157,19 +158,9 @@ void getRobotVelocity(const r2p::VelocityConstPtr& msg)
 {
 	ROS_DEBUG("[Odom]:: Received new robot velocity.");
 
-	odom->vx = 0.0;
-	odom->vy = 0.0;
-	odom->vr = 0.0;
-
-	//if(fabs(msg->x)>=VEL_X_MOTOR_START)
-			odom->vx = msg->x;
-	//if(fabs(msg->y)>=VEL_Y_MOTOR_START)
-			odom->vy = msg->y;
-	//if(fabs(msg->w)>=VEL_W_MOTOR_START)
-			odom->vr = msg->w;
-
-	//if(!odom->encoder_enabled)
-	//	odom->UpdateOdometryVelocity();
+	odom->vx = msg->x;
+	odom->vy = msg->y;
+	odom->vr = msg->w;
 
 }
 
