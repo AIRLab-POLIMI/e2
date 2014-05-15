@@ -241,7 +241,7 @@ bool RobotInterface::robot_train_user(string user_name)
 	if(train_enabled)
 	{
 		//neck_action(2,6);
-		kinect_motor(0);// To correctly get user face
+		kinect_motor(10);// To correctly get user face
 
 		FaceRecognitionGoal goal;
 
@@ -263,7 +263,7 @@ bool RobotInterface::robot_train_user(string user_name)
 		bool finished_before_timeout = ac_fr->waitForResult(ros::Duration(30.0));
 
 		//neck_action(2,1); // straight neck
-		kinect_motor(-15); //Back in orizontal position
+		kinect_motor(-5); //Back in orizontal position
 
 		if (finished_before_timeout)
 		{
