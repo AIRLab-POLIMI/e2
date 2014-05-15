@@ -154,7 +154,7 @@ void Navigation::controller()
 		}
 		else	 if(user_recognized_)
 		{
-			irobot_->neck_action(1,5); 	// happy face
+			irobot_->neck_action(1,2); 	// happy face
 			// Robot just find someone. Go toward him
 			nav_goto_detected_user();
 			user_recognized_= false;	// Set path just once
