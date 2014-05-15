@@ -14,12 +14,12 @@
 	<remap from="output" to="/camera/depth/image_raw"/>
   </node>
   
-   <!-- Recognition Nodes -->
+  <!-- Recognition Nodes -->
   <node name="face_recognition" pkg="face_recognition" type="face_recognition_node" respawn="false" output="screen">
 	<remap from="input_rgb" to="$(arg camera_kinect)"/>
 	<remap from="input_depth" to="$(arg camera_depth)"/>
   </node>
 
-   <node name="fr_client" pkg="face_recognition" type="face_recognition_client" respawn="false" output="screen"/>   
+  <node name="fr_client" pkg="face_recognition" type="face_recognition_client" respawn="false" output="screen"/>   
 
 </launch>
