@@ -9,7 +9,7 @@
  *  Created on: 15/mar/2014
  *
  */
-#define ROS_NODE_RATE	10
+#define ROS_NODE_RATE	15
 #define ROS_NODE_NAME	"e2_nav_messages"
 
 #include "ros/ros.h"
