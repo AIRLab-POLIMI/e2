@@ -5,32 +5,30 @@ Installation
 To correctly install this packages, you'll need a working installation of ROS (>= hydro) [http://wiki.ros.org/ROS/Installation].
 You had to clone this git repository in your catkin worspace and build by run catkin_make.
 
-To completely exploit each function is required
+To completely exploit this packages is required
 
-  * ROS (hydro)
+  * ROS (>=hydro)
   * ros-navigation-stack
   * ros-actionlib
   * pico2wave (robot voice)
-
+  * V-REP simulator [http://www.coppeliarobotics.com/]
 
 Testing
 --------------------------------- 
 You can test the package by running the simulated enviroment, using V-rep simulator [http://www.coppeliarobotics.com/]
-Once open v-rep open e2simulation_fiera.ttt in vrep_scenario folder. Start simulation and launch e2_navigation stack using the following command:
+Once open v-rep open e2simulation_fiera.ttt in vrep_scenario folder. Start simulation and launch e2  stack using the following command:
 
 roslaunch e2_launch e2_simulation_robot.launch
 
-You can use e2_navigation service call to test some functionality:
+Here are some service you can invoke to make some test
 
-example:
-
-rosservice call /e2_navigation/start 
-
-will start a navigation plan to bring a user in a known location.
-More informations can be found in README.md of each package. 
-
-
-
-
-
+$ rosservice call /e2_brain/nav_abort
+$ rosservice call /e2_brain/nav_auto
+$ rosservice call /e2_brain/nav_goto
+$ rosservice call /e2_brain/nav_start
+$ rosservice call /e2_brain/test_detect
+$ rosservice call /e2_brain/test_kinect_motor
+$ rosservice call /e2_brain/test_neck
+$ rosservice call /e2_brain/test_train
+$ rosservice call /e2_brain/test_voice
 
