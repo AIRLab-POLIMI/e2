@@ -1,0 +1,16 @@
+<package>
+  <description brief="highLevel_Interaction">
+
+     highLevel_Interaction
+
+  </description>
+  <author>Deborah Zamponi</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/highLevel_Interaction</url>
+  <depend package="roscpp"/>
+  <depend package="robot_brain"/>
+
+</package>
+
+

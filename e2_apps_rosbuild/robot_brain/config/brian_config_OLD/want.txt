@@ -1,0 +1,1 @@
+Go_To_User 			= ( AND ( P UserDetected) (NOT (P UserReached)) );

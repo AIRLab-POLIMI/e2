@@ -1,0 +1,7 @@
+(UserReached) => (TanSpeed STEADY);
+(UserVeryNear) => (TanSpeed STEADY);
+(UserNear) => (TanSpeed VERY_SLOW_FORWARD);
+(UserAnyNear) => (TanSpeed SLOW_FORWARD);
+(UserFar) => (TanSpeed FORWARD);
+(UserAnyFar) => (TanSpeed FAST_FORWARD);
+(UserVeryFar) => (TanSpeed VERY_FAST_FORWARD);

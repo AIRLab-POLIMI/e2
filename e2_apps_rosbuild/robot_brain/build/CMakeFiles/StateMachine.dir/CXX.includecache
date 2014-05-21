@@ -1,0 +1,34 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/e2/Desktop/TesiMandeZamponi/Project/robot_brain/src/Node.cpp
+Node.h
+/home/e2/Desktop/TesiMandeZamponi/Project/robot_brain/src/Node.h
+iostream
+-
+
+/home/e2/Desktop/TesiMandeZamponi/Project/robot_brain/src/Node.h
+iostream
+-
+vector
+-
+map
+-
+
+/home/e2/Desktop/TesiMandeZamponi/Project/robot_brain/src/StateMachine.cpp
+StateMachine.h
+/home/e2/Desktop/TesiMandeZamponi/Project/robot_brain/src/StateMachine.h
+iostream
+-
+
+/home/e2/Desktop/TesiMandeZamponi/Project/robot_brain/src/StateMachine.h
+Node.h
+/home/e2/Desktop/TesiMandeZamponi/Project/robot_brain/src/Node.h
+iostream
+-
+

@@ -1,0 +1,18 @@
+<package>
+  <description brief="robot_brain">
+
+     robot_brain
+
+  </description>
+  <author>e2</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/robot_brain</url>
+  <depend package="fuzzy"/>
+  <depend package="brian"/>
+  <depend package="roscpp"/>
+  <depend package="user_tracker"/>
+
+</package>
+
+

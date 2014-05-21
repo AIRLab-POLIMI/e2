@@ -1,0 +1,5 @@
+(UserDistance USER_DISTANCE)
+(UserXPosition USER_X_POSITION)
+(UserDetected TRUE_FALSE)
+(INTanSpeed TAN_SPEED)
+(INRotSpeed ROT_SPEED)

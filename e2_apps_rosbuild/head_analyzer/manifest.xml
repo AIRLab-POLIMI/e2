@@ -1,0 +1,22 @@
+<package>
+  <description brief="head_analyzer">
+
+     head_analyzer
+
+  </description>
+  <author>Deborah Zamponi</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/head_analyzer</url>
+  <depend package="std_msgs"/>
+  <depend package="geometry_msgs"/>
+  <depend package="roscpp"/>
+  <depend package="user_tracker"/>
+  <depend package="cv_bridge"/>
+  <depend package="image_transport"/>
+  <depend package="ann"/>
+  <rosdep name="opencv2.3"/>
+
+</package>
+
+
