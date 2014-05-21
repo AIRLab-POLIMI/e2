@@ -8,7 +8,7 @@ default_target: all
 #=============================================================================
 # Special targets provided by cmake.
 
-# Disable implicit rules so canoncical targets will work.
+# Disable implicit rules so canonical targets will work.
 .SUFFIXES:
 
 # Remove some rules from gmake that .SUFFIXES does not remove.
@@ -35,27 +35,65 @@ CMAKE_COMMAND = /usr/bin/cmake
 # The command to remove a file.
 RM = /usr/bin/cmake -E remove -f
 
-# The program to use to edit the cache.
-CMAKE_EDIT_COMMAND = /usr/bin/cmake-gui
-
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/e2/Desktop/TesiMandeZamponi/Project/robot_brain
+CMAKE_SOURCE_DIR = /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/robot_brain
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/e2/Desktop/TesiMandeZamponi/Project/robot_brain/build
+CMAKE_BINARY_DIR = /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/robot_brain/build
 
 #=============================================================================
 # Targets provided globally by CMake.
 
 # Special rule for the target edit_cache
 edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
-	/usr/bin/cmake-gui -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running interactive CMake command-line interface..."
+	/usr/bin/cmake -i .
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
 edit_cache/fast: edit_cache
 .PHONY : edit_cache/fast
+
+# Special rule for the target install
+install: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install
+
+# Special rule for the target install
+install/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install/fast
+
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
+
+# Special rule for the target install/local
+install/local/fast: install/local
+.PHONY : install/local/fast
+
+# Special rule for the target install/strip
+install/strip: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip
+
+# Special rule for the target install/strip
+install/strip/fast: install/strip
+.PHONY : install/strip/fast
+
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+.PHONY : list_install_components/fast
 
 # Special rule for the target rebuild_cache
 rebuild_cache:
@@ -69,9 +107,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/e2/Desktop/TesiMandeZamponi/Project/robot_brain/build/CMakeFiles /home/e2/Desktop/TesiMandeZamponi/Project/robot_brain/build/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/robot_brain/build/CMakeFiles /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/robot_brain/build/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/e2/Desktop/TesiMandeZamponi/Project/robot_brain/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/robot_brain/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -177,17 +215,43 @@ StateMachine/fast:
 .PHONY : StateMachine/fast
 
 #=============================================================================
-# Target rules for targets named clean-test-results
+# Target rules for targets named _catkin_empty_exported_target
 
 # Build rule for target.
-clean-test-results: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 clean-test-results
-.PHONY : clean-test-results
+_catkin_empty_exported_target: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 _catkin_empty_exported_target
+.PHONY : _catkin_empty_exported_target
 
 # fast build rule for target.
-clean-test-results/fast:
-	$(MAKE) -f CMakeFiles/clean-test-results.dir/build.make CMakeFiles/clean-test-results.dir/build
-.PHONY : clean-test-results/fast
+_catkin_empty_exported_target/fast:
+	$(MAKE) -f CMakeFiles/_catkin_empty_exported_target.dir/build.make CMakeFiles/_catkin_empty_exported_target.dir/build
+.PHONY : _catkin_empty_exported_target/fast
+
+#=============================================================================
+# Target rules for targets named clean_test_results
+
+# Build rule for target.
+clean_test_results: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 clean_test_results
+.PHONY : clean_test_results
+
+# fast build rule for target.
+clean_test_results/fast:
+	$(MAKE) -f CMakeFiles/clean_test_results.dir/build.make CMakeFiles/clean_test_results.dir/build
+.PHONY : clean_test_results/fast
+
+#=============================================================================
+# Target rules for targets named doxygen
+
+# Build rule for target.
+doxygen: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 doxygen
+.PHONY : doxygen
+
+# fast build rule for target.
+doxygen/fast:
+	$(MAKE) -f CMakeFiles/doxygen.dir/build.make CMakeFiles/doxygen.dir/build
+.PHONY : doxygen/fast
 
 #=============================================================================
 # Target rules for targets named robot_brain
@@ -201,6 +265,19 @@ robot_brain: cmake_check_build_system
 robot_brain/fast:
 	$(MAKE) -f CMakeFiles/robot_brain.dir/build.make CMakeFiles/robot_brain.dir/build
 .PHONY : robot_brain/fast
+
+#=============================================================================
+# Target rules for targets named rosbuild_clean-test-results
+
+# Build rule for target.
+rosbuild_clean-test-results: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 rosbuild_clean-test-results
+.PHONY : rosbuild_clean-test-results
+
+# fast build rule for target.
+rosbuild_clean-test-results/fast:
+	$(MAKE) -f CMakeFiles/rosbuild_clean-test-results.dir/build.make CMakeFiles/rosbuild_clean-test-results.dir/build
+.PHONY : rosbuild_clean-test-results/fast
 
 #=============================================================================
 # Target rules for targets named rosbuild_precompile
@@ -281,6 +358,19 @@ rospack_gensrv/fast:
 .PHONY : rospack_gensrv/fast
 
 #=============================================================================
+# Target rules for targets named run_tests
+
+# Build rule for target.
+run_tests: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 run_tests
+.PHONY : run_tests
+
+# fast build rule for target.
+run_tests/fast:
+	$(MAKE) -f CMakeFiles/run_tests.dir/build.make CMakeFiles/run_tests.dir/build
+.PHONY : run_tests/fast
+
+#=============================================================================
 # Target rules for targets named test
 
 # Build rule for target.
@@ -345,50 +435,103 @@ tests/fast:
 	$(MAKE) -f CMakeFiles/tests.dir/build.make CMakeFiles/tests.dir/build
 .PHONY : tests/fast
 
-# target to build an object file
-src/Node.o:
-	$(MAKE) -f CMakeFiles/StateMachine.dir/build.make CMakeFiles/StateMachine.dir/src/Node.o
+#=============================================================================
+# Target rules for targets named gtest
+
+# Build rule for target.
+gtest: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 gtest
+.PHONY : gtest
+
+# fast build rule for target.
+gtest/fast:
+	$(MAKE) -f gtest/CMakeFiles/gtest.dir/build.make gtest/CMakeFiles/gtest.dir/build
+.PHONY : gtest/fast
+
+#=============================================================================
+# Target rules for targets named gtest_main
+
+# Build rule for target.
+gtest_main: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 gtest_main
+.PHONY : gtest_main
+
+# fast build rule for target.
+gtest_main/fast:
+	$(MAKE) -f gtest/CMakeFiles/gtest_main.dir/build.make gtest/CMakeFiles/gtest_main.dir/build
+.PHONY : gtest_main/fast
+
+src/Node.o: src/Node.cpp.o
 .PHONY : src/Node.o
 
-# target to preprocess a source file
-src/Node.i:
-	$(MAKE) -f CMakeFiles/StateMachine.dir/build.make CMakeFiles/StateMachine.dir/src/Node.i
+# target to build an object file
+src/Node.cpp.o:
+	$(MAKE) -f CMakeFiles/StateMachine.dir/build.make CMakeFiles/StateMachine.dir/src/Node.cpp.o
+.PHONY : src/Node.cpp.o
+
+src/Node.i: src/Node.cpp.i
 .PHONY : src/Node.i
 
-# target to generate assembly for a file
-src/Node.s:
-	$(MAKE) -f CMakeFiles/StateMachine.dir/build.make CMakeFiles/StateMachine.dir/src/Node.s
+# target to preprocess a source file
+src/Node.cpp.i:
+	$(MAKE) -f CMakeFiles/StateMachine.dir/build.make CMakeFiles/StateMachine.dir/src/Node.cpp.i
+.PHONY : src/Node.cpp.i
+
+src/Node.s: src/Node.cpp.s
 .PHONY : src/Node.s
 
-# target to build an object file
-src/StateMachine.o:
-	$(MAKE) -f CMakeFiles/StateMachine.dir/build.make CMakeFiles/StateMachine.dir/src/StateMachine.o
+# target to generate assembly for a file
+src/Node.cpp.s:
+	$(MAKE) -f CMakeFiles/StateMachine.dir/build.make CMakeFiles/StateMachine.dir/src/Node.cpp.s
+.PHONY : src/Node.cpp.s
+
+src/StateMachine.o: src/StateMachine.cpp.o
 .PHONY : src/StateMachine.o
 
-# target to preprocess a source file
-src/StateMachine.i:
-	$(MAKE) -f CMakeFiles/StateMachine.dir/build.make CMakeFiles/StateMachine.dir/src/StateMachine.i
+# target to build an object file
+src/StateMachine.cpp.o:
+	$(MAKE) -f CMakeFiles/StateMachine.dir/build.make CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o
+.PHONY : src/StateMachine.cpp.o
+
+src/StateMachine.i: src/StateMachine.cpp.i
 .PHONY : src/StateMachine.i
 
-# target to generate assembly for a file
-src/StateMachine.s:
-	$(MAKE) -f CMakeFiles/StateMachine.dir/build.make CMakeFiles/StateMachine.dir/src/StateMachine.s
+# target to preprocess a source file
+src/StateMachine.cpp.i:
+	$(MAKE) -f CMakeFiles/StateMachine.dir/build.make CMakeFiles/StateMachine.dir/src/StateMachine.cpp.i
+.PHONY : src/StateMachine.cpp.i
+
+src/StateMachine.s: src/StateMachine.cpp.s
 .PHONY : src/StateMachine.s
 
-# target to build an object file
-src/robot_brain.o:
-	$(MAKE) -f CMakeFiles/robot_brain.dir/build.make CMakeFiles/robot_brain.dir/src/robot_brain.o
+# target to generate assembly for a file
+src/StateMachine.cpp.s:
+	$(MAKE) -f CMakeFiles/StateMachine.dir/build.make CMakeFiles/StateMachine.dir/src/StateMachine.cpp.s
+.PHONY : src/StateMachine.cpp.s
+
+src/robot_brain.o: src/robot_brain.cpp.o
 .PHONY : src/robot_brain.o
 
-# target to preprocess a source file
-src/robot_brain.i:
-	$(MAKE) -f CMakeFiles/robot_brain.dir/build.make CMakeFiles/robot_brain.dir/src/robot_brain.i
+# target to build an object file
+src/robot_brain.cpp.o:
+	$(MAKE) -f CMakeFiles/robot_brain.dir/build.make CMakeFiles/robot_brain.dir/src/robot_brain.cpp.o
+.PHONY : src/robot_brain.cpp.o
+
+src/robot_brain.i: src/robot_brain.cpp.i
 .PHONY : src/robot_brain.i
 
-# target to generate assembly for a file
-src/robot_brain.s:
-	$(MAKE) -f CMakeFiles/robot_brain.dir/build.make CMakeFiles/robot_brain.dir/src/robot_brain.s
+# target to preprocess a source file
+src/robot_brain.cpp.i:
+	$(MAKE) -f CMakeFiles/robot_brain.dir/build.make CMakeFiles/robot_brain.dir/src/robot_brain.cpp.i
+.PHONY : src/robot_brain.cpp.i
+
+src/robot_brain.s: src/robot_brain.cpp.s
 .PHONY : src/robot_brain.s
+
+# target to generate assembly for a file
+src/robot_brain.cpp.s:
+	$(MAKE) -f CMakeFiles/robot_brain.dir/build.make CMakeFiles/robot_brain.dir/src/robot_brain.cpp.s
+.PHONY : src/robot_brain.cpp.s
 
 # Help Target
 help:
@@ -402,21 +545,31 @@ help:
 	@echo "... ROSBUILD_gensrv_cpp"
 	@echo "... ROSBUILD_gensrv_lisp"
 	@echo "... StateMachine"
-	@echo "... clean-test-results"
+	@echo "... _catkin_empty_exported_target"
+	@echo "... clean_test_results"
+	@echo "... doxygen"
 	@echo "... edit_cache"
+	@echo "... install"
+	@echo "... install/local"
+	@echo "... install/strip"
+	@echo "... list_install_components"
 	@echo "... rebuild_cache"
 	@echo "... robot_brain"
+	@echo "... rosbuild_clean-test-results"
 	@echo "... rosbuild_precompile"
 	@echo "... rosbuild_premsgsrvgen"
 	@echo "... rospack_genmsg"
 	@echo "... rospack_genmsg_all"
 	@echo "... rospack_genmsg_libexe"
 	@echo "... rospack_gensrv"
+	@echo "... run_tests"
 	@echo "... test"
 	@echo "... test-future"
 	@echo "... test-results"
 	@echo "... test-results-run"
 	@echo "... tests"
+	@echo "... gtest"
+	@echo "... gtest_main"
 	@echo "... src/Node.o"
 	@echo "... src/Node.i"
 	@echo "... src/Node.s"

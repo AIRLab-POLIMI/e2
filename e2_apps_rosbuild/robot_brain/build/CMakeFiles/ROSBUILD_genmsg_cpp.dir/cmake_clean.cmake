@@ -1,7 +1,7 @@
 FILE(REMOVE_RECURSE
   "../msg_gen"
-  "../src/robot_brain/msg"
   "../msg_gen"
+  "../src/robot_brain/msg"
   "CMakeFiles/ROSBUILD_genmsg_cpp"
   "../msg_gen/cpp/include/robot_brain/HighLevelData.h"
   "../msg_gen/cpp/include/robot_brain/WheelData.h"

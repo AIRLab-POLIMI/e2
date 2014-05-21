@@ -99,7 +99,7 @@ aggregation_tree *ptrule=NULL;
 
 
 /* Line 268 of yacc.c  */
-#line 103 "/home/matteo/workspace/mrbrian/src/brian/src/rulesgram.tab.cpp"
+#line 103 "/home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/mrbrian/src/brian/src/rulesgram.tab.cpp"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -154,7 +154,7 @@ typedef union YYSTYPE
 
 
 /* Line 293 of yacc.c  */
-#line 158 "/home/matteo/workspace/mrbrian/src/brian/src/rulesgram.tab.cpp"
+#line 158 "/home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/mrbrian/src/brian/src/rulesgram.tab.cpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -166,7 +166,7 @@ typedef union YYSTYPE
 
 
 /* Line 343 of yacc.c  */
-#line 170 "/home/matteo/workspace/mrbrian/src/brian/src/rulesgram.tab.cpp"
+#line 170 "/home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/mrbrian/src/brian/src/rulesgram.tab.cpp"
 
 #ifdef short
 # undef short
@@ -1472,7 +1472,7 @@ yyreduce:
 
 
 /* Line 1806 of yacc.c  */
-#line 1476 "/home/matteo/workspace/mrbrian/src/brian/src/rulesgram.tab.cpp"
+#line 1476 "/home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/mrbrian/src/brian/src/rulesgram.tab.cpp"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires

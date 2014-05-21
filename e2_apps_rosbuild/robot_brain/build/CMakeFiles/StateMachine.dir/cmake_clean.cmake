@@ -1,9 +1,9 @@
 FILE(REMOVE_RECURSE
   "../msg_gen"
-  "../src/robot_brain/msg"
   "../msg_gen"
-  "CMakeFiles/StateMachine.dir/src/Node.o"
-  "CMakeFiles/StateMachine.dir/src/StateMachine.o"
+  "../src/robot_brain/msg"
+  "CMakeFiles/StateMachine.dir/src/Node.cpp.o"
+  "CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o"
   "../lib/libStateMachine.pdb"
   "../lib/libStateMachine.so"
 )

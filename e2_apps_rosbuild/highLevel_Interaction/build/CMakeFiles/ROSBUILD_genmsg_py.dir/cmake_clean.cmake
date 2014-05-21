@@ -1,7 +1,7 @@
 FILE(REMOVE_RECURSE
   "../msg_gen"
-  "../src/highLevel_Interaction/msg"
   "../msg_gen"
+  "../src/highLevel_Interaction/msg"
   "CMakeFiles/ROSBUILD_genmsg_py"
   "../src/highLevel_Interaction/msg/__init__.py"
   "../src/highLevel_Interaction/msg/_SpeakData.py"

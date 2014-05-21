@@ -1,8 +1,8 @@
 FILE(REMOVE_RECURSE
   "../msg_gen"
-  "../src/robot_brain/msg"
   "../msg_gen"
-  "CMakeFiles/robot_brain.dir/src/robot_brain.o"
+  "../src/robot_brain/msg"
+  "CMakeFiles/robot_brain.dir/src/robot_brain.cpp.o"
   "../bin/robot_brain.pdb"
   "../bin/robot_brain"
 )

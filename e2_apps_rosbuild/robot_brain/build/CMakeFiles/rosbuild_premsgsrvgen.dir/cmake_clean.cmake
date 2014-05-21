@@ -1,7 +1,7 @@
 FILE(REMOVE_RECURSE
   "../msg_gen"
-  "../src/robot_brain/msg"
   "../msg_gen"
+  "../src/robot_brain/msg"
   "CMakeFiles/rosbuild_premsgsrvgen"
 )
 

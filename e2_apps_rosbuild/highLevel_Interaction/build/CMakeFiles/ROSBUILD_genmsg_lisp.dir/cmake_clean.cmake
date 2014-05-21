@@ -1,7 +1,7 @@
 FILE(REMOVE_RECURSE
   "../msg_gen"
-  "../src/highLevel_Interaction/msg"
   "../msg_gen"
+  "../src/highLevel_Interaction/msg"
   "CMakeFiles/ROSBUILD_genmsg_lisp"
   "../msg_gen/lisp/SpeakData.lisp"
   "../msg_gen/lisp/_package.lisp"

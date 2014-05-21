@@ -8,8 +8,7 @@
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/robot_brain</url>
-  <depend package="fuzzy"/>
-  <depend package="brian"/>
+  <depend package="mrbrian"/>
   <depend package="roscpp"/>
   <depend package="user_tracker"/>
   <depend package="head_analyzer"/>

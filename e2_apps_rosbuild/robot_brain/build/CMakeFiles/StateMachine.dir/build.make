@@ -4,7 +4,7 @@
 #=============================================================================
 # Special targets provided by cmake.
 
-# Disable implicit rules so canoncical targets will work.
+# Disable implicit rules so canonical targets will work.
 .SUFFIXES:
 
 # Remove some rules from gmake that .SUFFIXES does not remove.
@@ -31,14 +31,11 @@ CMAKE_COMMAND = /usr/bin/cmake
 # The command to remove a file.
 RM = /usr/bin/cmake -E remove -f
 
-# The program to use to edit the cache.
-CMAKE_EDIT_COMMAND = /usr/bin/cmake-gui
-
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/e2/Desktop/TesiMandeZamponi/Project/robot_brain
+CMAKE_SOURCE_DIR = /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/robot_brain
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/e2/Desktop/TesiMandeZamponi/Project/robot_brain/build
+CMAKE_BINARY_DIR = /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/robot_brain/build
 
 # Include any dependencies generated for this target.
 include CMakeFiles/StateMachine.dir/depend.make
@@ -49,173 +46,132 @@ include CMakeFiles/StateMachine.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/StateMachine.dir/flags.make
 
-CMakeFiles/StateMachine.dir/src/Node.o: CMakeFiles/StateMachine.dir/flags.make
-CMakeFiles/StateMachine.dir/src/Node.o: ../src/Node.cpp
-CMakeFiles/StateMachine.dir/src/Node.o: ../manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /home/e2/Desktop/TesiMandeZamponi/Project/mrt/fuzzy/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /home/e2/Desktop/TesiMandeZamponi/Project/mrt/brian/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/ros/core/rosbuild/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/ros/core/roslang/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/ros_comm/utilities/cpp_common/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/ros_comm/clients/cpp/roscpp_traits/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/ros_comm/utilities/rostime/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/ros_comm/clients/cpp/roscpp_serialization/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/ros/tools/rospack/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/ros/core/roslib/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/ros_comm/utilities/xmlrpcpp/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/ros_comm/tools/rosconsole/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/ros_comm/messages/rosgraph_msgs/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/ros_comm/clients/cpp/roscpp/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/ros_comm/clients/rospy/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/ros/tools/rosclean/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/ros_comm/tools/rosgraph/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/ros_comm/tools/rosparam/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/ros_comm/tools/rosmaster/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/ros_comm/tools/rosout/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/ros_comm/tools/roslaunch/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/ros/tools/rosunit/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/ros_comm/tools/rostest/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/ros_comm/tools/topic_tools/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/ros_comm/tools/rosbag/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/ros_comm/tools/rosbagmigration/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/common_msgs/geometry_msgs/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /home/e2/openni_kinect/openni_kinect/openni/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/common_msgs/sensor_msgs/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/vision_opencv/opencv2/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/vision_opencv/cv_bridge/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/pluginlib/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/ros_comm/utilities/message_filters/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/image_common/image_transport/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /home/e2/Desktop/TesiMandeZamponi/Project/user_tracker/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /home/e2/Desktop/TesiMandeZamponi/Project/ann/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /home/e2/Desktop/TesiMandeZamponi/Project/head_analyzer/manifest.xml
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/msg_gen/generated
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/ros_comm/messages/rosgraph_msgs/msg_gen/generated
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/ros_comm/clients/cpp/roscpp/msg_gen/generated
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/ros_comm/clients/cpp/roscpp/srv_gen/generated
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/ros_comm/tools/topic_tools/srv_gen/generated
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/common_msgs/geometry_msgs/msg_gen/generated
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/common_msgs/sensor_msgs/msg_gen/generated
-CMakeFiles/StateMachine.dir/src/Node.o: /opt/ros/electric/stacks/common_msgs/sensor_msgs/srv_gen/generated
-CMakeFiles/StateMachine.dir/src/Node.o: /home/e2/Desktop/TesiMandeZamponi/Project/user_tracker/msg_gen/generated
-CMakeFiles/StateMachine.dir/src/Node.o: /home/e2/Desktop/TesiMandeZamponi/Project/head_analyzer/msg_gen/generated
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/e2/Desktop/TesiMandeZamponi/Project/robot_brain/build/CMakeFiles $(CMAKE_PROGRESS_1)
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/StateMachine.dir/src/Node.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -o CMakeFiles/StateMachine.dir/src/Node.o -c /home/e2/Desktop/TesiMandeZamponi/Project/robot_brain/src/Node.cpp
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: CMakeFiles/StateMachine.dir/flags.make
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: ../src/Node.cpp
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: ../manifest.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/mrbrian/manifest.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /opt/ros/hydro/share/catkin/package.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /opt/ros/hydro/share/console_bridge/package.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /opt/ros/hydro/share/cpp_common/package.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /opt/ros/hydro/share/rostime/package.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /opt/ros/hydro/share/roscpp_traits/package.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /opt/ros/hydro/share/roscpp_serialization/package.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /opt/ros/hydro/share/genmsg/package.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /opt/ros/hydro/share/genpy/package.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /opt/ros/hydro/share/message_runtime/package.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /opt/ros/hydro/share/gencpp/package.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /opt/ros/hydro/share/genlisp/package.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /opt/ros/hydro/share/message_generation/package.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /opt/ros/hydro/share/rosbuild/package.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /opt/ros/hydro/share/rosconsole/package.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /opt/ros/hydro/share/std_msgs/package.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /opt/ros/hydro/share/rosgraph_msgs/package.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /opt/ros/hydro/share/xmlrpcpp/package.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /opt/ros/hydro/share/roscpp/package.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /opt/ros/hydro/share/geometry_msgs/package.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /opt/ros/hydro/share/opencv2/package.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /opt/ros/hydro/share/sensor_msgs/package.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /opt/ros/hydro/share/cv_bridge/package.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /opt/ros/hydro/share/message_filters/package.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /opt/ros/hydro/share/class_loader/package.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /opt/ros/hydro/share/rospack/package.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /opt/ros/hydro/share/roslib/package.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /opt/ros/hydro/share/pluginlib/package.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /opt/ros/hydro/share/image_transport/package.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/user_tracker/manifest.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/ann/manifest.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/head_analyzer/manifest.xml
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/user_tracker/msg_gen/generated
+CMakeFiles/StateMachine.dir/src/Node.cpp.o: /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/head_analyzer/msg_gen/generated
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/robot_brain/build/CMakeFiles $(CMAKE_PROGRESS_1)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/StateMachine.dir/src/Node.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -o CMakeFiles/StateMachine.dir/src/Node.cpp.o -c /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/robot_brain/src/Node.cpp
 
-CMakeFiles/StateMachine.dir/src/Node.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/StateMachine.dir/src/Node.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -E /home/e2/Desktop/TesiMandeZamponi/Project/robot_brain/src/Node.cpp > CMakeFiles/StateMachine.dir/src/Node.i
+CMakeFiles/StateMachine.dir/src/Node.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/StateMachine.dir/src/Node.cpp.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -E /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/robot_brain/src/Node.cpp > CMakeFiles/StateMachine.dir/src/Node.cpp.i
 
-CMakeFiles/StateMachine.dir/src/Node.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/StateMachine.dir/src/Node.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -S /home/e2/Desktop/TesiMandeZamponi/Project/robot_brain/src/Node.cpp -o CMakeFiles/StateMachine.dir/src/Node.s
+CMakeFiles/StateMachine.dir/src/Node.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/StateMachine.dir/src/Node.cpp.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -S /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/robot_brain/src/Node.cpp -o CMakeFiles/StateMachine.dir/src/Node.cpp.s
 
-CMakeFiles/StateMachine.dir/src/Node.o.requires:
-.PHONY : CMakeFiles/StateMachine.dir/src/Node.o.requires
+CMakeFiles/StateMachine.dir/src/Node.cpp.o.requires:
+.PHONY : CMakeFiles/StateMachine.dir/src/Node.cpp.o.requires
 
-CMakeFiles/StateMachine.dir/src/Node.o.provides: CMakeFiles/StateMachine.dir/src/Node.o.requires
-	$(MAKE) -f CMakeFiles/StateMachine.dir/build.make CMakeFiles/StateMachine.dir/src/Node.o.provides.build
-.PHONY : CMakeFiles/StateMachine.dir/src/Node.o.provides
+CMakeFiles/StateMachine.dir/src/Node.cpp.o.provides: CMakeFiles/StateMachine.dir/src/Node.cpp.o.requires
+	$(MAKE) -f CMakeFiles/StateMachine.dir/build.make CMakeFiles/StateMachine.dir/src/Node.cpp.o.provides.build
+.PHONY : CMakeFiles/StateMachine.dir/src/Node.cpp.o.provides
 
-CMakeFiles/StateMachine.dir/src/Node.o.provides.build: CMakeFiles/StateMachine.dir/src/Node.o
-.PHONY : CMakeFiles/StateMachine.dir/src/Node.o.provides.build
+CMakeFiles/StateMachine.dir/src/Node.cpp.o.provides.build: CMakeFiles/StateMachine.dir/src/Node.cpp.o
 
-CMakeFiles/StateMachine.dir/src/StateMachine.o: CMakeFiles/StateMachine.dir/flags.make
-CMakeFiles/StateMachine.dir/src/StateMachine.o: ../src/StateMachine.cpp
-CMakeFiles/StateMachine.dir/src/StateMachine.o: ../manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /home/e2/Desktop/TesiMandeZamponi/Project/mrt/fuzzy/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /home/e2/Desktop/TesiMandeZamponi/Project/mrt/brian/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/ros/core/rosbuild/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/ros/core/roslang/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/ros_comm/utilities/cpp_common/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/ros_comm/clients/cpp/roscpp_traits/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/ros_comm/utilities/rostime/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/ros_comm/clients/cpp/roscpp_serialization/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/ros/tools/rospack/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/ros/core/roslib/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/ros_comm/utilities/xmlrpcpp/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/ros_comm/tools/rosconsole/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/ros_comm/messages/rosgraph_msgs/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/ros_comm/clients/cpp/roscpp/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/ros_comm/clients/rospy/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/ros/tools/rosclean/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/ros_comm/tools/rosgraph/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/ros_comm/tools/rosparam/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/ros_comm/tools/rosmaster/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/ros_comm/tools/rosout/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/ros_comm/tools/roslaunch/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/ros/tools/rosunit/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/ros_comm/tools/rostest/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/ros_comm/tools/topic_tools/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/ros_comm/tools/rosbag/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/ros_comm/tools/rosbagmigration/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/common_msgs/geometry_msgs/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /home/e2/openni_kinect/openni_kinect/openni/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/common_msgs/sensor_msgs/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/vision_opencv/opencv2/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/vision_opencv/cv_bridge/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/pluginlib/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/ros_comm/utilities/message_filters/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/image_common/image_transport/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /home/e2/Desktop/TesiMandeZamponi/Project/user_tracker/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /home/e2/Desktop/TesiMandeZamponi/Project/ann/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /home/e2/Desktop/TesiMandeZamponi/Project/head_analyzer/manifest.xml
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/ros_comm/messages/std_msgs/msg_gen/generated
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/ros_comm/messages/rosgraph_msgs/msg_gen/generated
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/ros_comm/clients/cpp/roscpp/msg_gen/generated
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/ros_comm/clients/cpp/roscpp/srv_gen/generated
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/ros_comm/tools/topic_tools/srv_gen/generated
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/common_msgs/geometry_msgs/msg_gen/generated
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/common_msgs/sensor_msgs/msg_gen/generated
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /opt/ros/electric/stacks/common_msgs/sensor_msgs/srv_gen/generated
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /home/e2/Desktop/TesiMandeZamponi/Project/user_tracker/msg_gen/generated
-CMakeFiles/StateMachine.dir/src/StateMachine.o: /home/e2/Desktop/TesiMandeZamponi/Project/head_analyzer/msg_gen/generated
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/e2/Desktop/TesiMandeZamponi/Project/robot_brain/build/CMakeFiles $(CMAKE_PROGRESS_2)
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/StateMachine.dir/src/StateMachine.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -o CMakeFiles/StateMachine.dir/src/StateMachine.o -c /home/e2/Desktop/TesiMandeZamponi/Project/robot_brain/src/StateMachine.cpp
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: CMakeFiles/StateMachine.dir/flags.make
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: ../src/StateMachine.cpp
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: ../manifest.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/mrbrian/manifest.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /opt/ros/hydro/share/catkin/package.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /opt/ros/hydro/share/console_bridge/package.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /opt/ros/hydro/share/cpp_common/package.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /opt/ros/hydro/share/rostime/package.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /opt/ros/hydro/share/roscpp_traits/package.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /opt/ros/hydro/share/roscpp_serialization/package.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /opt/ros/hydro/share/genmsg/package.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /opt/ros/hydro/share/genpy/package.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /opt/ros/hydro/share/message_runtime/package.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /opt/ros/hydro/share/gencpp/package.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /opt/ros/hydro/share/genlisp/package.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /opt/ros/hydro/share/message_generation/package.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /opt/ros/hydro/share/rosbuild/package.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /opt/ros/hydro/share/rosconsole/package.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /opt/ros/hydro/share/std_msgs/package.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /opt/ros/hydro/share/rosgraph_msgs/package.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /opt/ros/hydro/share/xmlrpcpp/package.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /opt/ros/hydro/share/roscpp/package.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /opt/ros/hydro/share/geometry_msgs/package.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /opt/ros/hydro/share/opencv2/package.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /opt/ros/hydro/share/sensor_msgs/package.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /opt/ros/hydro/share/cv_bridge/package.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /opt/ros/hydro/share/message_filters/package.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /opt/ros/hydro/share/class_loader/package.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /opt/ros/hydro/share/rospack/package.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /opt/ros/hydro/share/roslib/package.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /opt/ros/hydro/share/pluginlib/package.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /opt/ros/hydro/share/image_transport/package.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/user_tracker/manifest.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/ann/manifest.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/head_analyzer/manifest.xml
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/user_tracker/msg_gen/generated
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o: /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/head_analyzer/msg_gen/generated
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/robot_brain/build/CMakeFiles $(CMAKE_PROGRESS_2)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -o CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o -c /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/robot_brain/src/StateMachine.cpp
 
-CMakeFiles/StateMachine.dir/src/StateMachine.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/StateMachine.dir/src/StateMachine.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -E /home/e2/Desktop/TesiMandeZamponi/Project/robot_brain/src/StateMachine.cpp > CMakeFiles/StateMachine.dir/src/StateMachine.i
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/StateMachine.dir/src/StateMachine.cpp.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -E /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/robot_brain/src/StateMachine.cpp > CMakeFiles/StateMachine.dir/src/StateMachine.cpp.i
 
-CMakeFiles/StateMachine.dir/src/StateMachine.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/StateMachine.dir/src/StateMachine.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -S /home/e2/Desktop/TesiMandeZamponi/Project/robot_brain/src/StateMachine.cpp -o CMakeFiles/StateMachine.dir/src/StateMachine.s
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/StateMachine.dir/src/StateMachine.cpp.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -S /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/robot_brain/src/StateMachine.cpp -o CMakeFiles/StateMachine.dir/src/StateMachine.cpp.s
 
-CMakeFiles/StateMachine.dir/src/StateMachine.o.requires:
-.PHONY : CMakeFiles/StateMachine.dir/src/StateMachine.o.requires
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o.requires:
+.PHONY : CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o.requires
 
-CMakeFiles/StateMachine.dir/src/StateMachine.o.provides: CMakeFiles/StateMachine.dir/src/StateMachine.o.requires
-	$(MAKE) -f CMakeFiles/StateMachine.dir/build.make CMakeFiles/StateMachine.dir/src/StateMachine.o.provides.build
-.PHONY : CMakeFiles/StateMachine.dir/src/StateMachine.o.provides
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o.provides: CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o.requires
+	$(MAKE) -f CMakeFiles/StateMachine.dir/build.make CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o.provides.build
+.PHONY : CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o.provides
 
-CMakeFiles/StateMachine.dir/src/StateMachine.o.provides.build: CMakeFiles/StateMachine.dir/src/StateMachine.o
-.PHONY : CMakeFiles/StateMachine.dir/src/StateMachine.o.provides.build
+CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o.provides.build: CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o
 
 # Object files for target StateMachine
 StateMachine_OBJECTS = \
-"CMakeFiles/StateMachine.dir/src/Node.o" \
-"CMakeFiles/StateMachine.dir/src/StateMachine.o"
+"CMakeFiles/StateMachine.dir/src/Node.cpp.o" \
+"CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o"
 
 # External object files for target StateMachine
 StateMachine_EXTERNAL_OBJECTS =
 
-../lib/libStateMachine.so: CMakeFiles/StateMachine.dir/src/Node.o
-../lib/libStateMachine.so: CMakeFiles/StateMachine.dir/src/StateMachine.o
-../lib/libStateMachine.so: /usr/lib/libopencv_contrib.so.2.3.1
-../lib/libStateMachine.so: /usr/lib/libopencv_legacy.so.2.3.1
-../lib/libStateMachine.so: /usr/lib/libopencv_objdetect.so.2.3.1
-../lib/libStateMachine.so: /usr/lib/libopencv_calib3d.so.2.3.1
-../lib/libStateMachine.so: /usr/lib/libopencv_features2d.so.2.3.1
-../lib/libStateMachine.so: /usr/lib/libopencv_video.so.2.3.1
-../lib/libStateMachine.so: /usr/lib/libopencv_highgui.so.2.3.1
-../lib/libStateMachine.so: /usr/lib/libopencv_ml.so.2.3.1
-../lib/libStateMachine.so: /usr/lib/libopencv_imgproc.so.2.3.1
-../lib/libStateMachine.so: /usr/lib/libopencv_flann.so.2.3.1
-../lib/libStateMachine.so: /usr/lib/libopencv_core.so.2.3.1
+../lib/libStateMachine.so: CMakeFiles/StateMachine.dir/src/Node.cpp.o
+../lib/libStateMachine.so: CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o
 ../lib/libStateMachine.so: CMakeFiles/StateMachine.dir/build.make
 ../lib/libStateMachine.so: CMakeFiles/StateMachine.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --red --bold "Linking CXX shared library ../lib/libStateMachine.so"
@@ -225,8 +181,8 @@ StateMachine_EXTERNAL_OBJECTS =
 CMakeFiles/StateMachine.dir/build: ../lib/libStateMachine.so
 .PHONY : CMakeFiles/StateMachine.dir/build
 
-CMakeFiles/StateMachine.dir/requires: CMakeFiles/StateMachine.dir/src/Node.o.requires
-CMakeFiles/StateMachine.dir/requires: CMakeFiles/StateMachine.dir/src/StateMachine.o.requires
+CMakeFiles/StateMachine.dir/requires: CMakeFiles/StateMachine.dir/src/Node.cpp.o.requires
+CMakeFiles/StateMachine.dir/requires: CMakeFiles/StateMachine.dir/src/StateMachine.cpp.o.requires
 .PHONY : CMakeFiles/StateMachine.dir/requires
 
 CMakeFiles/StateMachine.dir/clean:
@@ -234,6 +190,6 @@ CMakeFiles/StateMachine.dir/clean:
 .PHONY : CMakeFiles/StateMachine.dir/clean
 
 CMakeFiles/StateMachine.dir/depend:
-	cd /home/e2/Desktop/TesiMandeZamponi/Project/robot_brain/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/e2/Desktop/TesiMandeZamponi/Project/robot_brain /home/e2/Desktop/TesiMandeZamponi/Project/robot_brain /home/e2/Desktop/TesiMandeZamponi/Project/robot_brain/build /home/e2/Desktop/TesiMandeZamponi/Project/robot_brain/build /home/e2/Desktop/TesiMandeZamponi/Project/robot_brain/build/CMakeFiles/StateMachine.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/robot_brain/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/robot_brain /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/robot_brain /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/robot_brain/build /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/robot_brain/build /home/jackal/ros_workspace/src/e2/e2_apps_rosbuild/robot_brain/build/CMakeFiles/StateMachine.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/StateMachine.dir/depend
 
