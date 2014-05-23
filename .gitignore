@@ -1,2 +1,4 @@
-**/build/**
-**/msg_gen/**
+e2_apps_rosbuild/**/build/**
+e2_apps_rosbuild/**/msg_gen/**
+e2_apps_rosbuild/**/lib/**
+e2_apps_rosbuild/**/bin/**
