@@ -26,6 +26,7 @@
 //Openni libreries
 #include <XnOpenNI.h>
 #include <XnCppWrapper.h>
+#include <XnCodecIDs.h>
 
 using std::string;
 
@@ -75,6 +76,12 @@ void getUserHeadROI(XnUserID nId, xn::UserGenerator& generator);
 //compile messages
 void compileMessages();
 
+#define CHECK_RC(nRetVal, what)                                     \
+ if (nRetVal != XN_STATUS_OK)                                        \
+ {                                                                   \
+	 printf("%s failed: %s\n", what, xnGetStatusString(nRetVal));\
+     return nRetVal;                                             \
+ }
 
 //Variables
 //==============================================================================
@@ -100,8 +107,6 @@ bool firstPoint;
 int nUserDetected;
 int IDNearUser = -1;
 int *userPixels;
-
-
 
 //Functions
 //==============================================================================
@@ -130,11 +135,14 @@ int main(int argc, char **argv)
 	ros::init(argc, argv, "user_tracker");
 	ros::NodeHandle nh;
 	string configFilename = ros::package::getPath("openni_tracker")+"/openni_tracker.xml";
+
 	nRetVal = g_Context.InitFromXmlFile(configFilename.c_str());
 	nRetVal = g_UserGenerator.Create(g_Context);
+
 	XnCallbackHandle hUserCallbacks;
 	g_UserGenerator.RegisterUserCallbacks(User_NewUser, User_LostUser, NULL, hUserCallbacks);
 	nRetVal = g_Context.StartGeneratingAll();
+	CHECK_RC(nRetVal, "StartGenerating");
 
 	//User's CoM messages
 	ros::Publisher pubCoM = nh.advertise<user_tracker::Com>("com", 1000);
@@ -142,6 +150,7 @@ int main(int argc, char **argv)
 	ros::Rate r(30);
 	while(ros::ok())	//ROS LOOP
 	{
+
 		//Update all data
 		g_Context.WaitAndUpdateAll();
 

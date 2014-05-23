@@ -1,0 +1,9 @@
+<launch>
+
+	<!-- User Tracker -->	
+    <node name="user_tracker" pkg="user_tracker" type="user_tracker"/>
+
+	<!-- Head Analyzer -->	
+    <node name="head_analyzer" pkg="head_analyzer" type="head_analyzer"/>
+
+</launch>	

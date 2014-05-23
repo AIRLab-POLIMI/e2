@@ -8,8 +8,10 @@ You had to clone this git repository in your catkin worspace and build by run ca
 To completely exploit this packages is required
 
   * ROS (>=hydro)
-  * ros-navigation-stack
+  * ros-hydro-navigation
+  * ros-hydro-openni-tracker
   * ros-actionlib
+  * ros-hydro-openni-launch 
   * pico2wave (robot voice)
   * V-REP simulator [http://www.coppeliarobotics.com/]
 

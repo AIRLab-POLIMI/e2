@@ -152,8 +152,8 @@ int main(int argc, char **argv)
 	ros::NodeHandle nh;
 	
 	//Messages subscribers
-	ros::Subscriber subIRKinect = nh.subscribe("camera/ir/image_raw", 1000, getKinectIRImage);
-	ros::Subscriber subDepthKinect = nh.subscribe("camera/depth/image", 1000, getKinectDepthImage);
+	ros::Subscriber subIRKinect = nh.subscribe("/camera/ir/image_raw", 1000, getKinectIRImage);
+	ros::Subscriber subDepthKinect = nh.subscribe("/camera/depth/image", 1000, getKinectDepthImage);
 	ros::Subscriber subUserDistance = nh.subscribe("com", 1000, getUserData);
 	
 	//Messages publishers
@@ -188,6 +188,9 @@ int main(int argc, char **argv)
 	knn->fastBuild(movesClassifier, 10, 5, 2);
 	ROS_INFO("[HEAD_ANALYZER]: Classifier Built");
 		
+
+	cv::namedWindow("Head-Analyzer", CV_WINDOW_AUTOSIZE);
+
 	//ROS LOOP
 	ros::Rate r(30);
 	while(ros::ok())
@@ -198,7 +201,7 @@ int main(int argc, char **argv)
 		moveDataMessageReady = false;
 			
 		if (IRImageReady && depthImageReady && userDistanceReady && getFrame)
-    {
+		{
 			getFrame = false;
 			
 			cv::circle(frameDrawn, headPosition, 2, CV_RGB(0, 255, 0), 3, 8, 0);
@@ -207,6 +210,7 @@ int main(int argc, char **argv)
 			{
 				if(detectFace() && detectMovesEnable)
 				{
+
 					if(userDistance <= EYES_TRACKING_DISTANCE)
 						detectEyes();
 						
@@ -508,10 +512,12 @@ void detectMovements()
 	Mat frameIR_1C, prevFrameIR_1C;
 	
 	//Convert prevFrameIR in a 1 channel image (prevFrameIR_1C)
-	cvtColor(prevFrameIR, prevFrameIR_1C, CV_BGR2GRAY);
+	//cvtColor(prevFrameIR, prevFrameIR_1C, CV_BGR2GRAY);
+	prevFrameIR.copyTo(prevFrameIR_1C);
 	
 	//Convert frameIR in a 1 channel image (frameIR_1C)
-	cvtColor(frameIR, frameIR_1C, CV_BGR2GRAY);
+	//cvtColor(frameIR, frameIR_1C, CV_BGR2GRAY);
+	frameIR.copyTo(frameIR_1C);
 	
 	//-----	SHI & TOMASI ALGORITHM	-----
 	
@@ -531,7 +537,7 @@ void detectMovements()
 	cv::rectangle(mask, pt1Mask, pt2Mask, CV_RGB(255, 255, 255), CV_FILLED, 8, 0);
 	
 	//draw mask dimensions
-	//cv::rectangle(frameDrawn, pt1Mask, pt2Mask, CV_RGB(0, 0, 255), 2, 8, 0);
+	cv::rectangle(frameDrawn, pt1Mask, pt2Mask, CV_RGB(0, 0, 255), 2, 8, 0);
 	
 	//Computation of prevFrameIR_1C features
 	goodFeaturesToTrack(prevFrameIR_1C, prevFrameIRFeatures, FEATURES_NUMBER, .2, .1, mask, 3, false, 0.04);
@@ -697,7 +703,8 @@ void detectEyes()
 	bool isRight = false;
 	
 	//Convert IRImage from Kinect into grayScale image and cut eyesArea
-	cvtColor(frameIR, binaryFrame, CV_BGR2GRAY);
+	//cvtColor(frameIR, binaryFrame, CV_BGR2GRAY);
+	frameIR.copyTo(binaryFrame);
 	
 	//Cut eyesBinaryFrame to obtain eyesArea image
 	Mat temp2 (binaryFrame, eyesAreaBlob.getRect());	
@@ -738,7 +745,7 @@ void detectEyes()
 		erode(temp1,contoursFrame, Mat());
 	}
 	
-	//imshow("EyesFrame", contoursFrame);
+
 	//Find eyesBlob
 	//-----TRY TO USE CANNY FIRST-------//
 	findContours(contoursFrame, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE , eyesAreaBlob.getPt1());
@@ -987,7 +994,8 @@ bool detectFace()
 							headPosition.y, 					   //Y
 							BLOB_HEAD_WIDTH, BLOB_HEAD_HEIGHT);
 		//Convert IRImage into gray image and then into binary one
-		cvtColor(frameIR, binaryFrame, CV_BGR2GRAY);
+		//cvtColor(frameIR, binaryFrame, CV_BGR2GRAY);
+		frameIR.copyTo(binaryFrame);
 		binaryFrame = binaryFrame > THRESHOLD_HEAD_NEAR;
 	}
 	else
@@ -997,7 +1005,8 @@ bool detectFace()
 							headPosition.y,							  //Y
 							BLOB_HEAD_WIDTH-10, BLOB_HEAD_HEIGHT-20);
 		//Convert IRImage into gray image and then into binary one
-		cvtColor(frameIR, binaryFrame, CV_BGR2GRAY);
+		//cvtColor(frameIR, binaryFrame, CV_BGR2GRAY);
+		frameIR.copyTo(binaryFrame);
 		binaryFrame = binaryFrame > THRESHOLD_HEAD_FAR;
 	}
 	
@@ -1161,6 +1170,7 @@ void getKinectDepthImage (const sensor_msgs::ImageConstPtr& img)
 			ROS_ERROR("[HEAD-ANALYZER]::Error in capturing depth image");
 			return;
 		}
+
 	}
 }
 
@@ -1177,7 +1187,8 @@ void getKinectIRImage (const sensor_msgs::ImageConstPtr& img)
 	    try
 	    {
 
-	    	cv_ptr = cv_bridge::toCvCopy(img,"bgr8");
+	    	cv_ptr = cv_bridge::toCvCopy(img);
+	    	cv_ptr->image.convertTo(cv_ptr->image, CV_8UC1);
 	    	cv_ptr->image.copyTo(frameIR);
 	    }
 	    catch (cv_bridge::Exception& e)
@@ -1187,7 +1198,7 @@ void getKinectIRImage (const sensor_msgs::ImageConstPtr& img)
 	    }
 
 		frameIR.copyTo(frameDrawn);
-    
+		//imshow("Head-Analyzer", frameIR);
 		IRImageReady = true;
 	}
 
