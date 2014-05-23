@@ -13,7 +13,7 @@
 #include <ros/xmlrpc_manager.h>
 
 #define ROS_NODE_RATE	5
-#define ROS_NODE_NAME	"e2_brain"
+#define ROS_NODE_NAME	"e2_nav"
 
 using namespace std;
 

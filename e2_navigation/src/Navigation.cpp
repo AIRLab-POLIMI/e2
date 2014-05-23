@@ -40,8 +40,8 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 	nh_.param<bool>("en_voice", en_voice, true);
 	nh_.param<bool>("en_train", en_train, true);
 
-	nh_.param("marker_config", marker_config, ros::package::getPath("e2_brain")+"/config/marker_config.yaml");
-	nh_.param("speech_config", speech_config, ros::package::getPath("e2_brain")+"/config/speech_config.yaml");
+	nh_.param("marker_config", marker_config, ros::package::getPath("e2_config")+"/map_config/sim_marker_config.yaml");
+	nh_.param("speech_config", speech_config, ros::package::getPath("e2_config")+"/speech_config/speech_config.yaml");
 
 	// Load Stand positions in memory
 	YAML::Node doc_marker,doc_speech;
