@@ -1,7 +1,7 @@
 <launch>
 
   <!-- kinect nodes -->
-  <include file="$(find e2_launch)/launch/openni.launch"/>
+  <include file="$(find e2_launch)/launch/components/base/openni.launch"/>
 
   <!-- Provide Laser information from kinect -->
   <node pkg="depthimage_to_laserscan" type="depthimage_to_laserscan" name="depthimage_to_laserscan">

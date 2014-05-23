@@ -19,9 +19,8 @@
   <!-- Transformations Node -->
   <node name="transform" pkg="e2_odometry" type="e2_tf_node" respawn="false" output="screen"/>
 
-
    <!-- Run the map server -->
-   <node name="map_server" pkg="map_server" type="map_server" args="$(find e2_navigation)/map/airlab/map.yaml"/>
+   <node name="map_server" pkg="map_server" type="map_server" args="$(find e2_config)/map/airlab/map.yaml"/>
 
    <!-- Rviz -->
    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find e2_launch)/launch/config/robot.rviz"/>

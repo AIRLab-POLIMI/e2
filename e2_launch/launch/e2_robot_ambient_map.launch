@@ -4,12 +4,12 @@
 	<include file="$(find triskar)/launch/teleop_joy.launch" />	
 	
 	<!-- Load Odometry data -->
-	<include file="$(find e2_launch)/launch/e2_odometry.launch" /> 
+	<include file="$(find e2_launch)/launch/components/e2_odometry.launch" /> 
 	
     <!-- Kinect launch and scanner info -->
-	<include file="$(find e2_launch)/launch/e2_scanner.launch" />	
+	<include file="$(find e2_launch)/launch/components/e2_scanner.launch" />	
 	
 	<!-- Load Gmapping -->
-	<include file="$(find e2_launch)/launch/gmapping.launch" />
+	<include file="$(find e2_launch)/launch/components/base/gmapping.launch" />
 
 </launch>

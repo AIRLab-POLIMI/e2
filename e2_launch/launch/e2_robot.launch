@@ -1,19 +1,19 @@
 <launch>
 	
     <!-- Kinect launch and scanner info -->
-	<include file="$(find e2_launch)/launch/e2_scanner.launch" />
+	<include file="$(find e2_launch)/launch/components/e2_scanner.launch" />
 
 	<!-- Odom & Tf -->
-	<include file="$(find e2_launch)/launch/e2_odometry.launch" /> 
+	<include file="$(find e2_launch)/launch/components/e2_odometry.launch" /> 
 	   
 	<!-- Face Recognition Node -->
-	<include file="$(find e2_launch)/launch/face_recognition.launch" />
+	<include file="$(find e2_launch)/launch/components/e2_face_recognition.launch" />
 		
 	<!-- Neck Controller Node -->
-	<include file="$(find e2_launch)/launch/e2_neck_controller.launch" />
+	<include file="$(find e2_launch)/launch/components/e2_neck_controller.launch" />
 	
 	<!-- Navigation Node -->
-	<include file="$(find e2_launch)/launch/e2_navigation.launch" />	
+	<include file="$(find e2_launch)/launch/components/e2_navigation.launch" />	
 
 	<!-- Voice Node Server-->
   	<node name="e2_voice_node" pkg="e2_voice" type="e2_voice_node" respawn="false" output="screen" />
