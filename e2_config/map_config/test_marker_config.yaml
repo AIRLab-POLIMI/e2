@@ -1,0 +1,19 @@
+- id: 0
+  name: base
+  position: [-1.018, -1.957, 0]
+  orientation: [0.0, 1.0]
+
+- id: 1
+  name: target
+  position: [11.2477, -5.457, 0]
+  orientation: [0.013, 0.999]
+
+- id: 2
+  name: random_1
+  position: [3.352, 0.853, 0]
+  orientation: [0.723, 0.69]
+
+- id: 3
+  name: random_2
+  position: [1.995, -4.6248, 0]
+  orientation: [-0.69, 0.7197]
