@@ -1,0 +1,8 @@
+<launch> 
+	<node pkg="e2_brain" name="e2_brain" type="e2_brain"/>    
+  <node pkg="speak_api" name="speak_api" type="speak_api"/>
+  <node pkg="head_api" name="head_api" type="head_api"/>
+  <node pkg="neck_api" name="neck_api" type="neck_api"/>
+  <node pkg="wheel_motor" name="wheel_motor" type="wheel_motor"/>
+  <node pkg="kinect_motor" name="kinect_motor" type="kinect_motor"/>
+</launch>

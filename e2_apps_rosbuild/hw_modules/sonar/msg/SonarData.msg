@@ -1,0 +1,9 @@
+Header header
+std_msgs/Int32 sonarA
+std_msgs/Int32 sonarB
+std_msgs/Int32 sonarC
+std_msgs/Int32 sonarD
+std_msgs/Int32 sonarE
+std_msgs/Int32 sonarF
+std_msgs/Int32 sonarG
+std_msgs/Int32 sonarH

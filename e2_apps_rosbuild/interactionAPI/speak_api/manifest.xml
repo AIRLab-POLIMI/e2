@@ -1,0 +1,18 @@
+<package>
+  <description brief="speak_api">
+
+     speak_api
+
+  </description>
+  <author>Cristian</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/speak_api</url>
+  <depend package="roscpp"/>
+  <depend package="actionlib"/>
+  <depend package="roslib"/>
+  <depend package="std_msgs"/>
+
+</package>
+
+

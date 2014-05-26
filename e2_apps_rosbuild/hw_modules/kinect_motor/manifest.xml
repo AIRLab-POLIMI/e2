@@ -1,0 +1,19 @@
+<package>
+  <description brief="kinect_motor">
+
+     kinect_motor
+
+  </description>
+  <author>Cristian</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/kinect_motor</url>
+  <depend package="roscpp"/>
+  <depend package="roslib"/>
+  <depend package="actionlib"/>
+  <depend package="sensor_msgs"/>
+  <depend package="std_msgs"/>
+
+</package>
+
+

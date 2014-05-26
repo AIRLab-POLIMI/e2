@@ -1,0 +1,24 @@
+<package>
+  <description brief="e2_brain">
+
+     e2_brain
+
+  </description>
+  <author>Cristian</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/e2_brain</url>
+  <depend package="roscpp"/>
+  <depend package="user_tracker"/>
+  <depend package="head_analyzer"/>
+  <depend package="actionlib"/>
+  <depend package="mrbrian"/>
+  <depend package="speak_api"/>
+  <depend package="head_api"/>
+  <depend package="neck_api"/>
+  <depend package="wheel_motor"/>
+  <depend package="kinect_motor"/>
+  <depend package="sonar"/>
+</package>
+
+

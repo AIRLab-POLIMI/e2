@@ -1,0 +1,15 @@
+<package>
+  <description brief="sonar">
+
+     sonar
+
+  </description>
+  <author>Cristian</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/sonar</url>
+  <depend package="roscpp"/>
+
+</package>
+
+

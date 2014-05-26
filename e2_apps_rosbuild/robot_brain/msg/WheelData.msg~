@@ -1,3 +1,0 @@
-Header header
-std_msgs/int32 tanSpeed
-std_msgs/int32 rotSpeed
