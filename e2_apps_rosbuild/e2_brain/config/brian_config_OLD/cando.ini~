@@ -1,1 +1,0 @@
-Go_To_Home 			= ( AND (P Home_Detected) (P Robot_Not_Locked) );

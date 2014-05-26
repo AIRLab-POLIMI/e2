@@ -1,9 +1,0 @@
-UserReached = (D UserDistance VERYNEAR);
-UserNear = (D UserDistance NEAR);
-UserAnyNear = (D UserDistance ANYNEAR);
-UserFar = (D UserDistance FAR);
-UserAnyFar = (D UserDistance ANYNEAR);
-UserVeryFar = (D UserDistance VERYNEAR);
-
-UserDetected		=	(D UserDetected T);
-UserNotDetected = (D UserDetected F);

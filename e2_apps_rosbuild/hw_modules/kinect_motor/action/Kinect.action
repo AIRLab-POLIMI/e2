@@ -1,8 +1,0 @@
-#Goal definition
-int32 tilt
----
-#Result definition
-int32 status
----
-#Feedback definition
-uint8 feedback
