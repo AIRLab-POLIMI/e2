@@ -1,0 +1,13 @@
+#goal definition
+uint8   action_id
+uint8   x
+uint8   y
+uint8   z
+---
+#result definition
+uint8   action_id
+string  result
+---
+#feedback
+uint8   action_id
+string  status

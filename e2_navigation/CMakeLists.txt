@@ -10,6 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   kinect_aux
   roscpp
   roslib
+  actionlib_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -60,17 +61,17 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate actions in the 'action' folder
-# add_action_files(
-#   FILES
-#   Action1.action
-#   Action2.action
-# )
+ add_action_files(
+   FILES
+   Nav.action
+ )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
-# )
+ generate_messages(
+   DEPENDENCIES
+   actionlib_msgs
+   std_msgs
+ )
 
 ###################################
 ## catkin specific configuration ##
@@ -84,7 +85,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
   LIBRARIES e2_navigation
-  CATKIN_DEPENDS actionlib e2_neck_controller kinect_aux roscpp roslib
+  CATKIN_DEPENDS actionlib e2_neck_controller kinect_aux roscpp roslib actionlib_msgs
   DEPENDS system_lib
 )
 
@@ -100,7 +101,7 @@ include_directories(
 )
 
 ## Declare a cpp executable
- add_executable(e2_nav src/nav.cpp src/Navigation.cpp src/RobotInterface.cpp)
+ add_executable(e2_nav src/nav_node.cpp src/Navigation.cpp src/RobotInterface.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes

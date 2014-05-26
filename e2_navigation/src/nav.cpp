@@ -1,5 +1,5 @@
 /*
- * brain.cpp - AIRLab (Politecnico di Milano)
+ * nav.cpp - AIRLab (Politecnico di Milano)
  * 
  *  Author:  Lorenzo Ripani 
  *  Email: ripani.lorenzo@gmail.com
