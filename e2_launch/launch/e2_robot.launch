@@ -20,5 +20,7 @@
   	
   	<!-- Kinect Motor-->
   	<node name="kinect_aux_node" pkg="kinect_aux" type="kinect_aux_node" respawn="false" output="screen" />
-  	
+    
+    <!-- Brain Node-->
+  	<include file="$(find e2_brain)/launch/e2_brain.launch" />	
 </launch>

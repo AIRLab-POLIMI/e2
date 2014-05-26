@@ -1,3 +1,3 @@
-from ._HeadDataMSG import *
-from ._EyesDataMSG import *
 from ._MoveDataMSG import *
+from ._EyesDataMSG import *
+from ._HeadDataMSG import *

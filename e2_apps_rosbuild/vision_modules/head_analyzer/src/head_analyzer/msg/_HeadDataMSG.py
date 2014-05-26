@@ -93,10 +93,7 @@ int32 data
       if python3 or type(_x) == unicode:
         _x = _x.encode('utf-8')
         length = len(_x)
-      if python3:
-        buff.write(struct.pack('<I%sB'%length, length, *_x))
-      else:
-        buff.write(struct.pack('<I%ss'%length, length, _x))
+      buff.write(struct.pack('<I%ss'%length, length, _x))
       _x = self
       buff.write(_struct_f2i.pack(_x.headRatio.data, _x.headPitch.data, _x.headRoll.data))
     except struct.error as se: self._check_types(struct.error("%s: '%s' when writing '%s'" % (type(se), str(se), str(_x))))
@@ -153,10 +150,7 @@ int32 data
       if python3 or type(_x) == unicode:
         _x = _x.encode('utf-8')
         length = len(_x)
-      if python3:
-        buff.write(struct.pack('<I%sB'%length, length, *_x))
-      else:
-        buff.write(struct.pack('<I%ss'%length, length, _x))
+      buff.write(struct.pack('<I%ss'%length, length, _x))
       _x = self
       buff.write(_struct_f2i.pack(_x.headRatio.data, _x.headPitch.data, _x.headRoll.data))
     except struct.error as se: self._check_types(struct.error("%s: '%s' when writing '%s'" % (type(se), str(se), str(_x))))

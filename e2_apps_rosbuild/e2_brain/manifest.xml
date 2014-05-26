@@ -12,13 +12,6 @@
   <depend package="user_tracker"/>
   <depend package="head_analyzer"/>
   <depend package="actionlib"/>
-  <depend package="mrbrian"/>
-  <depend package="speak_api"/>
-  <depend package="head_api"/>
-  <depend package="neck_api"/>
-  <depend package="wheel_motor"/>
-  <depend package="kinect_motor"/>
-  <depend package="sonar"/>
 </package>
 
 

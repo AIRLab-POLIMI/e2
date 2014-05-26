@@ -1,6 +1,8 @@
 //======================================================================
 // Authors:	cristianmandelli@gmail.com 
-//	      	deborahzamponi@gmail.com
+//	      			deborahzamponi@gmail.com
+// 				ripani.lorenzo@gmail.com
+// Modified: 26/05/2014
 // Data: 11/02/2012
 // Description: This is e2 brain. This module manages data from vision
 // modules, combining them to controll robot actions. This module uses
@@ -18,18 +20,16 @@
 #include "ros/ros.h"
 #include "ros/package.h"
 //Actionlib
-#include <speak_api/SpeakAction.h>
-#include <head_api/HeadAction.h>
-#include <neck_api/NeckAction.h>
-#include <wheel_motor/WheelAction.h>
-#include <kinect_motor/KinectAction.h>
+#include <e2_voice/VoiceAction.h>
+#include <e2_navigation/NavAction.h>
+#include <e2_neck_controller/NeckAction.h>
 #include <actionlib/client/simple_action_client.h>
 //Modules
 #include <user_tracker/Com.h>
 #include <head_analyzer/MoveDataMSG.h>
 #include <head_analyzer/HeadDataMSG.h>
 #include <head_analyzer/EyesDataMSG.h>
-#include <sonar/SonarData.h>
+
 //OtherLibs
 #include "StateMachine.h"
 
@@ -45,11 +45,10 @@
 using namespace std;
 
 //Action clients definition
-typedef actionlib::SimpleActionClient<speak_api::SpeakAction> SpeakClient;
-typedef actionlib::SimpleActionClient<head_api::HeadAction> HeadClient;
-typedef actionlib::SimpleActionClient<neck_api::NeckAction> NeckClient;
-typedef actionlib::SimpleActionClient<wheel_motor::WheelAction> WheelClient;
-typedef actionlib::SimpleActionClient<kinect_motor::KinectAction> KinectClient;
+typedef actionlib::SimpleActionClient<e2_voice::VoiceAction> VoiceClient;
+typedef actionlib::SimpleActionClient<e2_navigation::NavAction> NavClient;
+typedef actionlib::SimpleActionClient<e2_neck_controller::NeckAction> NeckClient;
+//typedef actionlib::SimpleActionClient<kinect_motor::KinectAction> KinectClient;
 
 //Enum
 enum transaction { INTERESTED, NOT_INTERESTED };
@@ -127,17 +126,15 @@ bool userMoveDataReady;
 bool userHeadRatioDataReady;
 bool userHeadPitchDataReady;
 bool userHeadRollDataReady;
-bool sonarDataReady;
 bool kinectMotorFree;
 bool speakHandlerFree;
-bool headHandlerFree;
 bool neckHandlerFree;
 bool visionDataCapture;
 bool visionDataAnalyze;
 bool firstInteraction;
+bool user_interested;
 
 vector<phraseData> phrases;
-vector<int> sonarData;
 userStruct userData;
 apiCode activationAPI;
 
@@ -145,34 +142,28 @@ apiCode activationAPI;
 //======================================================================
 //======================================================================
 //Server action done callbacks
-void speakDoneCallback(const actionlib::SimpleClientGoalState& state,
-											 const speak_api::SpeakResultConstPtr& result);									
-void headDoneCallback(const actionlib::SimpleClientGoalState& state,
-											 const head_api::HeadResultConstPtr& result);
-void neckDoneCallback(const actionlib::SimpleClientGoalState& state,
-											 const neck_api::NeckResultConstPtr& result);
-void wheelDoneCallback(const actionlib::SimpleClientGoalState& state,
-											 const wheel_motor::WheelResultConstPtr& result);
-void kinectDoneCallback(const actionlib::SimpleClientGoalState& state,
-											 const kinect_motor::KinectResultConstPtr& result);
+void voiceDoneCallback(const actionlib::SimpleClientGoalState& state, const e2_voice::VoiceResultConstPtr& result);
+void navDoneCallback(const actionlib::SimpleClientGoalState& state,  const e2_navigation::NavResultConstPtr& result);
+void neckDoneCallback(const actionlib::SimpleClientGoalState& state,  const e2_neck_controller::NeckResultConstPtr& result);
+//void kinectDoneCallback(const actionlib::SimpleClientGoalState& state, const kinect_motor::KinectResultConstPtr& result);
+
 //Server action activated callbacks
-void speakActiveCallback();
-void headActiveCallback();
+void voiceActiveCallback();
+void navActiveCallback();
 void neckActiveCallback();
-void wheelActiveCallback();
-void kinectActiveCallback();
+//void kinectActiveCallback();
+
 //Server action feedBack callback
-void speakFeedbackCallback(const speak_api::SpeakFeedbackConstPtr& feed);
-void headFeedbackCallback(const head_api::HeadFeedbackConstPtr& feed);
-void neckFeedbackCallback(const neck_api::NeckFeedbackConstPtr& feed);
-void wheelFeedbackCallback(const wheel_motor::WheelFeedbackConstPtr& feed);
-void kinectFeedbackCallback(const kinect_motor::KinectFeedbackConstPtr& feed);
+void voiceFeedbackCallback(const e2_voice::VoiceFeedbackConstPtr& feed);
+void navFeedbackCallback(const e2_navigation::NavFeedbackConstPtr& feed);
+void neckFeedbackCallback(const e2_neck_controller::NeckFeedbackConstPtr& feed);
+//void kinectFeedbackCallback(const kinect_motor::KinectFeedbackConstPtr& feed);
+
 //Messages callbacks
 void getUserPositionData(const user_tracker::Com com);
 void getUserEyesData(const head_analyzer::EyesDataMSG eyes);
 void getUserHeadData(const head_analyzer::HeadDataMSG head);
 void getUserMoveData(const head_analyzer::MoveDataMSG move);
-void getSonarData(const sonar::SonarData sonar);
 //Behaviour functions
 int getUserDistanceBehaviour(vector<int>* vector);
 int getUserHeadRollBehaviour(vector<int>* roll, vector<float>* ratio);
@@ -204,15 +195,14 @@ int main(int argc, char **argv)
 	userHeadRatioDataReady = false;
 	userHeadPitchDataReady = false;
 	userHeadRollDataReady = false;
-	sonarDataReady = false;
 	kinectMotorFree = false;
 	speakHandlerFree = true;
-	headHandlerFree = true;
   neckHandlerFree = true;
 	visionDataCapture = false;
 	visionDataAnalyze = false;
 	firstInteraction = true;
-		
+	user_interested = false;
+
 	//Variables
 	vectorStruct dataVectors;	//Values from vision modules
 	Node* node;
@@ -222,7 +212,6 @@ int main(int argc, char **argv)
   ros::Subscriber subUserHeadData = nh.subscribe("headData", 10, getUserHeadData);	
   ros::Subscriber subUserEyesData = nh.subscribe("eyesData", 10, getUserEyesData);	
   ros::Subscriber subUserMoveData = nh.subscribe("moveData", 10, getUserMoveData);
-  ros::Subscriber subSonarData =	nh.subscribe("sonarData", 10, getSonarData);
 	
 	//Load state machines that controls the interaction process
 	StateMachine *sm = new StateMachine();
@@ -239,44 +228,39 @@ int main(int argc, char **argv)
 	loadSpeakConfigFile(speakConfigFile);
 	
 	//Clients definition
-	SpeakClient speakClient("speak_api", true);
-	HeadClient headClient("head_api", true);
-	NeckClient neckClient("neck_api", true);
-	WheelClient wheelClient("wheel_motor", true);
-	KinectClient kinectClient("kinect_motor", true);
+	VoiceClient voiceClient("e2_voice_node", true);
+	NeckClient neckClient("e2_neck_controller", true);
+	NavClient navClient("e2_nav",true);
+	//KinectClient kinectClient("kinect_motor", true);
 	
 	//Servers goal definitions
-	speak_api::SpeakGoal speakGoal;
-	head_api::HeadGoal headGoal;
-	neck_api::NeckGoal neckGoal;
-	wheel_motor::WheelGoal wheelGoal;
-	kinect_motor::KinectGoal kinectGoal;
+	e2_voice::VoiceGoal voiceGoal;
+	e2_navigation::NavGoal navGoal;
+	e2_neck_controller::NeckGoal neckGoal;
+	//kinect_motor::KinectGoal kinectGoal;
 	
 	//Wait for servers
-	speakClient.waitForServer();
-	//headClient.waitForServer();
-	//neckClient.waitForServer();
-	//wheelClient.waitForServer();
-	kinectClient.waitForServer();
+	voiceClient.waitForServer();
+	navClient.waitForServer();
+	neckClient.waitForServer();
+	//kinectClient.waitForServer();
 	ROS_INFO("[e2_brain]::Servers connected ... [OK]");
 	
 	//KinectMotor initializations
-	kinectGoal.tilt = -100;
-	kinectClient.sendGoal(kinectGoal, &kinectDoneCallback, &kinectActiveCallback, &kinectFeedbackCallback);
-	kinectMotorFree = false;
 
-	//Motor initializations
-	wheelGoal.rotSpeed = 0;
-	wheelGoal.tanSpeed = 0;
-	//wheelClient.sendGoal(wheelGoal, &wheelDoneCallback, &wheelActiveCallback, &wheelFeedbackCallback);
+	//kinectGoal.tilt = -100;
+	//kinectClient.sendGoal(kinectGoal, &kinectDoneCallback, &kinectActiveCallback, &kinectFeedbackCallback);
+	//kinectMotorFree = false;
 
 	//RosLoop
 	ros::Rate r(10);
 	while(ros::ok())
 	{
+
 		/*==================================================================
 												Kinect_motor management
 		==================================================================*/
+		/*
 		if(userPositionDataReady && userDistance < 1500)
 		{
 			if(userDistanceY > USER_Y_MIN_POSITION && kinectMotorFree)
@@ -292,6 +276,7 @@ int main(int argc, char **argv)
 				kinectClient.sendGoal(kinectGoal, &kinectDoneCallback, &kinectActiveCallback, &kinectFeedbackCallback);
 			}
 		}
+		*/
 		
 		/*==================================================================
 												Vision data management
@@ -413,6 +398,10 @@ int main(int argc, char **argv)
 				//Select interaction action
 				t = setMaxValueBt(interestedCounter, not_interestedCounter);
 
+				if(interestedCounter > not_interestedCounter )
+					user_interested = true;
+				else
+					user_interested = false;
 			}
 			//Clear vector
 			dataVectors.userDistanceVect.clear();
@@ -458,6 +447,16 @@ int main(int argc, char **argv)
 					visionDataCapture = false;
 					visionDataAnalyze = false;
 					ROS_ERROR(" ####### INTERAZIONE COMPLETATA ####### ");
+
+					if (user_interested)
+					{
+						ROS_INFO("------------------Navigation----------------------");
+
+						// Define Goal to navigation
+						navGoal.action_id = 1;	// Start navigation task full optional
+						navClient.sendGoal(navGoal, &navDoneCallback, &navActiveCallback, &navFeedbackCallback);
+					}
+
 				}
 			}
 		}
@@ -477,46 +476,12 @@ int main(int argc, char **argv)
 			ss >> temp;			
 						
 			//Define goal and send it to the server side
-			speakGoal.speed = phrases[temp].speed;
-			speakGoal.language = phrases[temp].language;
-			speakGoal.phrase = phrases[temp].data;
-			speakClient.sendGoal(speakGoal, &speakDoneCallback, &speakActiveCallback, &speakFeedbackCallback);
+			voiceGoal.action_id = 1;
+			voiceGoal.text = phrases[temp].data;
+			voiceClient.sendGoal(voiceGoal, &voiceDoneCallback, &voiceActiveCallback, &voiceFeedbackCallback);
 		}
 		
-		//Head expression
-		if(activationAPI.apiCode[HEAD] == 1)
-		{
-			activationAPI.apiCode[HEAD] = -1;
-			headHandlerFree = false;
-			int temp;
-			//Get head action code (first value of params)
-			size_t found = 0;
-			found = activationAPI.apiPar[HEAD].find_first_of(",");
-			if(found > 0)
-			{
-				string activationCode = activationAPI.apiPar[HEAD].substr(0, found);
-				stringstream ss(activationCode);
-				ss >> temp;
-				//Remove fiurst params to string
-				activationAPI.apiPar[HEAD].erase(0, found + 1);
-				
-				//Set goal gode
-				headGoal.actionCode = temp;
-			}
-			else
-			{
-				stringstream ss(activationAPI.apiPar[HEAD]);
-				ss >> temp;
-				//Set goal gode
-				headGoal.actionCode = temp;
-			}
-
-			//Define goal and send it to the server side
-			headGoal.params = activationAPI.apiPar[HEAD];
-			headClient.sendGoal(headGoal, &headDoneCallback, &headActiveCallback, &headFeedbackCallback);
-		}
-		
-		//Neck moves
+		//Face move
 		if(activationAPI.apiCode[NECK] == 1)
 		{
 			activationAPI.apiCode[NECK] = -1;
@@ -535,18 +500,19 @@ int main(int argc, char **argv)
 				activationAPI.apiPar[NECK].erase(0, found + 1);
 				
 				//Set goal gode
-				neckGoal.actionCode = temp;
+				neckGoal.action = 1 ;
+				neckGoal.sub_action = temp;
 			}
 			else
 			{
 				stringstream ss(activationAPI.apiPar[NECK]);
 				ss >> temp;
 				//Set goal gode
-				neckGoal.actionCode = temp;
+				neckGoal.action = 1 ;
+				neckGoal.sub_action = temp;
 			}
 
 			//Define goal and send it to the server side
-			neckGoal.params = activationAPI.apiPar[NECK];
 			neckClient.sendGoal(neckGoal, &neckDoneCallback, &neckActiveCallback, &neckFeedbackCallback);
 
 		}
@@ -589,29 +555,6 @@ void primitiveMSGParser(string primitiveStr, string paramsStr)
 		}
 		it++;
 	}
-}
-
-//======================================================================
-//======================================================================
-void getSonarData(const sonar::SonarData sonar)
-{
-	//Clear previous data
-	sonarData.clear();
-	
-	//Read received data
-	sonarData.push_back(sonar.sonarA.data);
-	sonarData.push_back(sonar.sonarB.data);
-	sonarData.push_back(sonar.sonarC.data);
-	sonarData.push_back(sonar.sonarD.data);
-	sonarData.push_back(sonar.sonarE.data);
-	sonarData.push_back(sonar.sonarF.data);
-	sonarData.push_back(sonar.sonarG.data);
-	sonarData.push_back(sonar.sonarH.data);
-	
-	sonarDataReady = true;
-	
-	//for(int i = 0; i < sonarData.size(); i ++)
-	//	ROS_INFO("[e2_brain]::SonarData received %d", sonarData[i]);
 }
 
 //======================================================================
@@ -938,17 +881,17 @@ int getVectorOutputValue(vector<int>* vector)
 
 //======================================================================
 //======================================================================
-void speakDoneCallback(const actionlib::SimpleClientGoalState& state,
-											 const speak_api::SpeakResultConstPtr& result)
+void voiceDoneCallback(const actionlib::SimpleClientGoalState& state,
+											 const e2_voice::VoiceResultConstPtr& result)
 {
-	ROS_INFO("[e2_brain]::Speak done [exit status %d]", (int)result->status);
+	ROS_INFO("[e2_brain]::Speak done [exit status %s]",result->result.c_str());
 	sampleCounter = 40;
 	speakHandlerFree = true;
 }
 
 //======================================================================
 //======================================================================
-void speakActiveCallback()
+void voiceActiveCallback()
 {
 	
 }
@@ -956,39 +899,16 @@ void speakActiveCallback()
 
 //======================================================================
 //======================================================================
-void speakFeedbackCallback(const speak_api::SpeakFeedbackConstPtr& feed)
+void voiceFeedbackCallback(const e2_voice::VoiceFeedbackConstPtr& feed)
 {
 	
 }
-
-
-//======================================================================
-//======================================================================
-void headDoneCallback(const actionlib::SimpleClientGoalState& state,
-											 const head_api::HeadResultConstPtr& result)
-{
-	ROS_INFO("[e2_brain]::head moves done [exit status %d]", (int)result->status);
-	headHandlerFree = true;
-}
-
-//======================================================================
-//======================================================================
-void headActiveCallback()
-{}
-
-
-//======================================================================
-//======================================================================
-void headFeedbackCallback(const head_api::HeadFeedbackConstPtr& feed)
-{}
-
 
 //======================================================================
 //======================================================================
 void neckDoneCallback(const actionlib::SimpleClientGoalState& state,
-											 const neck_api::NeckResultConstPtr& result)
+											 const e2_neck_controller::NeckResultConstPtr& result)
 {
-	ROS_INFO("[e2_brain]::neck moves done [exit status %d]", (int)result->status);
 	neckHandlerFree = true;
 }
 
@@ -1000,46 +920,42 @@ void neckActiveCallback()
 
 //======================================================================
 //======================================================================
-void neckFeedbackCallback(const neck_api::NeckFeedbackConstPtr& feed)
+void neckFeedbackCallback(const e2_neck_controller::NeckFeedbackConstPtr& feed)
 {}
 
-
 //======================================================================
 //======================================================================
-void wheelDoneCallback(const actionlib::SimpleClientGoalState& state,
-											 const wheel_motor::WheelResultConstPtr& result)
+void navDoneCallback(const actionlib::SimpleClientGoalState& state,
+											 const e2_navigation::NavResultConstPtr& result)
 {
-	ROS_INFO("[e2_brain]::Motor Wheel set point reached [exit status %d]", (int)result->status);
+
 }
 
 //======================================================================
 //======================================================================
-void wheelActiveCallback()
+void navActiveCallback()
 {}
 
-
 //======================================================================
 //======================================================================
-void wheelFeedbackCallback(const wheel_motor::WheelFeedbackConstPtr& feed)
+void navFeedbackCallback(const e2_navigation::NavFeedbackConstPtr& feed)
 {}
 
-
 //======================================================================
 //======================================================================
+/*
 void kinectDoneCallback(const actionlib::SimpleClientGoalState& state,
 											 const kinect_motor::KinectResultConstPtr& result)
 {
 	//ROS_INFO("[e2_brain]::Kinect motor set point reached [exit status %d]", (int)result->status);
 	kinectMotorFree = true;
 }
+*/
+//======================================================================
+//======================================================================
+//void kinectActiveCallback(){}
+
 
 //======================================================================
 //======================================================================
-void kinectActiveCallback()
-{}
-
-
-//======================================================================
-//======================================================================
-void kinectFeedbackCallback(const kinect_motor::KinectFeedbackConstPtr& feed)
-{}
+//void kinectFeedbackCallback(const kinect_motor::KinectFeedbackConstPtr& feed){}
