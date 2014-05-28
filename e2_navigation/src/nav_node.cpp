@@ -106,20 +106,31 @@ public:
 				break;
 			case 1:	// Start Navigation for interested
 				ROS_DEBUG("["ROS_NODE_NAME"]:: Start Navigation Task");
+				nav->nav_clear();
 				nav->nav_newTask();
+
 				break;
-			case 2:	// Look for user
+			case 2:	// Aproach user
+				ROS_DEBUG("["ROS_NODE_NAME"]:: Aproach user");
+				nav->nav_clear();
+				nav->nav_goto(msg->distance,msg->angle);
+				break;
+			case 3: // Looking for user
 				ROS_DEBUG("["ROS_NODE_NAME"]:: Looking for users");
+				nav->nav_clear();
 
-				break;
-			case 3: // Go To Base
-				ROS_DEBUG("["ROS_NODE_NAME"]:: Go To Base");
-
-				break;
-			case 4: // Go To Target
-				ROS_DEBUG("["ROS_NODE_NAME"]:: Go To Target");
 				break;
 		}
+
+		ros::Rate rate(ROS_NODE_RATE);
+		// Start Navigation Controller
+		while(!g_request_shutdown)
+		{
+			nav->controller();
+			ros::spinOnce();
+			rate.sleep();
+		}
+
 		as_.setSucceeded();
 
 		ROS_DEBUG("["ROS_NODE_NAME"]:: Action completed");
@@ -155,7 +166,6 @@ int main(int argc, char **argv)
 	// Start Navigation Controller
 	while(!g_request_shutdown)
 	{
-		nav->controller();
 		ros::spinOnce();
 		r.sleep();
 	}

@@ -42,6 +42,8 @@
 //Interaction params
 #define INTERACTION_SAMPLES 60
 
+#define ROS_NODE_RATE	5
+
 using namespace std;
 
 //Action clients definition
@@ -129,6 +131,7 @@ bool userHeadRollDataReady;
 bool kinectMotorFree;
 bool speakHandlerFree;
 bool neckHandlerFree;
+bool navHandlerFree;
 bool visionDataCapture;
 bool visionDataAnalyze;
 bool firstInteraction;
@@ -197,7 +200,8 @@ int main(int argc, char **argv)
 	userHeadRollDataReady = false;
 	kinectMotorFree = false;
 	speakHandlerFree = true;
-  neckHandlerFree = true;
+	neckHandlerFree = true;
+  	navHandlerFree = true;
 	visionDataCapture = false;
 	visionDataAnalyze = false;
 	firstInteraction = true;
@@ -253,7 +257,7 @@ int main(int argc, char **argv)
 	//kinectMotorFree = false;
 
 	//RosLoop
-	ros::Rate r(10);
+	ros::Rate r(ROS_NODE_RATE);
 	while(ros::ok())
 	{
 
@@ -277,14 +281,34 @@ int main(int argc, char **argv)
 			}
 		}
 		*/
-		
+
+		/*==================================================================
+												Locate user
+		==================================================================*/
+		if(!userPositionDataReady)
+		{
+			//Looking for user
+			navGoal.action_id = 3;	// Start navigation task full optional
+			navClient.sendGoal(navGoal, &navDoneCallback, &navActiveCallback, &navFeedbackCallback);
+			navHandlerFree = false;
+		}
+
 		/*==================================================================
 												Vision data management
 		==================================================================*/
 		if(userPositionDataReady && userDistance < 1000)
-		visionDataCapture = true;
-		
-		if(visionDataCapture && !visionDataAnalyze)
+			visionDataCapture = true;
+		else
+		{
+			//Aproach user
+			navGoal.action_id = 2;	// Start navigation task full optional
+			navGoal.angle=0;
+			navGoal.distance= userDistance - 900;
+			navClient.sendGoal(navGoal, &navDoneCallback, &navActiveCallback, &navFeedbackCallback);
+			navHandlerFree = false;
+		}
+
+		if(visionDataCapture && !visionDataAnalyze && navHandlerFree)
 		{
 			if(firstInteraction)
 			{
@@ -514,10 +538,11 @@ int main(int argc, char **argv)
 
 			//Define goal and send it to the server side
 			neckClient.sendGoal(neckGoal, &neckDoneCallback, &neckActiveCallback, &neckFeedbackCallback);
-
 		}
 		
-		
+
+
+
 		/*==================================================================
 											Ending i-th iteration
 		==================================================================*/
@@ -928,7 +953,7 @@ void neckFeedbackCallback(const e2_neck_controller::NeckFeedbackConstPtr& feed)
 void navDoneCallback(const actionlib::SimpleClientGoalState& state,
 											 const e2_navigation::NavResultConstPtr& result)
 {
-
+	navHandlerFree = true;
 }
 
 //======================================================================

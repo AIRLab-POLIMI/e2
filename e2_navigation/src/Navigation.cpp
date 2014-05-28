@@ -145,7 +145,6 @@ void Navigation::controller()
 		{
 			en_auto_=false;
 			nav_clear();
-			nav_newTask();
 		}
 		else if(!path_planned_)
 		{
@@ -176,7 +175,6 @@ void Navigation::nav_newTask()
 	ROS_INFO("[Navigator]:: New navigation task started");
 
 	irobot_->neck_action(1,2); 	// happy face
-	irobot_->robot_talk(get_speech_by_name("hello"),true);
 
 	if(irobot_->train_enabled)
 	{

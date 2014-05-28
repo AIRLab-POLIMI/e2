@@ -1,8 +1,7 @@
 #goal definition
 uint8   action_id
-uint8   x
-uint8   y
-uint8   z
+uint8   distance
+uint8   angle
 ---
 #result definition
 uint8   action_id
