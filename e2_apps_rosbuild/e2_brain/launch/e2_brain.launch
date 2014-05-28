@@ -1,7 +1,5 @@
 <launch> 
   	<node pkg="e2_brain" name="e2_brain" type="e2_brain" output="screen"/>     	
- 	<!-- Voice Node Server-->
-  	<node name="e2_voice_node" pkg="e2_voice" type="e2_voice_node" respawn="false" output="screen" />
 	<!-- User TRacker-->
   	<node name="user_tracker" pkg="user_tracker" type="user_tracker" respawn="false" output="screen" />
   	<!-- Head Analyzer-->
