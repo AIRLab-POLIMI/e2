@@ -19,6 +19,7 @@
 //ROS
 #include "ros/ros.h"
 #include "ros/package.h"
+#include "std_srvs/Empty.h"
 //Actionlib
 #include <e2_voice/VoiceAction.h>
 #include <e2_navigation/NavAction.h>
@@ -136,6 +137,7 @@ bool visionDataCapture;
 bool visionDataAnalyze;
 bool firstInteraction;
 bool user_interested;
+bool start;
 
 vector<phraseData> phrases;
 userStruct userData;
@@ -182,6 +184,8 @@ void setStatusValue(int interested, int not_interested);
 int setMaxValueBt(int a, int b);
 void primitiveMSGParser(string primitiveStr, string paramsStr);
 
+bool start_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
+
 //Main
 //======================================================================
 //======================================================================
@@ -206,6 +210,7 @@ int main(int argc, char **argv)
 	visionDataAnalyze = false;
 	firstInteraction = true;
 	user_interested = false;
+	start = false;
 
 	//Variables
 	vectorStruct dataVectors;	//Values from vision modules
@@ -213,9 +218,11 @@ int main(int argc, char **argv)
 	
 	//Messages subscribtions
 	ros::Subscriber subUserDistance = nh.subscribe("com", 10, getUserPositionData);
-  ros::Subscriber subUserHeadData = nh.subscribe("headData", 10, getUserHeadData);	
-  ros::Subscriber subUserEyesData = nh.subscribe("eyesData", 10, getUserEyesData);	
-  ros::Subscriber subUserMoveData = nh.subscribe("moveData", 10, getUserMoveData);
+	ros::Subscriber subUserHeadData = nh.subscribe("headData", 10, getUserHeadData);
+	ros::Subscriber subUserEyesData = nh.subscribe("eyesData", 10, getUserEyesData);
+	ros::Subscriber subUserMoveData = nh.subscribe("moveData", 10, getUserMoveData);
+
+	ros::ServiceServer start_service = nh.advertiseService("e2_brain/start",start_callback);
 	
 	//Load state machines that controls the interaction process
 	StateMachine *sm = new StateMachine();
@@ -260,292 +267,296 @@ int main(int argc, char **argv)
 	ros::Rate r(ROS_NODE_RATE);
 	while(ros::ok())
 	{
-
-		/*==================================================================
-												Kinect_motor management
-		==================================================================*/
-		/*
-		if(userPositionDataReady && userDistance < 1500)
+		if(start)
 		{
-			if(userDistanceY > USER_Y_MIN_POSITION && kinectMotorFree)
-			{
-				kinectMotorFree = false;
-				kinectGoal.tilt = -2;
-				kinectClient.sendGoal(kinectGoal, &kinectDoneCallback, &kinectActiveCallback, &kinectFeedbackCallback);
-			}
-			else if(userDistanceY < USER_Y_MAX_POSITION && kinectMotorFree)
-			{
-				kinectMotorFree = false;
-				kinectGoal.tilt = 2;
-				kinectClient.sendGoal(kinectGoal, &kinectDoneCallback, &kinectActiveCallback, &kinectFeedbackCallback);
-			}
-		}
-		*/
 
-		/*==================================================================
-												Locate user
-		==================================================================*/
-		if(!userPositionDataReady)
-		{
-			//Looking for user
-			navGoal.action_id = 3;	// Start navigation task full optional
-			navClient.sendGoal(navGoal, &navDoneCallback, &navActiveCallback, &navFeedbackCallback);
-			navHandlerFree = false;
-		}
 
-		/*==================================================================
-												Vision data management
-		==================================================================*/
-		if(userPositionDataReady && userDistance < 1000)
-			visionDataCapture = true;
-		else
-		{
-			//Aproach user
-			navGoal.action_id = 2;	// Start navigation task full optional
-			navGoal.angle=0;
-			navGoal.distance= userDistance - 900;
-			navClient.sendGoal(navGoal, &navDoneCallback, &navActiveCallback, &navFeedbackCallback);
-			navHandlerFree = false;
-		}
-
-		if(visionDataCapture && !visionDataAnalyze && navHandlerFree)
-		{
-			if(firstInteraction)
+			/*==================================================================
+													Kinect_motor management
+			==================================================================*/
+			/*
+			if(userPositionDataReady && userDistance < 1500)
 			{
-				sampleCounter = 59;
-			}
-			//ROS_INFO("VISION DATA %d", sampleCounter);
-			//Get user position data
-			if(userPositionDataReady)
-			{
-				dataVectors.userDistanceVect.push_back(userDistanceThreshold);
-				userPositionDataReady = false;
-				sampleCounter++;
-			}
-			//Get user head data
-			if(userHeadPitchDataReady)
-			{
-				dataVectors.userHeadPitchVect.push_back(userHeadPitch);
-				userHeadPitchDataReady = false;
-			}
-			if(userHeadRatioDataReady)
-			{
-				dataVectors.userHeadRatioVect.push_back(userHeadRatio);
-				userHeadRatioDataReady = false;
-			}
-			if(userHeadRollDataReady)
-			{
-				dataVectors.userHeadRollVect.push_back(userHeadRoll);
-				userHeadRollDataReady = false;
-			}
-			//Get user eyes data
-			if(userEyesDataReady)
-			{
-				dataVectors.userEyeLRatioVect.push_back(userEyeLRatio);
-				dataVectors.userEyeRRatioVect.push_back(userEyeRRatio);
-				userEyesDataReady = false;
-			}
-			//Get user move data
-			if(userMoveDataReady)
-			{
-				dataVectors.userMovesVect.push_back(userMoveClass);
-				userMoveDataReady = false;
-			}
-			
-			//Stop acquisition and start analysis when all data are acquired
-			if((sampleCounter == INTERACTION_SAMPLES) && (speakHandlerFree))
-			{
-				//ROS_INFO("Interaction Sample acquired");
-				//ROS_INFO(" Samples details:");
-				//ROS_INFO("      UserTracker:  %d", dataVectors.userDistanceVect.size());
-				//ROS_INFO("      HeadAnalyzer: %d", dataVectors.userHeadRatioVect.size());
-				visionDataCapture = false;
-				visionDataAnalyze = true;
-			}
-		}
-		
-		/*==================================================================
-												Vision data analysis
-		==================================================================*/
-		if(visionDataAnalyze)
-		{
-			int t = 1;
-			if(!firstInteraction)
-			{
-				//User Distance analysis
-				userData.distance = getUserDistanceBehaviour(&dataVectors.userDistanceVect);
-				ROS_ERROR("userDistanceVector -> [OK]");
-				if (userData.distance > 0) {setStatusValue(-1, 1);}
-				else if (userData.distance == 0) {setStatusValue(1, 0);}
-				else if (userData.distance < 0) {setStatusValue(2, -2);}
-				
-				//User Ratio and Roll analysis
-				userData.headData.roll = getUserHeadRollBehaviour(&dataVectors.userHeadRollVect, &dataVectors.userHeadRatioVect);
-				ROS_ERROR("userHeadRollVector -> [OK]");
-				userData.headData.ratio = userData.headData.roll;
-				ROS_ERROR("userHeadRatioVector -> [OK]");
-				if (userData.headData.roll != 0) {setStatusValue(2, -2);}
-				else if (userData.headData.roll == 0) {setStatusValue(1, 0);}
-				
-				//User Pitch analysis
-				userData.headData.pitch = getUserHeadPitchBehaviour(&dataVectors.userHeadPitchVect);
-				ROS_ERROR("userHeadPitchVector -> [OK]");
-				if (userData.headData.pitch > 0) {setStatusValue(-2, 2); }
-				else if (userData.headData.pitch == 0) {setStatusValue(1, 1); }
-				else if (userData.headData.pitch < 0) {setStatusValue(2, -2); }
-
-				//User left eye ratio analysis
-				userData.eyesData.leftRatio = getUserLeftEyeRatioBehaviour(&dataVectors.userEyeLRatioVect);
-				ROS_ERROR("userleftEyeRatioVector -> [OK]");
-				if (userData.eyesData.leftRatio > 0) {setStatusValue(1, -1); }
-				else if (userData.eyesData.leftRatio == 0) {setStatusValue(0, 0); }
-				else if (userData.eyesData.leftRatio < 0) {setStatusValue(-1, 1); }
-				
-				//User right eye ratio analysis
-				userData.eyesData.rightRatio = getUserRightEyeRatioBehaviour(&dataVectors.userEyeRRatioVect);
-				ROS_ERROR("userRightEyeRatioVector -> [OK]");
-				if (userData.eyesData.rightRatio > 0) {setStatusValue(1, -1); }
-				else if (userData.eyesData.rightRatio == 0) {setStatusValue(0, 0); }
-				else if (userData.eyesData.rightRatio < 0) {setStatusValue(-1, 1); }
-
-				//User move analysis
-				userData.movement = detectMeaningfulMove(&dataVectors.userMovesVect);
-				ROS_INFO("Detected moves: %c", userData.movement);
-				if (userData.movement == 'N') {setStatusValue(3, -2); }
-				else if (userData.movement == 'D') {setStatusValue(-2, 3); }
-				else if (userData.movement == 'L') {setStatusValue(-1, 2); }
-				else if (userData.movement == 'R') {setStatusValue(-1, 2); }
-			
-				ROS_ERROR("Counters value INTERESTED=%d NOT_INTERESTED=%d",
-				interestedCounter, not_interestedCounter);
-			
-				//Select interaction action
-				t = setMaxValueBt(interestedCounter, not_interestedCounter);
-
-				if(interestedCounter > not_interestedCounter )
-					user_interested = true;
-				else
-					user_interested = false;
-			}
-			//Clear vector
-			dataVectors.userDistanceVect.clear();
-			dataVectors.userHeadRatioVect.clear();
-			dataVectors.userHeadPitchVect.clear();
-			dataVectors.userHeadRollVect.clear();
-			dataVectors.userEyeLRatioVect.clear();
-			dataVectors.userEyeRRatioVect.clear();
-			dataVectors.userMovesVect.clear();
-			interestedCounter = 0;
-			not_interestedCounter = 0;
-			
-			firstInteraction = false;
-			
-			//run one step into interaction procesess
-			if (t >= 0)
-			{
-				ROS_ERROR("Run Machine with %d", t);
-				node = sm->run(t);
-				if(node != NULL)
+				if(userDistanceY > USER_Y_MIN_POSITION && kinectMotorFree)
 				{
-					//Print node info
-					node->displayNode();
-					
-					//Check state machines output and send goals to servers
-					primitiveMSGParser(node->getOutput(), node->getParams());
-					
-					/*for(int i=0; i < 10;  i++)
-					{
-						ROS_ERROR("code %d", activationAPI.apiCode[i]);
-						ROS_ERROR("param %s", activationAPI.apiPar[i].c_str());
-
-					}*/
-					
-					
-					//Enable capturing fase
-					visionDataCapture = true;
-					visionDataAnalyze = false;
-					sampleCounter = 0;
+					kinectMotorFree = false;
+					kinectGoal.tilt = -2;
+					kinectClient.sendGoal(kinectGoal, &kinectDoneCallback, &kinectActiveCallback, &kinectFeedbackCallback);
 				}
-				else
+				else if(userDistanceY < USER_Y_MAX_POSITION && kinectMotorFree)
 				{
-					visionDataCapture = false;
-					visionDataAnalyze = false;
-					ROS_ERROR(" ####### INTERAZIONE COMPLETATA ####### ");
-
-					if (user_interested)
-					{
-						ROS_INFO("------------------Navigation----------------------");
-
-						// Define Goal to navigation
-						navGoal.action_id = 1;	// Start navigation task full optional
-						navClient.sendGoal(navGoal, &navDoneCallback, &navActiveCallback, &navFeedbackCallback);
-					}
-
+					kinectMotorFree = false;
+					kinectGoal.tilt = 2;
+					kinectClient.sendGoal(kinectGoal, &kinectDoneCallback, &kinectActiveCallback, &kinectFeedbackCallback);
 				}
 			}
-		}
-		
-		/*==================================================================
-											Send Data to server (Actionlib)
-		==================================================================*/
-		//Speaking
-		if(activationAPI.apiCode[SPEAK] == 1)
-		{
-			activationAPI.apiCode[SPEAK] = -1;
-			speakHandlerFree = false;
-			
-			//Get phrase number
-			stringstream ss(activationAPI.apiPar[SPEAK]);
-			int temp;
-			ss >> temp;			
-						
-			//Define goal and send it to the server side
-			voiceGoal.action_id = 1;
-			voiceGoal.text = phrases[temp].data;
-			voiceClient.sendGoal(voiceGoal, &voiceDoneCallback, &voiceActiveCallback, &voiceFeedbackCallback);
-		}
-		
-		//Face move
-		if(activationAPI.apiCode[NECK] == 1)
-		{
-			activationAPI.apiCode[NECK] = -1;
-			
-			neckHandlerFree = false;
-			int temp;
-			//Get head action code (first value of params)
-			size_t found = 0;
-			found = activationAPI.apiPar[NECK].find_first_of(",");
-			if(found > 0)
+			*/
+
+			/*==================================================================
+													Locate user
+			==================================================================*/
+			if(!userPositionDataReady)
 			{
-				string activationCode = activationAPI.apiPar[NECK].substr(0, found);
-				stringstream ss(activationCode);
-				ss >>temp;
-				//Remove fiurst params to string
-				activationAPI.apiPar[NECK].erase(0, found + 1);
-				
-				//Set goal gode
-				neckGoal.action = 1 ;
-				neckGoal.sub_action = temp;
+				//Looking for user
+				navGoal.action_id = 3;	// Start navigation task full optional
+				navClient.sendGoal(navGoal, &navDoneCallback, &navActiveCallback, &navFeedbackCallback);
+				navHandlerFree = false;
 			}
+
+			/*==================================================================
+													Vision data management
+			==================================================================*/
+			if(userPositionDataReady && userDistance < 1000)
+				visionDataCapture = true;
 			else
 			{
-				stringstream ss(activationAPI.apiPar[NECK]);
-				ss >> temp;
-				//Set goal gode
-				neckGoal.action = 1 ;
-				neckGoal.sub_action = temp;
+				//Aproach user
+				navGoal.action_id = 2;	// Start navigation task full optional
+				navGoal.angle=0;
+				navGoal.distance= userDistance - 900;
+				navClient.sendGoal(navGoal, &navDoneCallback, &navActiveCallback, &navFeedbackCallback);
+				navHandlerFree = false;
 			}
 
-			//Define goal and send it to the server side
-			neckClient.sendGoal(neckGoal, &neckDoneCallback, &neckActiveCallback, &neckFeedbackCallback);
+			if(visionDataCapture && !visionDataAnalyze && navHandlerFree)
+			{
+				if(firstInteraction)
+				{
+					sampleCounter = 59;
+				}
+				//ROS_INFO("VISION DATA %d", sampleCounter);
+				//Get user position data
+				if(userPositionDataReady)
+				{
+					dataVectors.userDistanceVect.push_back(userDistanceThreshold);
+					userPositionDataReady = false;
+					sampleCounter++;
+				}
+				//Get user head data
+				if(userHeadPitchDataReady)
+				{
+					dataVectors.userHeadPitchVect.push_back(userHeadPitch);
+					userHeadPitchDataReady = false;
+				}
+				if(userHeadRatioDataReady)
+				{
+					dataVectors.userHeadRatioVect.push_back(userHeadRatio);
+					userHeadRatioDataReady = false;
+				}
+				if(userHeadRollDataReady)
+				{
+					dataVectors.userHeadRollVect.push_back(userHeadRoll);
+					userHeadRollDataReady = false;
+				}
+				//Get user eyes data
+				if(userEyesDataReady)
+				{
+					dataVectors.userEyeLRatioVect.push_back(userEyeLRatio);
+					dataVectors.userEyeRRatioVect.push_back(userEyeRRatio);
+					userEyesDataReady = false;
+				}
+				//Get user move data
+				if(userMoveDataReady)
+				{
+					dataVectors.userMovesVect.push_back(userMoveClass);
+					userMoveDataReady = false;
+				}
+				
+				//Stop acquisition and start analysis when all data are acquired
+				if((sampleCounter == INTERACTION_SAMPLES) && (speakHandlerFree))
+				{
+					//ROS_INFO("Interaction Sample acquired");
+					//ROS_INFO(" Samples details:");
+					//ROS_INFO("      UserTracker:  %d", dataVectors.userDistanceVect.size());
+					//ROS_INFO("      HeadAnalyzer: %d", dataVectors.userHeadRatioVect.size());
+					visionDataCapture = false;
+					visionDataAnalyze = true;
+				}
+			}
+			
+			/*==================================================================
+													Vision data analysis
+			==================================================================*/
+			if(visionDataAnalyze)
+			{
+				int t = 1;
+				if(!firstInteraction)
+				{
+					//User Distance analysis
+					userData.distance = getUserDistanceBehaviour(&dataVectors.userDistanceVect);
+					ROS_ERROR("userDistanceVector -> [OK]");
+					if (userData.distance > 0) {setStatusValue(-1, 1);}
+					else if (userData.distance == 0) {setStatusValue(1, 0);}
+					else if (userData.distance < 0) {setStatusValue(2, -2);}
+					
+					//User Ratio and Roll analysis
+					userData.headData.roll = getUserHeadRollBehaviour(&dataVectors.userHeadRollVect, &dataVectors.userHeadRatioVect);
+					ROS_ERROR("userHeadRollVector -> [OK]");
+					userData.headData.ratio = userData.headData.roll;
+					ROS_ERROR("userHeadRatioVector -> [OK]");
+					if (userData.headData.roll != 0) {setStatusValue(2, -2);}
+					else if (userData.headData.roll == 0) {setStatusValue(1, 0);}
+					
+					//User Pitch analysis
+					userData.headData.pitch = getUserHeadPitchBehaviour(&dataVectors.userHeadPitchVect);
+					ROS_ERROR("userHeadPitchVector -> [OK]");
+					if (userData.headData.pitch > 0) {setStatusValue(-2, 2); }
+					else if (userData.headData.pitch == 0) {setStatusValue(1, 1); }
+					else if (userData.headData.pitch < 0) {setStatusValue(2, -2); }
+
+					//User left eye ratio analysis
+					userData.eyesData.leftRatio = getUserLeftEyeRatioBehaviour(&dataVectors.userEyeLRatioVect);
+					ROS_ERROR("userleftEyeRatioVector -> [OK]");
+					if (userData.eyesData.leftRatio > 0) {setStatusValue(1, -1); }
+					else if (userData.eyesData.leftRatio == 0) {setStatusValue(0, 0); }
+					else if (userData.eyesData.leftRatio < 0) {setStatusValue(-1, 1); }
+					
+					//User right eye ratio analysis
+					userData.eyesData.rightRatio = getUserRightEyeRatioBehaviour(&dataVectors.userEyeRRatioVect);
+					ROS_ERROR("userRightEyeRatioVector -> [OK]");
+					if (userData.eyesData.rightRatio > 0) {setStatusValue(1, -1); }
+					else if (userData.eyesData.rightRatio == 0) {setStatusValue(0, 0); }
+					else if (userData.eyesData.rightRatio < 0) {setStatusValue(-1, 1); }
+
+					//User move analysis
+					userData.movement = detectMeaningfulMove(&dataVectors.userMovesVect);
+					ROS_INFO("Detected moves: %c", userData.movement);
+					if (userData.movement == 'N') {setStatusValue(3, -2); }
+					else if (userData.movement == 'D') {setStatusValue(-2, 3); }
+					else if (userData.movement == 'L') {setStatusValue(-1, 2); }
+					else if (userData.movement == 'R') {setStatusValue(-1, 2); }
+
+					ROS_ERROR("Counters value INTERESTED=%d NOT_INTERESTED=%d",
+					interestedCounter, not_interestedCounter);
+
+					//Select interaction action
+					t = setMaxValueBt(interestedCounter, not_interestedCounter);
+
+					if(interestedCounter > not_interestedCounter )
+						user_interested = true;
+					else
+						user_interested = false;
+				}
+				//Clear vector
+				dataVectors.userDistanceVect.clear();
+				dataVectors.userHeadRatioVect.clear();
+				dataVectors.userHeadPitchVect.clear();
+				dataVectors.userHeadRollVect.clear();
+				dataVectors.userEyeLRatioVect.clear();
+				dataVectors.userEyeRRatioVect.clear();
+				dataVectors.userMovesVect.clear();
+				interestedCounter = 0;
+				not_interestedCounter = 0;
+
+				firstInteraction = false;
+
+				//run one step into interaction procesess
+				if (t >= 0)
+				{
+					ROS_ERROR("Run Machine with %d", t);
+					node = sm->run(t);
+					if(node != NULL)
+					{
+						//Print node info
+						node->displayNode();
+
+						//Check state machines output and send goals to servers
+						primitiveMSGParser(node->getOutput(), node->getParams());
+
+						/*for(int i=0; i < 10;  i++)
+						{
+							ROS_ERROR("code %d", activationAPI.apiCode[i]);
+							ROS_ERROR("param %s", activationAPI.apiPar[i].c_str());
+
+						}*/
+
+
+						//Enable capturing fase
+						visionDataCapture = true;
+						visionDataAnalyze = false;
+						sampleCounter = 0;
+					}
+					else
+					{
+						visionDataCapture = false;
+						visionDataAnalyze = false;
+						ROS_ERROR(" ####### INTERAZIONE COMPLETATA ####### ");
+
+						if (user_interested)
+						{
+							ROS_INFO("------------------Navigation----------------------");
+
+							// Define Goal to navigation
+							navGoal.action_id = 1;	// Start navigation task full optional
+							navClient.sendGoal(navGoal, &navDoneCallback, &navActiveCallback, &navFeedbackCallback);
+						}
+
+					}
+				}
+			}
+			
+			/*==================================================================
+												Send Data to server (Actionlib)
+			==================================================================*/
+			//Speaking
+			if(activationAPI.apiCode[SPEAK] == 1)
+			{
+				activationAPI.apiCode[SPEAK] = -1;
+				speakHandlerFree = false;
+				
+				//Get phrase number
+				stringstream ss(activationAPI.apiPar[SPEAK]);
+				int temp;
+				ss >> temp;
+
+				//Define goal and send it to the server side
+				voiceGoal.action_id = 1;
+				voiceGoal.text = phrases[temp].data;
+				voiceClient.sendGoal(voiceGoal, &voiceDoneCallback, &voiceActiveCallback, &voiceFeedbackCallback);
+			}
+
+			//Face move
+			if(activationAPI.apiCode[NECK] == 1)
+			{
+				activationAPI.apiCode[NECK] = -1;
+
+				neckHandlerFree = false;
+				int temp;
+				//Get head action code (first value of params)
+				size_t found = 0;
+				found = activationAPI.apiPar[NECK].find_first_of(",");
+				if(found > 0)
+				{
+					string activationCode = activationAPI.apiPar[NECK].substr(0, found);
+					stringstream ss(activationCode);
+					ss >>temp;
+					//Remove fiurst params to string
+					activationAPI.apiPar[NECK].erase(0, found + 1);
+
+					//Set goal gode
+					neckGoal.action = 1 ;
+					neckGoal.sub_action = temp;
+				}
+				else
+				{
+					stringstream ss(activationAPI.apiPar[NECK]);
+					ss >> temp;
+					//Set goal gode
+					neckGoal.action = 1 ;
+					neckGoal.sub_action = temp;
+				}
+
+				//Define goal and send it to the server side
+				neckClient.sendGoal(neckGoal, &neckDoneCallback, &neckActiveCallback, &neckFeedbackCallback);
+			}
+
+
+
+
+			/*==================================================================
+												Ending i-th iteration
+			==================================================================*/
 		}
-		
-
-
-
-		/*==================================================================
-											Ending i-th iteration
-		==================================================================*/
 		ros::spinOnce();
 		r.sleep();
 	}
@@ -965,6 +976,12 @@ void navActiveCallback()
 //======================================================================
 void navFeedbackCallback(const e2_navigation::NavFeedbackConstPtr& feed)
 {}
+
+bool start_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
+{
+	start = true;
+	return true;
+}
 
 //======================================================================
 //======================================================================
