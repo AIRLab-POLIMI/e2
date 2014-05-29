@@ -270,7 +270,6 @@ int main(int argc, char **argv)
 		if(start)
 		{
 
-
 			/*==================================================================
 													Kinect_motor management
 			==================================================================*/
@@ -311,7 +310,7 @@ int main(int argc, char **argv)
 			else
 			{
 				//Aproach user
-				navGoal.action_id = 2;	// Start navigation task full optional
+				navGoal.action_id = 2;
 				navGoal.angle=0;
 				navGoal.distance= userDistance - 900;
 				navClient.sendGoal(navGoal, &navDoneCallback, &navActiveCallback, &navFeedbackCallback);

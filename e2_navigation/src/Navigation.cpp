@@ -88,15 +88,20 @@ Navigation::~Navigation()
 //=================================================================
 void Navigation::controller()
 {
-
-	// Check Battery status
+	/*==================================================================
+		Checking battery status
+	==================================================================*/
 	if(strcasecmp(irobot_->get_battery_status(),"LOW") == 0)
 	{
 		ROS_INFO("[Navigation]:: WARNING ! Battery Low, go to base to refill");
 		nav_goto(base_name_);
 	}
+	/*==================================================================
+		Starting new Task - Navigation + detection
+	==================================================================*/
 	else if(active_task_)
 	{
+
 		if(!path_planned_)
 		{
 			nav_goto(target_name_);
@@ -133,8 +138,10 @@ void Navigation::controller()
 			}
 
 		}
-
 	}
+	/*==================================================================
+		Start Navigating in auto mode
+	==================================================================*/
 	else if (en_auto_)
 	{
 		if(strcmp(irobot_->base_getStatus().c_str(),"ABORTED")==0)
