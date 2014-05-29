@@ -1,3 +1,7 @@
+- id: battery_empty
+  text: "Aiuto! Aiuto! Sono a secco!"
+  duration: 150
+
 - id: hello
   text: "Ciao, il mio nome è edueee."
   duration: 150

@@ -94,6 +94,8 @@ void Navigation::controller()
 	if(strcasecmp(irobot_->get_battery_status(),"LOW") == 0)
 	{
 		ROS_INFO("[Navigation]:: WARNING ! Battery Low, go to base to refill");
+		nav_clear();
+		irobot_->robot_talk(get_speech_by_name("battery_empty"));
 		nav_goto(base_name_);
 	}
 	/*==================================================================
@@ -304,9 +306,11 @@ void Navigation::nav_goto(float distance,float deg_angle)
 //=================================================================
 void Navigation::nav_goto_detected_user()
 {
+	ROS_DEBUG("[Navigation]:: Detected %s at %f m delta angle %f degree",user.name.c_str(),user.distance,user.angle);
+
 	t_user user= irobot_->getDetectedUser();
 	user.distance = user.distance - APPROACH_DISTANCE > APPROACH_DISTANCE ? (user.distance - APPROACH_DISTANCE) : 0 ;
-	ROS_DEBUG("[Navigation]:: Detected %s at %f m delta angle %f degree",user.name.c_str(),user.distance,user.angle);
+
 	nav_goto(user.distance,user.angle);	// We want the robot to keep a small distance from detection point
 }
 

@@ -104,7 +104,7 @@ public:
 				ROS_DEBUG("["ROS_NODE_NAME"]:: Abort current action");
 				as_.setAborted();
 				break;
-			case 1:	// Start Navigation for interested
+			case 1:	// Start Navigation for interested people
 				ROS_DEBUG("["ROS_NODE_NAME"]:: Start Navigation Task");
 				nav->nav_clear();
 				nav->nav_newTask();
