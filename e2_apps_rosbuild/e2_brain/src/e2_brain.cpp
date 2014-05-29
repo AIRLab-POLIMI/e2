@@ -20,6 +20,7 @@
 #include "ros/ros.h"
 #include "ros/package.h"
 #include "std_srvs/Empty.h"
+#include "std_msgs/Float64.h"
 //Actionlib
 #include <e2_voice/VoiceAction.h>
 #include <e2_navigation/NavAction.h>
@@ -222,6 +223,8 @@ int main(int argc, char **argv)
 	ros::Subscriber subUserEyesData = nh.subscribe("eyesData", 10, getUserEyesData);
 	ros::Subscriber subUserMoveData = nh.subscribe("moveData", 10, getUserMoveData);
 
+	ros::Publisher kinect_pub_ = nh.advertise<std_msgs::Float64>("tilt_angle", 1000);
+
 	ros::ServiceServer start_service = nh.advertiseService("e2_brain/start",start_callback);
 	
 	//Load state machines that controls the interaction process
@@ -248,7 +251,7 @@ int main(int argc, char **argv)
 	e2_voice::VoiceGoal voiceGoal;
 	e2_navigation::NavGoal navGoal;
 	e2_neck_controller::NeckGoal neckGoal;
-	//kinect_motor::KinectGoal kinectGoal;
+	std_msgs::Float64 kinectGoal;
 	
 	//Wait for servers
 	voiceClient.waitForServer();
@@ -273,29 +276,32 @@ int main(int argc, char **argv)
 			/*==================================================================
 													Kinect_motor management
 			==================================================================*/
-			/*
+
 			if(userPositionDataReady && userDistance < 1500)
 			{
 				if(userDistanceY > USER_Y_MIN_POSITION && kinectMotorFree)
 				{
 					kinectMotorFree = false;
-					kinectGoal.tilt = -2;
-					kinectClient.sendGoal(kinectGoal, &kinectDoneCallback, &kinectActiveCallback, &kinectFeedbackCallback);
+					kinectGoal.data = -2;
+					//kinectClient.sendGoal(kinectGoal, &kinectDoneCallback, &kinectActiveCallback, &kinectFeedbackCallback);
+					kinect_pub_.publish(kinectGoal);
 				}
 				else if(userDistanceY < USER_Y_MAX_POSITION && kinectMotorFree)
 				{
 					kinectMotorFree = false;
-					kinectGoal.tilt = 2;
-					kinectClient.sendGoal(kinectGoal, &kinectDoneCallback, &kinectActiveCallback, &kinectFeedbackCallback);
+					kinectGoal.data = 2;
+					//kinectClient.sendGoal(kinectGoal, &kinectDoneCallback, &kinectActiveCallback, &kinectFeedbackCallback);
+					kinect_pub_.publish(kinectGoal);
 				}
 			}
-			*/
+
 
 			/*==================================================================
 													Locate user
 			==================================================================*/
 			if(!userPositionDataReady)
 			{
+				ROS_INFO("[e2_brain]:: Looking for user");
 				//Looking for user
 				navGoal.action_id = 3;	// Start navigation task full optional
 				navClient.sendGoal(navGoal, &navDoneCallback, &navActiveCallback, &navFeedbackCallback);
@@ -309,12 +315,13 @@ int main(int argc, char **argv)
 				visionDataCapture = true;
 			else
 			{
+				//ROS_INFO("[e2_brain]:: Aproach user, %d",userDistance);
 				//Aproach user
-				navGoal.action_id = 2;
-				navGoal.angle=0;
-				navGoal.distance= userDistance - 900;
-				navClient.sendGoal(navGoal, &navDoneCallback, &navActiveCallback, &navFeedbackCallback);
-				navHandlerFree = false;
+				//navGoal.action_id = 2;
+				//navGoal.angle=0;
+				//navGoal.distance= userDistance - 900;
+				//navClient.sendGoal(navGoal, &navDoneCallback, &navActiveCallback, &navFeedbackCallback);
+				//navHandlerFree = false;
 			}
 
 			if(visionDataCapture && !visionDataAnalyze && navHandlerFree)

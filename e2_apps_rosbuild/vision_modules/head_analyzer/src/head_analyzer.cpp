@@ -188,7 +188,7 @@ int main(int argc, char **argv)
 	knn->fastBuild(movesClassifier, 10, 5, 2);
 	ROS_INFO("[HEAD_ANALYZER]: Classifier Built");
 		
-	cv::namedWindow("Head-Analyzer", CV_WINDOW_AUTOSIZE);
+	//cv::namedWindow("Head-Analyzer", CV_WINDOW_AUTOSIZE);
 
 	//ROS LOOP
 	ros::Rate r(30);
@@ -216,7 +216,7 @@ int main(int argc, char **argv)
 				}
 				
 				//Display analysis results
-				imshow("Head-Analyzer", frameDrawn);
+				//imshow("Head-Analyzer", frameDrawn);
 				
 				detectMovesEnable = true; //Enable starting from 2nd frame
 			}
