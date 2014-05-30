@@ -385,7 +385,7 @@ int main(int argc, char **argv)
 			/*==================================================================
 													Vision data analysis
 			==================================================================*/
-			if(visionDataAnalyze)
+			if(visionDataAnalyze && navHandlerFree)
 			{
 				int t = 1;
 				if(!firstInteraction)

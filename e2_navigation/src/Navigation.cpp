@@ -146,6 +146,25 @@ void Navigation::controller()
 	==================================================================*/
 	else if (en_auto_)
 	{
+		if(!path_planned_)
+		{
+			nav_random_path();			// Ramdom navigation
+			path_planned_ = true;
+		}
+		else if(user_recognized_)
+		{
+			irobot_->neck_action(1,2); 		// happy face
+			// Robot just find someone. Go toward him
+			nav_goto_detected_user();
+			user_recognized_= false;		// Set path just once
+			path_to_user_ = true;			// Set following user path
+		}
+		else if(!path_to_user_)
+		{
+			user_detect("unknown");
+		}
+
+
 		if(strcmp(irobot_->base_getStatus().c_str(),"ABORTED")==0)
 		{
 			path_planned_ = false;
@@ -155,23 +174,7 @@ void Navigation::controller()
 			en_auto_=false;
 			nav_clear();
 		}
-		else if(!path_planned_)
-		{
-			nav_random_path();			// Ramdom navigation
-			path_planned_ = true;
-		}
-		else	 if(user_recognized_)
-		{
-			irobot_->neck_action(1,2); 	// happy face
-			// Robot just find someone. Go toward him
-			nav_goto_detected_user();
-			user_recognized_= false;	// Set path just once
-			path_to_user_ = true;			// Set following user path
-		}
-		else if(!path_to_user_)
-		{
-			user_detect("unknown");
-		}
+
 	}
 
 }
