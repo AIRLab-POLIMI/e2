@@ -45,10 +45,10 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 	nh_.param("speech_config", speech_config, ros::package::getPath("e2_config")+"/speech_config/speech_config.yaml");
 
 	//	Suscribers
-	ros::Subscriber odom_sub= nh_.subscribe("/odom", 10,&Navigation::odometry_callback,this);
+	ros::Subscriber odom_sub= nh_.subscribe("/odom", 10,odometry_callback);
 
 	// Enable Services
-	ros::ServiceServer abort_service = nh_.advertiseService(name+"/nav_abort",&Navigation::abort_callback,this);
+	ros::ServiceServer abort_service = nh_.advertiseService(name+"/nav_abort",abort_callback);
 	ros::ServiceServer start_service = nh_.advertiseService(name+"/nav_start",&Navigation::start_callback,this);
 	ros::ServiceServer goto_service = nh_.advertiseService(name+"/nav_goto",&Navigation::goto_callback,this);
 	ros::ServiceServer auto_service = nh_.advertiseService(name+"/nav_auto",&Navigation::auto_engage_callback,this);
@@ -665,7 +665,7 @@ void Navigation::loadSpeakData(YAML::Node& doc)
 //=====================================
 void Navigation::odometry_callback(const nav_msgs::Odometry::ConstPtr& msg)
 {
-	ROS_DEBUG("[Odometry]:: Odometry pose x,y,z: [%f,%f,%f]: ", msg->pose.pose.position.x,msg->pose.pose.position.y,msg->pose.pose.position.z);
+	ROS_INFO("[Odometry]:: Odometry pose x,y,z: [%f,%f,%f]: ", msg->pose.pose.position.x,msg->pose.pose.position.y,msg->pose.pose.position.z);
 	irobot_->setRobotPose(msg->pose.pose);
 }
 
