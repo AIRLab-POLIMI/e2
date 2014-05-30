@@ -3,16 +3,16 @@ recovery_behavior_enabled: true
 clearing_rotation_allowed: false
 
 TrajectoryPlannerROS:
-   max_vel_x: 0.5
-   min_vel_x: 0.35
+   max_vel_x: 0.6
+   min_vel_x: 0.45
    max_vel_theta: 0.7
    min_vel_theta: -0.7
    min_in_place_vel_theta: 0.7
 
    escape_vel: -0.3
-   acc_lim_x: 0.6
+   acc_lim_x: 0.2
    acc_lim_y: 0.6
-   acc_lim_th: 0.6
+   acc_lim_th: 0.2
 
    holonomic_robot: false
    yaw_goal_tolerance: 0.3 
