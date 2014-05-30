@@ -142,7 +142,7 @@ void Navigation::controller()
 		}
 	}
 	/*==================================================================
-		Start Navigating in auto mode
+		Start Navigating in auto mode looking for user
 	==================================================================*/
 	else if (en_auto_)
 	{
@@ -154,6 +154,7 @@ void Navigation::controller()
 		else if(user_recognized_)
 		{
 			irobot_->neck_action(1,2); 		// happy face
+
 			// Robot just find someone. Go toward him
 			nav_goto_detected_user();
 			user_recognized_= false;		// Set path just once
@@ -167,6 +168,9 @@ void Navigation::controller()
 
 		if(strcmp(irobot_->base_getStatus().c_str(),"ABORTED")==0)
 		{
+			if(path_to_user_)
+				path_to_user_= false;
+
 			path_planned_ = false;
 		}
 		else if(strcmp(irobot_->base_getStatus().c_str(),"SUCCEEDED")==0)
@@ -251,7 +255,7 @@ void Navigation::nav_abortTask()
 }
 
 //=================================================================
-// Abort current task action
+// Abort current taskpath_to_user_ action
 //=================================================================
 void Navigation::nav_abortTask(const ros::TimerEvent& e)
 {
@@ -335,7 +339,7 @@ void Navigation::nav_goto(float distance,float deg_angle)
 void Navigation::nav_goto_detected_user()
 {
 	t_user user= irobot_->getDetectedUser();
-	ROS_DEBUG("[Navigation]:: Detected %s at %f m delta angle %f degree",user.name.c_str(),user.distance,user.angle);
+	ROS_INFO("[Navigation]:: Detected %s at %f m delta angle %f degree",user.name.c_str(),user.distance,user.angle);
 
 	user.distance = user.distance - APPROACH_DISTANCE > APPROACH_DISTANCE ? (user.distance - APPROACH_DISTANCE) : 0 ;
 
