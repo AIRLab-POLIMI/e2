@@ -7,16 +7,16 @@
  	<arg name="stand_test" value="$(find e2_config)/map_config/test_marker_config.yaml" />
  	  
 	<!-- Run the map server -->
-    <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_test)"/>
+    	<node name="map_server" pkg="map_server" type="map_server" args="$(arg map_test)"/>
 
 	<!-- Run AMCL -->
-  	<include file="$(find e2_launch)/launch/components/base/amcl_diff.launch" />
+        <include file="$(find e2_launch)/launch/components/base/amcl_diff.launch" />
 
 	<!-- Run Move Base -->
 	<include file="$(find e2_launch)/launch/components/base/move_base.launch" />
 	
 	<!-- Nav Messages converter for triskar base -->	
-    <node name="e2_nav_messages" pkg="e2_nav_messages" type="e2_nav_messages_node"/>
+    	<node name="e2_nav_messages" pkg="e2_nav_messages" type="e2_nav_messages_node"/>
 	
 	<!-- Nav Node -->
 	<node name="e2_nav" pkg="e2_navigation" type="e2_nav" respawn="false" output="screen">

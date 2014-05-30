@@ -9,7 +9,7 @@
  *  Created on: 15/mar/2014
  *
  */
-#define ROS_NODE_RATE	15
+#define ROS_NODE_RATE	10
 #define ROS_NODE_NAME	"e2_nav_messages"
 
 #include "ros/ros.h"
@@ -34,8 +34,8 @@ int main(int argc, char **argv)
 	  nh.param<string>("vel_topic", vel_topic, "/cmd_vel");
 	  nh.param<string>("triskar_topic", triskar_topic, "/triskar/velocity");
 
-	  sub_cmd_vel= nh.subscribe(vel_topic, 50, getVelocityCmd);
-	  pub_triskar_vel =  nh.advertise<r2p::Velocity>(triskar_topic, 50);
+	  sub_cmd_vel= nh.subscribe(vel_topic, 1000, getVelocityCmd);
+	  pub_triskar_vel =  nh.advertise<r2p::Velocity>(triskar_topic, 1000);
 
 	  ROS_INFO("["ROS_NODE_NAME"]:: Node started");
 	  ROS_INFO("["ROS_NODE_NAME"]:: Vel topic : %s ", vel_topic.c_str());
@@ -45,14 +45,15 @@ int main(int argc, char **argv)
 
 	  while(ros::ok())	//ROS LOOP
 	  {
-		  ros::spinOnce();
+		  
 
 		  pub_triskar_vel.publish(triskar_msg);
 
 		  triskar_msg.x = 0.0;
 		  triskar_msg.y = 0.0;
 		  triskar_msg.w = 0.0;
-
+		
+		  ros::spinOnce();
 		  r.sleep();
 	  }
 	  return 0;
@@ -70,7 +71,6 @@ void getVelocityCmd(const geometry_msgs::TwistConstPtr& msg )
 	triskar_msg.w = msg->angular.z;
 	
 }
-
 
 
 

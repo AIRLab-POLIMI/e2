@@ -171,8 +171,15 @@ void Navigation::controller()
 		}
 		else if(strcmp(irobot_->base_getStatus().c_str(),"SUCCEEDED")==0)
 		{
-			en_auto_=false;
-			nav_clear();
+			if(user_recognized_)
+			{
+			   en_auto_=false;
+			   nav_clear();
+			}
+			else
+			{
+			   path_planned_=false;	
+			}
 		}
 
 	}
@@ -263,7 +270,7 @@ void Navigation::nav_clear()
 
 	abort_timeout_.stop();
 	detect_timeout_.stop();
-	r_.sleep();
+	sleep(2);
 }
 
 //=================================================================

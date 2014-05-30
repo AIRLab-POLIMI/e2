@@ -1,12 +1,15 @@
 <launch> 
 
    <!-- Parameters -->
-   <arg name="map_airlab" value="$(find e2_config)/map/airlab/map.yaml" />
+   <arg name="map_airlab" value="$(find e2_config)/map/test_space/map.yaml" />
    <param name="use_sim_time" value="false" />
  
-   <!-- RosBag-->
-   <node pkg="rosbag" type="play" name="play" args="-l $(find e2_launch)/launch/test/bag/sonar.bag $(find e2_launch)/launch/test/bag/amcl_tune.bag --topics /odom /scan /tf /e2_sonar"/>
-   
+   <!-- Kinect launch and scanner info -->
+   <include file="$(find e2_launch)/launch/components/e2_scanner.launch" />
+ 
+   <!-- Odom & Tf -->
+   <include file="$(find e2_launch)/launch/components/e2_odometry.launch" /> 
+
    <!-- Run the map server -->
    <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_airlab)"/>
 
@@ -16,7 +19,8 @@
    <!-- Run Move Base -->
    <include file="$(find e2_launch)/launch/components/base/move_base.launch" />
 
-   <!-- Rviz -->
-   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find e2_launch)/launch/config/robot.rviz"/>
+   <!-- Joystick -->
+   <include file="$(find triskar)/launch/teleop_joy.launch" />
+
   
 </launch>

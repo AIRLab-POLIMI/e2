@@ -10,7 +10,7 @@
    <include file="$(find e2_launch)/launch/components/e2_odometry.launch" /> 
 
    <!-- Run the map server -->
-   <node name="map_server" pkg="map_server" type="map_server" args="$(find e2_config)/map/airlab/map.yaml"/>
+   <node name="map_server" pkg="map_server" type="map_server" args="$(find e2_config)/map/test_space/map.yaml"/>
   	
    <!-- Joystick -->
    <include file="$(find triskar)/launch/teleop_joy.launch" />
