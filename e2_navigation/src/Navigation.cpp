@@ -332,6 +332,11 @@ void Navigation::nav_goto(float distance,float deg_angle)
 	goal.target_pose.pose.position.x += delta_x;
 	goal.target_pose.pose.position.y += delta_y;
 
+	ROS_INFO("th: %f",th);
+	ROS_INFO("th_new: %f",th_new);
+	ROS_INFO("d_x: %f",delta_x);
+	ROS_INFO("d_y: %f",delta_y);
+
 	irobot_->base_setGoal(goal);
 }
 
