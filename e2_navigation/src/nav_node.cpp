@@ -27,7 +27,7 @@
 
 using namespace std;
 
-Navigation *nav;
+Navigation nav;
 
 // Signal-safe flag for whether shutdown is requested
 sig_atomic_t volatile g_request_shutdown = 0;
@@ -66,19 +66,19 @@ public:
 		nav = new Navigation(ros::this_node::getName(),ROS_NODE_RATE);
 
 		//	Suscribers
-		ros::Subscriber odom_sub= nh_.subscribe("/odom", 10,&Navigation::odometry_callback,nav);
+		ros::Subscriber odom_sub= nh_.subscribe("/odom", 10,&Navigation::odometry_callback,&nav);
 
 		// Enable Services
-		ros::ServiceServer abort_service = nh_.advertiseService(ROS_NODE_NAME"/nav_abort",&Navigation::abort_callback,nav);
-		ros::ServiceServer start_service = nh_.advertiseService(ROS_NODE_NAME"/nav_start",&Navigation::start_callback,nav);
-		ros::ServiceServer goto_service = nh_.advertiseService(ROS_NODE_NAME"/nav_goto",&Navigation::goto_callback,nav);
-		ros::ServiceServer auto_service = nh_.advertiseService(ROS_NODE_NAME"/nav_auto",&Navigation::auto_engage_callback,nav);
+		ros::ServiceServer abort_service = nh_.advertiseService(ROS_NODE_NAME"/nav_abort",&Navigation::abort_callback,&nav);
+		ros::ServiceServer start_service = nh_.advertiseService(ROS_NODE_NAME"/nav_start",&Navigation::start_callback,&nav);
+		ros::ServiceServer goto_service = nh_.advertiseService(ROS_NODE_NAME"/nav_goto",&Navigation::goto_callback,&nav);
+		ros::ServiceServer auto_service = nh_.advertiseService(ROS_NODE_NAME"/nav_auto",&Navigation::auto_engage_callback,&nav);
 
-		ros::ServiceServer detect_service = nh_.advertiseService(ROS_NODE_NAME"/test_detect",&Navigation::detect_callback,nav);
-		ros::ServiceServer talk_service = nh_.advertiseService(ROS_NODE_NAME"/test_voice",&Navigation::talk_callback,nav);
-		ros::ServiceServer train_service = nh_.advertiseService(ROS_NODE_NAME"/test_train",&Navigation::train_callback,nav);
-		ros::ServiceServer neck_service = nh_.advertiseService(ROS_NODE_NAME"/test_neck",&Navigation::neck_callback,nav);
-		ros::ServiceServer motor_service = nh_.advertiseService(ROS_NODE_NAME"/test_kinect_motor",&Navigation::motor_callback,nav);
+		ros::ServiceServer detect_service = nh_.advertiseService(ROS_NODE_NAME"/test_detect",&Navigation::detect_callback,&nav);
+		ros::ServiceServer talk_service = nh_.advertiseService(ROS_NODE_NAME"/test_voice",&Navigation::talk_callback,&nav);
+		ros::ServiceServer train_service = nh_.advertiseService(ROS_NODE_NAME"/test_train",&Navigation::train_callback,&nav);
+		ros::ServiceServer neck_service = nh_.advertiseService(ROS_NODE_NAME"/test_neck",&Navigation::neck_callback,&nav);
+		ros::ServiceServer motor_service = nh_.advertiseService(ROS_NODE_NAME"/test_kinect_motor",&Navigation::motor_callback,&nav);
 
 		as_.start();					//starting the actionlib server
 
@@ -107,31 +107,29 @@ public:
 			case 1:	// Start Navigation for interested people
 				ROS_DEBUG("["ROS_NODE_NAME"]:: Start Navigation Task");
 				//nav->nav_clear();
-				nav->nav_newTask();
+				nav.nav_newTask();
 
 				break;
 			case 2:	// Aproach user
 				ROS_DEBUG("["ROS_NODE_NAME"]:: Aproach user");
-				//nav->nav_clear();
-				nav->nav_goto(msg->distance,msg->angle);
+				nav.nav_goto(msg->distance,msg->angle);
 				break;
 			case 3: // Looking for user
 				ROS_DEBUG("["ROS_NODE_NAME"]:: Looking for users");
-				//nav->nav_clear();
-				nav->nav_newLookingUser();
+				nav.nav_newLookingUser();
 				break;
 		}
 
 		ros::Rate rate(ROS_NODE_RATE);
 
 		// Start Navigation Controller
-		while(!g_request_shutdown && !nav->nav_is_action_completed())
+		while(!g_request_shutdown && !nav.nav_is_action_completed())
 		{
-			nav->controller();
+			nav.controller();
 			ros::spinOnce();
 			rate.sleep();
 		}
-		nav->nav_clear();
+		nav.nav_clear();
 
 		as_.setSucceeded();
 
@@ -162,12 +160,12 @@ int main(int argc, char **argv)
 	ros::XMLRPCManager::instance()->unbind("shutdown");
 	ros::XMLRPCManager::instance()->bind("shutdown", shutdownCallback);
 
-	Nav navigation(ros::this_node::getName());
 	ros::Rate r(ROS_NODE_RATE);
 
 	// Start Navigation Controller
 	while(!g_request_shutdown)
 	{
+
 		ros::spinOnce();
 		r.sleep();
 	}
