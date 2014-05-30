@@ -44,6 +44,22 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 	nh_.param("marker_config", marker_config, ros::package::getPath("e2_config")+"/map_config/sim_marker_config.yaml");
 	nh_.param("speech_config", speech_config, ros::package::getPath("e2_config")+"/speech_config/speech_config.yaml");
 
+	//	Suscribers
+	ros::Subscriber odom_sub= nh_.subscribe("/odom", 10,&Navigation::odometry_callback,this);
+
+	// Enable Services
+	ros::ServiceServer abort_service = nh_.advertiseService(name+"/nav_abort",&Navigation::abort_callback,this);
+	ros::ServiceServer start_service = nh_.advertiseService(name+"/nav_start",&Navigation::start_callback,this);
+	ros::ServiceServer goto_service = nh_.advertiseService(name+"/nav_goto",&Navigation::goto_callback,this);
+	ros::ServiceServer auto_service = nh_.advertiseService(name+"/nav_auto",&Navigation::auto_engage_callback,this);
+
+	ros::ServiceServer detect_service = nh_.advertiseService(name+"/test_detect",&Navigation::detect_callback,this);
+	ros::ServiceServer talk_service = nh_.advertiseService(name+"/test_voice",&Navigation::talk_callback,this);
+	ros::ServiceServer train_service = nh_.advertiseService(name+"/test_train",&Navigation::train_callback,this);
+	ros::ServiceServer neck_service = nh_.advertiseService(name+"/test_neck",&Navigation::neck_callback,this);
+	ros::ServiceServer motor_service = nh_.advertiseService(name+"/test_kinect_motor",&Navigation::motor_callback,this);
+
+
 	// Load Stand positions in memory
 	YAML::Node doc_marker,doc_speech;
 	ifstream fin(marker_config.c_str());
