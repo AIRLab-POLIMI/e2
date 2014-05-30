@@ -55,7 +55,7 @@ class Navigation
 	    void nav_goto(string name);											// Navigate to known location
 	    void nav_goto(MBGoal goal);											// Navigate to known location
 	    void nav_goto(float distance,float angle);					// Navigate to new position given angle and distance
-	    void nav_goto_detected_user();									//	go to the last position of detected user
+	    void nav_goto_detected_user(t_user user);					//	go to the last position of detected user
 	    bool nav_is_goal_reached();											//	check if navigatation goal is reached
 	    void nav_random_path();													//	Create a random navigation path
 	    void nav_wait();

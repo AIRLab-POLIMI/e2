@@ -156,7 +156,9 @@ void Navigation::controller()
 			irobot_->neck_action(1,2); 		// happy face
 
 			// Robot just find someone. Go toward him
-			nav_goto_detected_user();
+			nav_goto_detected_user(irobot_->getDetectedUser());
+
+			irobot_->clearDetectedUser();
 			user_recognized_= false;		// Set path just once
 			path_to_user_ = true;			// Set following user path
 		}
@@ -336,9 +338,9 @@ void Navigation::nav_goto(float distance,float deg_angle)
 //=================================================================
 // Navigate to unknown user
 //=================================================================
-void Navigation::nav_goto_detected_user()
+void Navigation::nav_goto_detected_user(t_user user)
 {
-	t_user user= irobot_->getDetectedUser();
+
 	ROS_INFO("[Navigation]:: Detected %s at %f m delta angle %f degree",user.name.c_str(),user.distance,user.angle);
 
 	user.distance = user.distance - APPROACH_DISTANCE > APPROACH_DISTANCE ? (user.distance - APPROACH_DISTANCE) : 0 ;
@@ -695,7 +697,7 @@ bool Navigation::detect_callback(std_srvs::Empty::Request& request, std_srvs::Em
 
 	if(user_recognized_)
 	{
-		nav_goto_detected_user();
+		nav_goto_detected_user(irobot_->getDetectedUser());
 
 		user_recognized_ = false;
 		irobot_->clearDetectedUser();
