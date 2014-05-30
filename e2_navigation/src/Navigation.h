@@ -47,6 +47,7 @@ class Navigation
 	    void nav_newTask();															// Start a new navigation task
 	    void nav_abortTask(); 														// Kill a current task
 	    void nav_abortTask(const ros::TimerEvent& e); 			// Kill a current task
+	    void nav_newLookingUser();
 
 	    void nav_clear();																	// Reset navigation status
 	    void nav_get_status(); 														// Print navigation info in console

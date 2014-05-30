@@ -118,7 +118,7 @@ public:
 			case 3: // Looking for user
 				ROS_DEBUG("["ROS_NODE_NAME"]:: Looking for users");
 				nav->nav_clear();
-
+				nav->nav_newLookingUser();
 				break;
 		}
 

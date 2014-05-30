@@ -68,6 +68,7 @@ void getVelocityCmd(const geometry_msgs::TwistConstPtr& msg )
 	triskar_msg.x = msg->linear.x;
 	triskar_msg.y = msg->linear.y;
 	triskar_msg.w = msg->angular.z;
+	
 }
 
 

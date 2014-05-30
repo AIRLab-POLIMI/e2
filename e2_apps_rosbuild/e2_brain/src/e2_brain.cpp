@@ -44,7 +44,7 @@
 //Interaction params
 #define INTERACTION_SAMPLES 60
 
-#define ROS_NODE_RATE	5
+#define ROS_NODE_RATE	1
 
 using namespace std;
 
@@ -272,13 +272,15 @@ int main(int argc, char **argv)
 	{
 		if(start)
 		{
-
+			ROS_INFO("IN THE LOOP");
 			/*==================================================================
 													Kinect_motor management
 			==================================================================*/
-
-			if(userPositionDataReady && userDistance < 1500)
+			/*
+			if(userPositionDataReady && userDistance < 1500 && navHandlerFree)
 			{
+				ROS_INFO("[e2_brain]:: kinect move");
+
 				if(userDistanceY > USER_Y_MIN_POSITION && kinectMotorFree)
 				{
 					kinectMotorFree = false;
@@ -295,11 +297,11 @@ int main(int argc, char **argv)
 				}
 			}
 
-
+			*/
 			/*==================================================================
 													Locate user
 			==================================================================*/
-			if(!userPositionDataReady)
+			if(!userPositionDataReady && navHandlerFree)
 			{
 				ROS_INFO("[e2_brain]:: Looking for user");
 				//Looking for user
@@ -311,7 +313,7 @@ int main(int argc, char **argv)
 			/*==================================================================
 													Vision data management
 			==================================================================*/
-			if(userPositionDataReady && userDistance < 1000)
+			if(userPositionDataReady && userDistance < 1000 && navHandlerFree)
 				visionDataCapture = true;
 			else
 			{

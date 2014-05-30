@@ -214,6 +214,16 @@ void Navigation::nav_newTask()
 }
 
 //=================================================================
+// Enable start Looking for user
+//=================================================================
+void Navigation::nav_newLookingUser()
+{
+        ROS_INFO("[Navigator]:: Looking for user");
+
+	en_auto_=true;
+}
+
+//=================================================================
 // Abort current task action
 //=================================================================
 void Navigation::nav_abortTask()

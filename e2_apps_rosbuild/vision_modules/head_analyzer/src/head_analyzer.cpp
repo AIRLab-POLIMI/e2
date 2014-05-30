@@ -191,7 +191,7 @@ int main(int argc, char **argv)
 	//cv::namedWindow("Head-Analyzer", CV_WINDOW_AUTOSIZE);
 
 	//ROS LOOP
-	ros::Rate r(30);
+	ros::Rate r(10);
 	while(ros::ok())
 	{
 		//Messages control variables initialization

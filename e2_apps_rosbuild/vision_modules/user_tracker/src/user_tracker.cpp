@@ -138,7 +138,7 @@ int main(int argc, char **argv)
 	//User's CoM messages
 	ros::Publisher pubCoM = nh.advertise<user_tracker::Com>("com", 1000);
 
-	ros::Rate r(20);
+	ros::Rate r(5);
 	while(ros::ok())	//ROS LOOP
 	{
 		//Update all data
