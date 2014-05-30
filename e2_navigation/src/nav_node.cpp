@@ -58,7 +58,7 @@ class Nav {
 
 public:
 	Nav(string name):
-		 nh(),
+		 nh("~"),
 		 as_(nh, name, boost::bind(&Nav::executeCB, this, _1), false)
 	{
 		goal_id_ = -99;
@@ -148,6 +148,8 @@ int main(int argc, char **argv)
 	ros::XMLRPCManager::instance()->bind("shutdown", shutdownCallback);
 
 	ros::Rate r(ROS_NODE_RATE);
+
+	Nav navigation(ROS_NODE_NAME);
 
 	// Start Navigation Controller
 	while(!g_request_shutdown)
