@@ -275,10 +275,10 @@ int main(int argc, char **argv)
 			/*==================================================================
 													Kinect_motor management
 			==================================================================*/
-			/*
+
 			if(userPositionDataReady && userDistance < 1500 && navHandlerFree)
 			{
-				ROS_INFO("[e2_brain]:: kinect move");
+				//ROS_INFO("[e2_brain]:: kinect move");
 
 				if(userDistanceY > USER_Y_MIN_POSITION && kinectMotorFree)
 				{
@@ -296,7 +296,6 @@ int main(int argc, char **argv)
 				}
 			}
 
-			*/
 			/*==================================================================
 													Locate user
 			==================================================================*/
