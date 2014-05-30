@@ -306,9 +306,9 @@ void Navigation::nav_goto(float distance,float deg_angle)
 //=================================================================
 void Navigation::nav_goto_detected_user()
 {
+	t_user user= irobot_->getDetectedUser();
 	ROS_DEBUG("[Navigation]:: Detected %s at %f m delta angle %f degree",user.name.c_str(),user.distance,user.angle);
 
-	t_user user= irobot_->getDetectedUser();
 	user.distance = user.distance - APPROACH_DISTANCE > APPROACH_DISTANCE ? (user.distance - APPROACH_DISTANCE) : 0 ;
 
 	nav_goto(user.distance,user.angle);	// We want the robot to keep a small distance from detection point
