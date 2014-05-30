@@ -65,21 +65,21 @@ int main(int argc, char **argv)
 	ros::Subscriber odom_sub= nh.subscribe("/odom", 10,&Navigation::odometry_callback,nav);
 
 	// Enable Services
-	ros::ServiceServer abort_service = nh.advertiseService(ROS_NODE_NAME"/nav_abort",&Navigation::abort_callback,nav);
-	ros::ServiceServer start_service = nh.advertiseService(ROS_NODE_NAME"/nav_start",&Navigation::start_callback,nav);
-	ros::ServiceServer goto_service = nh.advertiseService(ROS_NODE_NAME"/nav_goto",&Navigation::goto_callback,nav);
-	ros::ServiceServer auto_service = nh.advertiseService(ROS_NODE_NAME"/nav_auto",&Navigation::auto_engage_callback,nav);
+	ros::ServiceServer abort_service = nh.advertiseService(ROS_NODE_NAME"/nav_abort",&Navigation::abort_service,nav);
+	ros::ServiceServer start_service = nh.advertiseService(ROS_NODE_NAME"/nav_start",&Navigation::navigate_target_service,nav);
+	ros::ServiceServer goto_service = nh.advertiseService(ROS_NODE_NAME"/nav_goto",&Navigation::goto_service,nav);
+	ros::ServiceServer auto_service = nh.advertiseService(ROS_NODE_NAME"/nav_auto",&Navigation::find_user_service,nav);
 
-	ros::ServiceServer detect_service = nh.advertiseService(ROS_NODE_NAME"/test_detect",&Navigation::detect_callback,nav);
-	ros::ServiceServer talk_service = nh.advertiseService(ROS_NODE_NAME"/test_voice",&Navigation::talk_callback,nav);
-	ros::ServiceServer train_service = nh.advertiseService(ROS_NODE_NAME"/test_train",&Navigation::train_callback,nav);
-	ros::ServiceServer neck_service = nh.advertiseService(ROS_NODE_NAME"/test_neck",&Navigation::neck_callback,nav);
-	ros::ServiceServer motor_service = nh.advertiseService(ROS_NODE_NAME"/test_kinect_motor",&Navigation::motor_callback,nav);
+	ros::ServiceServer detect_service = nh.advertiseService(ROS_NODE_NAME"/test_detect",&Navigation::detect_service,nav);
+	ros::ServiceServer talk_service = nh.advertiseService(ROS_NODE_NAME"/test_voice",&Navigation::talk_service,nav);
+	ros::ServiceServer train_service = nh.advertiseService(ROS_NODE_NAME"/test_train",&Navigation::train_service,nav);
+	ros::ServiceServer neck_service = nh.advertiseService(ROS_NODE_NAME"/test_neck",&Navigation::neck_service,nav);
+	ros::ServiceServer motor_service = nh.advertiseService(ROS_NODE_NAME"/test_kinect_motor",&Navigation::kinect_service,nav);
 
 	// Start Navigation Controller
 	while(!g_request_shutdown)
 	{
-		nav->controller();
+		nav->ActionController();
 		ros::spinOnce();
 		r.sleep();
 	}

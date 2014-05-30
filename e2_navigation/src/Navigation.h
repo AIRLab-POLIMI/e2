@@ -1,8 +1,6 @@
 /*
  * Navigation.h - AIRLab (Politecnico di Milano)
  * 
- * description
- *
  *  Author:  Lorenzo Ripani 
  *  Email: ripani.lorenzo@gmail.com
  *
@@ -42,38 +40,30 @@ class Navigation
 		~Navigation();
 
 		// Navigation functions
-	    void controller(); 																// Navigation controller loop
+	    void ActionController(); 																// Navigation controller loop
 
-	    void nav_newTask();															// Start a new navigation task
-	    void nav_abortTask(); 														// Kill a current task
-	    void nav_abortTask(const ros::TimerEvent& e); 			// Kill a current task
-	    void nav_newLookingUser();
-	    bool nav_is_action_completed();
+	    void NavigateTarget();							 							// Start a new navigation task
+	    void LookingUser();															// Start looking for user in the ambient
 
-	    void nav_clear();																	// Reset navigation status
-	    void nav_get_status(); 														// Print navigation info in console
-	    void nav_goto(string name);											// Navigate to known location
-	    void nav_goto(MBGoal goal);											// Navigate to known location
-	    void nav_goto(float distance,float angle);					// Navigate to new position given angle and distance
-	    void nav_goto_detected_user(t_user user);					//	go to the last position of detected user
-	    bool nav_is_goal_reached();											//	check if navigatation goal is reached
-	    void nav_random_path();													//	Create a random navigation path
-	    void nav_wait();
+	    void ActionAbort(); 															// Kill a current action
+	    void ActionAbort(const ros::TimerEvent& e); 				// Kill a current action for timer
+	    bool isActionCompleted();												// Check if an action is completed
+	    void ActionReset();															// Reset navigation status
 
-		void user_detect(string user_name); 								// Detect user face and check if it's the last trained person
-		void user_recover(string user_name);							// Recover User following the path of last position detection
-		void user_detectTimer(const ros::TimerEvent& e); 	// Timer to be fired after timeout
+	    void getNavStatus(); 														// Print navigation info in console
 
 		// Define services
-		bool abort_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
-		bool detect_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
-		bool goto_callback(e2_msgs::Goto::Request& request, e2_msgs::Goto::Response& response);
-		bool start_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
-		bool neck_callback(e2_msgs::NeckAction::Request& request, e2_msgs::NeckAction::Response& response);
-		bool train_callback(e2_msgs::Train::Request& request, e2_msgs::Train::Response& response);
-		bool talk_callback(e2_msgs::Talk::Request& request, e2_msgs::Talk::Response& response);
-		bool auto_engage_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
-		bool motor_callback(e2_msgs::MotorAngle::Request& request, e2_msgs::MotorAngle::Response& response);
+		bool abort_service(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
+		bool detect_service(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
+		bool goto_service(e2_msgs::Goto::Request& request, e2_msgs::Goto::Response& response);
+
+		bool kinect_service(e2_msgs::MotorAngle::Request& request, e2_msgs::MotorAngle::Response& response);
+		bool neck_service(e2_msgs::NeckAction::Request& request, e2_msgs::NeckAction::Response& response);
+		bool train_service(e2_msgs::Train::Request& request, e2_msgs::Train::Response& response);
+		bool talk_service(e2_msgs::Talk::Request& request, e2_msgs::Talk::Response& response);
+
+		bool find_user_service(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
+		bool navigate_target_service(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
 
 		void odometry_callback(const nav_msgs::Odometry::ConstPtr& msg);
 
@@ -88,17 +78,29 @@ class Navigation
 		RobotInterface *irobot_;
 		MoveBaseGoal last_user_detection_;
 
+		// Services & subscribers
+		ros::Subscriber odom_sub_;
+		ros::ServiceServer abort_service_;
+		ros::ServiceServer navigate_target_service_;
+		ros::ServiceServer find_user_service_;
+		ros::ServiceServer goto_service_;
+		ros::ServiceServer detect_service_;
+		ros::ServiceServer talk_service_;
+		ros::ServiceServer train_service_;
+		ros::ServiceServer neck_service_;
+		ros::ServiceServer motor_service_;
+
 	    // Stand Location and speech data
 		Marker *markers_;
 		Speech *speechs_;
 
 		int marker_size_,speech_size_;
-		string base_name_,target_name_,god_name_,guest_name_;
+		string base_name_,target_name_,guest_name_;
 
 		int pass_count_;
 
-		bool en_auto_;							//	If true the robot will start to randomly navigate in the ambient looking for people
-		bool active_task_;					//if there's an active task
+		bool find_user_;							//	If true the robot will start to randomly navigate in the ambient looking for people
+		bool navigate_target;					//if there's an active task
 	    bool path_planned_;				// if the robot is following a navigation path
 	    bool path_to_user_;				// true if the robot is following a path to reach a user
 	    bool user_recognized_;			// User recognized by facerecognition
@@ -115,6 +117,19 @@ class Navigation
 		string get_speech_by_name(string name);
 		string get_random_speech(string what);
 		MBGoal get_marker_by_name(string name);
+
+	    void nav_goto(string name);											// Navigate to known location
+	    void nav_goto(MBGoal goal);											// Navigate to known location
+	    void nav_goto(float distance,float angle);					// Navigate to new position given angle and distance
+	    void nav_goto_detected_user(t_user user);				//	go to the last position of detected user
+	    bool nav_is_goal_reached();											//	check if navigatation goal is reached
+	    void nav_random_path();													//	Create a random navigation path
+	    void nav_wait();
+
+		void user_detect(string user_name); 								// Detect user face and check if it's the last trained person
+		void user_recover(string user_name);							// Recover User following the path of last position detection
+		void user_detectTimer(const ros::TimerEvent& e); 	// Timer to be fired after timeout
+
 
 };
 

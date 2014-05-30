@@ -67,8 +67,8 @@ RobotInterface::~RobotInterface()
 //=================================================================
 void RobotInterface::base_setGoal(MBGoal goal)
 {
-	ROS_INFO	("[IRobot]:: Received new goal: %f , %f , %f ",goal.target_pose.pose.position.x,goal.target_pose.pose.position.y,goal.target_pose.pose.position.z);
-	ROS_INFO	("[IRobot]:: Orientation z, w : %f , %f",goal.target_pose.pose.orientation.z,goal.target_pose.pose.orientation.w);
+	ROS_DEBUG	("[IRobot]:: Received new goal: %f , %f , %f ",goal.target_pose.pose.position.x,goal.target_pose.pose.position.y,goal.target_pose.pose.position.z);
+	ROS_DEBUG	("[IRobot]:: Orientation z, w : %f , %f",goal.target_pose.pose.orientation.z,goal.target_pose.pose.orientation.w);
 	ac_mb->sendGoal(goal);
 }
 

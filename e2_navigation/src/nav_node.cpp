@@ -90,34 +90,29 @@ public:
 				as_.setAborted();
 				break;
 			case 1:	// Start Navigation for interested people
-				ROS_DEBUG("["ROS_NODE_NAME"]:: Start Navigation Task");
-				//nav->nav_clear();
-				nav->nav_newTask();
-
+				ROS_DEBUG("["ROS_NODE_NAME"]:: Start navigation to target");
+				nav->NavigateTarget();
 				break;
 			case 2:	// Aproach user
-				ROS_DEBUG("["ROS_NODE_NAME"]:: Aproach user");
-				//nav->nav_clear();
-				nav->nav_goto(msg->distance,msg->angle);
+				ROS_DEBUG("["ROS_NODE_NAME"]:: Aproaching user");
 				break;
 			case 3: // Looking for user
 				ROS_DEBUG("["ROS_NODE_NAME"]:: Looking for users");
-				//nav->nav_clear();
-				nav->nav_newLookingUser();
+				nav->LookingUser();
 				break;
 		}
 
 		ros::Rate rate(ROS_NODE_RATE);
 
 		// Start Navigation Controller
-		while(!g_request_shutdown && !nav->nav_is_action_completed())
+		while(!g_request_shutdown && !nav->isActionCompleted())
 		{
-			nav->controller();
+			nav->ActionController();
 			ros::spinOnce();
 			rate.sleep();
 		}
-		nav->nav_clear();
 
+		nav->ActionReset();
 		as_.setSucceeded();
 
 		ROS_DEBUG("["ROS_NODE_NAME"]:: Action completed");
@@ -154,6 +149,10 @@ int main(int argc, char **argv)
 	// Start Navigation Controller
 	while(!g_request_shutdown)
 	{
+		 if(nav->isActionCompleted())
+			 nav->ActionReset();
+
+		nav->ActionController();
 
 		ros::spinOnce();
 		r.sleep();
