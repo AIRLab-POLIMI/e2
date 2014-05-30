@@ -48,6 +48,7 @@ class Navigation
 	    void nav_abortTask(); 														// Kill a current task
 	    void nav_abortTask(const ros::TimerEvent& e); 			// Kill a current task
 	    void nav_newLookingUser();
+	    bool nav_is_action_completed();
 
 	    void nav_clear();																	// Reset navigation status
 	    void nav_get_status(); 														// Print navigation info in console
@@ -101,6 +102,7 @@ class Navigation
 	    bool path_planned_;				// if the robot is following a navigation path
 	    bool path_to_user_;				// true if the robot is following a path to reach a user
 	    bool user_recognized_;			// User recognized by facerecognition
+	    bool action_completed_;
 
 		void setUserDetection(bool status);	// Set new position for user detection
 

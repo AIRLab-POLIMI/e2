@@ -123,13 +123,15 @@ public:
 		}
 
 		ros::Rate rate(ROS_NODE_RATE);
+
 		// Start Navigation Controller
-		while(!g_request_shutdown)
+		while(!g_request_shutdown && nav->nav_is_action_completed())
 		{
 			nav->controller();
 			ros::spinOnce();
 			rate.sleep();
 		}
+		nav->nav_clear();
 
 		as_.setSucceeded();
 

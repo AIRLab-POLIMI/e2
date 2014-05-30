@@ -32,6 +32,7 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 	path_planned_  = false;
 	path_to_user_   = false;
 	user_recognized_ = false;
+	action_completed_ = false;
 
 	initial_time_ = ros::Time::now();
 
@@ -94,7 +95,6 @@ void Navigation::controller()
 	if(strcasecmp(irobot_->get_battery_status(),"LOW") == 0)
 	{
 		ROS_INFO("[Navigation]:: WARNING ! Battery Low, go to base to refill");
-		nav_clear();
 		irobot_->robot_talk(get_speech_by_name("battery_empty"));
 		nav_goto(base_name_);
 	}
@@ -136,7 +136,7 @@ void Navigation::controller()
 			{
 				irobot_->neck_action(1,2); 	// happy face
 				irobot_->robot_talk(get_speech_by_name("complete"),true);
-				nav_clear();
+				action_completed_ = true;
 			}
 
 		}
@@ -174,7 +174,7 @@ void Navigation::controller()
 			if(user_recognized_)
 			{
 			   en_auto_=false;
-			   nav_clear();
+			   action_completed_ = true;
 			}
 			else
 			{
@@ -224,6 +224,14 @@ void Navigation::nav_newTask()
 }
 
 //=================================================================
+// Check Action status
+//=================================================================
+bool Navigation::nav_is_action_completed()
+{
+	return action_completed_ ;
+}
+
+//=================================================================
 // Enable start Looking for user
 //=================================================================
 void Navigation::nav_newLookingUser()
@@ -267,7 +275,7 @@ void Navigation::nav_clear()
 	path_planned_  = false;
 	path_to_user_   = false;
 	user_recognized_ = false;
-
+	action_completed_ = false;
 	abort_timeout_.stop();
 	detect_timeout_.stop();
 	sleep(2);
