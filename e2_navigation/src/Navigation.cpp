@@ -710,6 +710,7 @@ bool Navigation::find_user_service(std_srvs::Empty::Request& request, std_srvs::
 //=====================================
 bool Navigation::goto_service(e2_msgs::Goto::Request& request, e2_msgs::Goto::Response& response)
 {
+	/*
 	if(marker_exist(request.location))
 	{
 		nav_goto(request.location);
@@ -718,7 +719,9 @@ bool Navigation::goto_service(e2_msgs::Goto::Request& request, e2_msgs::Goto::Re
 	}
 	response.result = false;
 	return false;
-
+*/
+	nav_goto(2,30);
+	return true;
 }
 
 //=====================================
