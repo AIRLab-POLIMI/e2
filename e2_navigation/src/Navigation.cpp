@@ -674,7 +674,25 @@ void Navigation::loadSpeakData(YAML::Node& doc)
 //=====================================
 void Navigation::odometry_callback(const nav_msgs::Odometry::ConstPtr& msg)
 {
-	ROS_DEBUG("[Odometry]:: Odometry pose x,y,z: [%f,%f,%f]: ", msg->pose.pose.position.x,msg->pose.pose.position.y,msg->pose.pose.position.z);
+
+	tf::StampedTransform transform;
+	Pose pose;
+
+	try{
+		listener_.lookupTransform("/map", "/base_link", ros::Time(0), transform);
+		pose.position.x = transform.getOrigin().x();
+		pose.position.y = transform.getOrigin().y();
+		pose.position.z = 0.0;
+
+		pose.orientation.z = transform.getRotation().getZ();
+		pose.orientation.w = transform.getRotation().getW();
+	}
+	catch (tf::TransformException ex){
+		ROS_ERROR("%s",ex.what());
+	}
+
+	ROS_INFO("[Odometry]:: Odometry pose x,y,z: [%f,%f]: ",pose.position.x,pose.position.y );
+	ROS_INFO("[Odometry]:: Odometry orient z,w: [%f,%f]: ", pose.orientation.z,pose.orientation.w);
 	irobot_->setRobotPose(msg->pose.pose);
 }
 

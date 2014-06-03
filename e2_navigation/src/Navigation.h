@@ -20,6 +20,7 @@
 #include "e2_msgs/NeckAction.h"
 #include "e2_msgs/MotorAngle.h"
 #include "std_srvs/Empty.h"
+#include <tf/transform_listener.h>
 
 #include <stdlib.h>
 
@@ -105,6 +106,8 @@ class Navigation
 	    bool path_to_user_;				// true if the robot is following a path to reach a user
 	    bool user_recognized_;			// User recognized by facerecognition
 	    bool action_completed_;
+
+	    tf::TransformListener listener_;
 
 		void setUserDetection(bool status);	// Set new position for user detection
 
