@@ -58,7 +58,7 @@ class Nav {
 
 public:
 	Nav(string name):
-		 nh("~"),
+		 nh(),
 		 as_(nh, name, boost::bind(&Nav::executeCB, this, _1), false)
 	{
 		goal_id_ = -99;
@@ -95,6 +95,7 @@ public:
 				break;
 			case 2:	// Aproach user
 				ROS_DEBUG("["ROS_NODE_NAME"]:: Aproaching user");
+				nav->AproachUser(msg->distance,msg->angle);
 				break;
 			case 3: // Looking for user
 				ROS_DEBUG("["ROS_NODE_NAME"]:: Looking for users");

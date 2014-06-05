@@ -1,18 +1,19 @@
 <package>
-  <description brief="e2_brain">
+  <description brief="kinect_motor">
 
-     e2_brain
+     kinect_motor
 
   </description>
   <author>Cristian</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/e2_brain</url>
+  <url>http://ros.org/wiki/kinect_motor</url>
   <depend package="roscpp"/>
-  <depend package="user_tracker"/>
-  <depend package="head_analyzer"/>
+  <depend package="roslib"/>
   <depend package="actionlib"/>
-  <depend package="kinect_motor"/>
+  <depend package="sensor_msgs"/>
+  <depend package="std_msgs"/>
+
 </package>
 
 

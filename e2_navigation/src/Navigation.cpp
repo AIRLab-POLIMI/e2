@@ -118,6 +118,7 @@ void Navigation::ActionController()
 	==================================================================*/
 	else if(navigate_target)
 	{
+		irobot_->kinect_motor(15);
 
 		if(!path_planned_)
 		{
@@ -162,6 +163,68 @@ void Navigation::ActionController()
 	==================================================================*/
 	else if (find_user_)
 	{
+
+		if(!path_planned_)
+		{
+			nav_random_path();			// Ramdom navigation
+			path_planned_ = true;
+		}
+		else if(user_recognized_)
+		{
+			if(irobot_->getDetectedUser().distance == 0)
+			{
+				irobot_->neck_action(1,2); 	// happy face
+				action_completed_ =true;
+			}
+			if(irobot_->getDetectedUser().distance < 4)
+			{
+
+				// Robot just find someone. Go toward him
+				nav_goto_detected_user(irobot_->getDetectedUser());
+
+				irobot_->clearDetectedUser();
+				user_recognized_= false;		// Set path just once
+				path_to_user_ = true;			// Set following user path
+			}
+
+		}
+		else if(!path_to_user_)
+		{
+			user_detect("unknown");
+		}
+
+
+		if(strcmp(irobot_->base_getStatus().c_str(),"ABORTED")==0)
+		{
+
+			if(path_to_user_)
+				path_to_user_= false;
+
+			path_planned_ = false;
+		}
+		else if(strcmp(irobot_->base_getStatus().c_str(),"SUCCEEDED")==0)
+		{
+			user_detect("unknown");
+
+			if(user_recognized_)
+			{
+				find_user_= false;
+				action_completed_ = true;
+				irobot_->neck_action(1,2); 	// happy face
+			}
+			else
+			{
+				path_planned_ = false;
+				path_to_user_= false;
+			}
+
+		}
+
+	}
+	else if (aproach_user_)
+	{
+		irobot_->kinect_motor(15);
+		/*
 		if(!path_planned_)
 		{
 			nav_random_path();			// Ramdom navigation
@@ -207,9 +270,8 @@ void Navigation::ActionController()
 			}
 
 		}
-
+*/
 	}
-
 }
 
 //=================================================================
@@ -244,6 +306,7 @@ void Navigation::ActionReset()
 	pass_count_= 0;
 	navigate_target = false;
 	find_user_= false;
+	aproach_user_ = false;
 
 	action_completed_ = false;
 	path_planned_  = false;
@@ -254,6 +317,10 @@ void Navigation::ActionReset()
 	detect_timeout_.stop();
 
 	sleep(2);	//	Sleep a bit
+
+	irobot_->neck_action(2,1);		// Staigth neck position
+	irobot_->neck_action(1,1);
+
 }
 
 //=================================================================
@@ -306,11 +373,16 @@ bool Navigation::isActionCompleted()
 //=================================================================
 void Navigation::LookingUser()
 {
-        ROS_INFO("[Navigator]:: Looking for user");
+	ROS_INFO("[Navigator]:: Looking for user");
 
 	find_user_=true;
 }
 
+void Navigation::AproachUser(float distance, float angle)
+{
+	ROS_INFO("[Navigator]:: Aproach user");
+	aproach_user_ = true;
+}
 
 //=================================================================
 // Navigate to goal position
@@ -691,9 +763,9 @@ void Navigation::odometry_callback(const nav_msgs::Odometry::ConstPtr& msg)
 		ROS_ERROR("%s",ex.what());
 	}
 
-	ROS_INFO("[Odometry]:: Odometry pose x,y,z: [%f,%f]: ",pose.position.x,pose.position.y );
-	ROS_INFO("[Odometry]:: Odometry orient z,w: [%f,%f]: ", pose.orientation.z,pose.orientation.w);
-	irobot_->setRobotPose(msg->pose.pose);
+	//ROS_DEBUG("[Odometry]:: Odometry pose x,y,z: [%f,%f]: ",pose.position.x,pose.position.y );
+	//ROS_DEBUG("[Odometry]:: Odometry orient z,w: [%f,%f]: ", pose.orientation.z,pose.orientation.w);
+	irobot_->setRobotPose(pose);
 }
 
 //=====================================
@@ -728,7 +800,7 @@ bool Navigation::find_user_service(std_srvs::Empty::Request& request, std_srvs::
 //=====================================
 bool Navigation::goto_service(e2_msgs::Goto::Request& request, e2_msgs::Goto::Response& response)
 {
-	/*
+	
 	if(marker_exist(request.location))
 	{
 		nav_goto(request.location);
@@ -737,8 +809,7 @@ bool Navigation::goto_service(e2_msgs::Goto::Request& request, e2_msgs::Goto::Re
 	}
 	response.result = false;
 	return false;
-*/
-	nav_goto(2,30);
+
 	return true;
 }
 

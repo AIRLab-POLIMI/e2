@@ -22,6 +22,7 @@
 #include "std_srvs/Empty.h"
 #include "std_msgs/Float64.h"
 //Actionlib
+#include <kinect_motor/KinectAction.h>
 #include <e2_voice/VoiceAction.h>
 #include <e2_navigation/NavAction.h>
 #include <e2_neck_controller/NeckAction.h>
@@ -44,7 +45,7 @@
 //Interaction params
 #define INTERACTION_SAMPLES 60
 
-#define ROS_NODE_RATE	1
+#define ROS_NODE_RATE	5
 
 using namespace std;
 
@@ -52,7 +53,7 @@ using namespace std;
 typedef actionlib::SimpleActionClient<e2_voice::VoiceAction> VoiceClient;
 typedef actionlib::SimpleActionClient<e2_navigation::NavAction> NavClient;
 typedef actionlib::SimpleActionClient<e2_neck_controller::NeckAction> NeckClient;
-//typedef actionlib::SimpleActionClient<kinect_motor::KinectAction> KinectClient;
+typedef actionlib::SimpleActionClient<kinect_motor::KinectAction> KinectClient;
 
 //Enum
 enum transaction { INTERESTED, NOT_INTERESTED };
@@ -151,19 +152,19 @@ apiCode activationAPI;
 void voiceDoneCallback(const actionlib::SimpleClientGoalState& state, const e2_voice::VoiceResultConstPtr& result);
 void navDoneCallback(const actionlib::SimpleClientGoalState& state,  const e2_navigation::NavResultConstPtr& result);
 void neckDoneCallback(const actionlib::SimpleClientGoalState& state,  const e2_neck_controller::NeckResultConstPtr& result);
-//void kinectDoneCallback(const actionlib::SimpleClientGoalState& state, const kinect_motor::KinectResultConstPtr& result);
+void kinectDoneCallback(const actionlib::SimpleClientGoalState& state, const kinect_motor::KinectResultConstPtr& result);
 
 //Server action activated callbacks
 void voiceActiveCallback();
 void navActiveCallback();
 void neckActiveCallback();
-//void kinectActiveCallback();
+void kinectActiveCallback();
 
 //Server action feedBack callback
 void voiceFeedbackCallback(const e2_voice::VoiceFeedbackConstPtr& feed);
 void navFeedbackCallback(const e2_navigation::NavFeedbackConstPtr& feed);
 void neckFeedbackCallback(const e2_neck_controller::NeckFeedbackConstPtr& feed);
-//void kinectFeedbackCallback(const kinect_motor::KinectFeedbackConstPtr& feed);
+void kinectFeedbackCallback(const kinect_motor::KinectFeedbackConstPtr& feed);
 
 //Messages callbacks
 void getUserPositionData(const user_tracker::Com com);
@@ -223,8 +224,6 @@ int main(int argc, char **argv)
 	ros::Subscriber subUserEyesData = nh.subscribe("eyesData", 10, getUserEyesData);
 	ros::Subscriber subUserMoveData = nh.subscribe("moveData", 10, getUserMoveData);
 
-	ros::Publisher kinect_pub_ = nh.advertise<std_msgs::Float64>("tilt_angle", 1000);
-
 	ros::ServiceServer start_service = nh.advertiseService("e2_brain/start",start_callback);
 	
 	//Load state machines that controls the interaction process
@@ -245,31 +244,41 @@ int main(int argc, char **argv)
 	VoiceClient voiceClient("e2_voice_node", true);
 	NeckClient neckClient("e2_neck_controller", true);
 	NavClient navClient("e2_nav",true);
-	//KinectClient kinectClient("kinect_motor", true);
+	KinectClient kinectClient("kinect_motor", true);
 	
 	//Servers goal definitions
 	e2_voice::VoiceGoal voiceGoal;
 	e2_navigation::NavGoal navGoal;
 	e2_neck_controller::NeckGoal neckGoal;
-	std_msgs::Float64 kinectGoal;
+	kinect_motor::KinectGoal kinectGoal;
 	
 	//Wait for servers
-	voiceClient.waitForServer();
-	navClient.waitForServer();
-	neckClient.waitForServer();
+        while (!navClient.waitForServer(ros::Duration(5.0)))
+                ROS_INFO("[e2_brain]:: Waiting for the navigation action server to come up");
+        while (!voiceClient.waitForServer(ros::Duration(5.0)))
+                ROS_INFO("[IRobot]:: Waiting for the voice action server to come up");
+        while (!neckClient.waitForServer(ros::Duration(5.0)))
+                ROS_INFO("[IRobot]:: Waiting for the neck action server to come up");
+        while (!kinectClient.waitForServer(ros::Duration(5.0)))
+                    ROS_INFO("[IRobot]:: Waiting for the kinect action server to come up");
+
+	//voiceClient.waitForServer();
+	//navClient.waitForServer();
+	//neckClient.waitForServer();
 	//kinectClient.waitForServer();
 	ROS_INFO("[e2_brain]::Servers connected ... [OK]");
 	
 	//KinectMotor initializations
 
-	//kinectGoal.tilt = -100;
-	//kinectClient.sendGoal(kinectGoal, &kinectDoneCallback, &kinectActiveCallback, &kinectFeedbackCallback);
-	//kinectMotorFree = false;
+	kinectGoal.tilt = -100;
+	kinectClient.sendGoal(kinectGoal, &kinectDoneCallback, &kinectActiveCallback, &kinectFeedbackCallback);
+	kinectMotorFree = false;
 
 	//RosLoop
 	ros::Rate r(ROS_NODE_RATE);
 	while(ros::ok())
 	{
+	
 		if(start)
 		{
 			/*==================================================================
@@ -283,16 +292,14 @@ int main(int argc, char **argv)
 				if(userDistanceY > USER_Y_MIN_POSITION && kinectMotorFree)
 				{
 					kinectMotorFree = false;
-					kinectGoal.data = -2;
-					//kinectClient.sendGoal(kinectGoal, &kinectDoneCallback, &kinectActiveCallback, &kinectFeedbackCallback);
-					kinect_pub_.publish(kinectGoal);
+					kinectGoal.tilt = -2;
+					kinectClient.sendGoal(kinectGoal, &kinectDoneCallback, &kinectActiveCallback, &kinectFeedbackCallback);
 				}
 				else if(userDistanceY < USER_Y_MAX_POSITION && kinectMotorFree)
 				{
 					kinectMotorFree = false;
-					kinectGoal.data = 2;
-					//kinectClient.sendGoal(kinectGoal, &kinectDoneCallback, &kinectActiveCallback, &kinectFeedbackCallback);
-					kinect_pub_.publish(kinectGoal);
+					kinectGoal.tilt = 2;
+					kinectClient.sendGoal(kinectGoal, &kinectDoneCallback, &kinectActiveCallback, &kinectFeedbackCallback);
 				}
 			}
 
@@ -313,9 +320,9 @@ int main(int argc, char **argv)
 			==================================================================*/
 			if(userPositionDataReady && userDistance < 1000 && navHandlerFree)
 				visionDataCapture = true;
-			else
+			else if(userPositionDataReady && userDistance > 1000 && navHandlerFree)
 			{
-				//ROS_INFO("[e2_brain]:: Aproach user, %d",userDistance);
+				ROS_INFO("[e2_brain]:: Aproach user, %d",userDistance);
 				//Aproach user
 				//navGoal.action_id = 2;
 				//navGoal.angle=0;
@@ -394,7 +401,8 @@ int main(int argc, char **argv)
 					if (userData.distance > 0) {setStatusValue(-1, 1);}
 					else if (userData.distance == 0) {setStatusValue(1, 0);}
 					else if (userData.distance < 0) {setStatusValue(2, -2);}
-					
+					ROS_INFO("qui ci sono");
+
 					//User Ratio and Roll analysis
 					userData.headData.roll = getUserHeadRollBehaviour(&dataVectors.userHeadRollVect, &dataVectors.userHeadRatioVect);
 					ROS_ERROR("userHeadRollVector -> [OK]");
@@ -818,7 +826,16 @@ int getUserRightEyeRatioBehaviour(vector<float>* rightEyeRatio)
 {
 	int result = 0;
 	
-	result = getVectorOutputValue(rightEyeRatio);
+	if(rightEyeRatio->empty())
+	{
+		result = 0;
+	}
+	else
+	{
+		result = getVectorOutputValue(rightEyeRatio);
+	}
+
+
 	
 	return result;
 }
@@ -830,7 +847,16 @@ int getUserLeftEyeRatioBehaviour(vector<float>* leftEyeRatio)
 {
 	int result = 0;
 	
-	result = getVectorOutputValue(leftEyeRatio);
+	if(leftEyeRatio->empty())
+	{
+		result = 0;
+	}
+	else
+	{
+		result = getVectorOutputValue(leftEyeRatio);
+	}
+
+
 	
 	return result;
 }
@@ -842,8 +868,15 @@ int getUserHeadPitchBehaviour(vector<int>* pitch)
 {
 	int result = 0;
 	
-	//Detect biggest behaviour inside vector
-	result = getVectorOutputValue(pitch);
+	if(pitch->empty())
+	{
+		result = 0;
+	}
+	else
+	{
+		//Detect biggest behaviour inside vector
+		result = getVectorOutputValue(pitch);
+	}
 
 	return result;
 }
@@ -855,8 +888,15 @@ int getUserHeadRollBehaviour(vector<int>* roll, vector<float>* ratio)
 {
 	int result = 0;
 
-	//Detect biggest behaviour inside vector
-	result = getVectorOutputValue(roll);
+	if(roll->empty())
+	{
+		result = 0;
+	}
+	else
+	{
+		//Detect biggest behaviour inside vector
+		result = getVectorOutputValue(roll);
+	}
 	
 	return result;
 }
@@ -868,9 +908,16 @@ int getUserDistanceBehaviour(vector<int>* distance)
 {
 	int result = 0;
 	
-	//Detect biggest behaviour inside vector
-	result = getVectorOutputValue(distance);
-	
+	if(distance->empty())
+	{
+		result = 0;
+	}
+	else
+	{
+		//Detect biggest behaviour inside vector
+		result = getVectorOutputValue(distance);
+	}
+
 	return result;
 }
 
@@ -967,10 +1014,10 @@ void neckFeedbackCallback(const e2_neck_controller::NeckFeedbackConstPtr& feed)
 
 //======================================================================
 //======================================================================
-void navDoneCallback(const actionlib::SimpleClientGoalState& state,
-											 const e2_navigation::NavResultConstPtr& result)
+void navDoneCallback(const actionlib::SimpleClientGoalState& state,const e2_navigation::NavResultConstPtr& result)
 {
 	navHandlerFree = true;
+	ROS_INFO("NAVIS FREEEEEEEEEEEEEEEeee");
 }
 
 //======================================================================
@@ -991,19 +1038,19 @@ bool start_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response
 
 //======================================================================
 //======================================================================
-/*
+
 void kinectDoneCallback(const actionlib::SimpleClientGoalState& state,
 											 const kinect_motor::KinectResultConstPtr& result)
 {
 	//ROS_INFO("[e2_brain]::Kinect motor set point reached [exit status %d]", (int)result->status);
 	kinectMotorFree = true;
 }
-*/
+
 //======================================================================
 //======================================================================
-//void kinectActiveCallback(){}
+void kinectActiveCallback(){}
 
 
 //======================================================================
 //======================================================================
-//void kinectFeedbackCallback(const kinect_motor::KinectFeedbackConstPtr& feed){}
+void kinectFeedbackCallback(const kinect_motor::KinectFeedbackConstPtr& feed){}

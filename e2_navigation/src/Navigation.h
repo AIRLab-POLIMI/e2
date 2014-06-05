@@ -45,6 +45,7 @@ class Navigation
 
 	    void NavigateTarget();							 							// Start a new navigation task
 	    void LookingUser();															// Start looking for user in the ambient
+	    void AproachUser(float distance, float angle);
 
 	    void ActionAbort(); 															// Kill a current action
 	    void ActionAbort(const ros::TimerEvent& e); 				// Kill a current action for timer
@@ -100,6 +101,7 @@ class Navigation
 
 		int pass_count_;
 
+		bool aproach_user_;
 		bool find_user_;							//	If true the robot will start to randomly navigate in the ambient looking for people
 		bool navigate_target;					//if there's an active task
 	    bool path_planned_;				// if the robot is following a navigation path

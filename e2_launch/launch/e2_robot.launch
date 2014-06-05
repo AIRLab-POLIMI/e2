@@ -19,7 +19,7 @@
   	<node name="e2_voice_node" pkg="e2_voice" type="e2_voice_node" respawn="false" output="screen" />
   	
   	<!-- Kinect Motor-->
-  	<node name="kinect_aux_node" pkg="kinect_aux" type="kinect_aux_node" respawn="false" output="screen" />
+  	<node pkg="kinect_motor" name="kinect_motor" type="kinect_motor"/>
     
     <!-- Brain Node-->
     <include file="$(find e2_brain)/launch/e2_brain.launch" />

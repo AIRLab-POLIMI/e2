@@ -12,6 +12,8 @@
 #define ROS_NODE_RATE	10
 #define ROS_NODE_NAME	"e2_nav_messages"
 
+#define SMOOTH_MESSAGES 4
+
 #include "ros/ros.h"
 #include "r2p/Velocity.h"
 #include "geometry_msgs/Twist.h"
@@ -22,7 +24,8 @@ void getVelocityCmd(const geometry_msgs::TwistConstPtr& msg );
 
 ros::Subscriber sub_cmd_vel;
 ros::Publisher pub_triskar_vel ;
-r2p::Velocity triskar_msg;
+r2p::Velocity triskar_curr_msg;
+r2p::Velocity triskar_prev_msg;
 
 int main(int argc, char **argv)
 {
@@ -47,11 +50,11 @@ int main(int argc, char **argv)
 	  {
 		  
 
-		  pub_triskar_vel.publish(triskar_msg);
+		  pub_triskar_vel.publish(triskar_curr_msg);
 
-		  triskar_msg.x = 0.0;
-		  triskar_msg.y = 0.0;
-		  triskar_msg.w = 0.0;
+		  triskar_curr_msg.x = 0.0;
+		  triskar_curr_msg.y = 0.0;
+		  triskar_curr_msg.w = 0.0;
 		
 		  ros::spinOnce();
 		  r.sleep();
@@ -66,10 +69,109 @@ void getVelocityCmd(const geometry_msgs::TwistConstPtr& msg )
 {
 	ROS_DEBUG("["ROS_NODE_NAME"]:: Received vel cmd");
 
-	triskar_msg.x = msg->linear.x;
-	triskar_msg.y = msg->linear.y;
-	triskar_msg.w = msg->angular.z;
-	
+	triskar_prev_msg = triskar_curr_msg;
+
+	triskar_curr_msg.x = msg->linear.x;
+	triskar_curr_msg.y = msg->linear.y;
+	triskar_curr_msg.w = msg->angular.z;
+
+	r2p::Velocity triskar_smooth_msg;
+/*
+	if(triskar_curr_msg.x > triskar_prev_msg.x  && triskar_curr_msg.w > triskar_prev_msg.w)
+	{
+		float delta_x = triskar_curr_msg.x - triskar_prev_msg.x;
+		float delta_w = triskar_curr_msg.w - triskar_prev_msg.w;
+
+		float acc_x = delta_x / SMOOTH_MESSAGES ;
+		float acc_w = delta_w / SMOOTH_MESSAGES ;
+
+		triskar_smooth_msg.x = triskar_prev_msg.x + acc_x;
+		triskar_smooth_msg.w = triskar_prev_msg.w + acc_w;
+		triskar_smooth_msg.y = 0 ;
+
+		pub_triskar_vel.publish(triskar_smooth_msg);
+
+		triskar_smooth_msg.x += acc_x;
+		triskar_smooth_msg.w += acc_w;
+		pub_triskar_vel.publish(triskar_smooth_msg);
+
+		triskar_smooth_msg.x += acc_x;
+		triskar_smooth_msg.w += acc_w;
+		pub_triskar_vel.publish(triskar_smooth_msg);
+
+		triskar_smooth_msg.x += acc_x;
+		triskar_smooth_msg.w += acc_w;
+		pub_triskar_vel.publish(triskar_smooth_msg);
+
+	}
+	else if(triskar_curr_msg.x < triskar_prev_msg.x  && triskar_curr_msg.w < triskar_prev_msg.w)
+	{
+		float delta_x = triskar_prev_msg.x - triskar_curr_msg.x;
+		float delta_w = triskar_prev_msg.w - triskar_curr_msg.w;
+
+		float acc_x = delta_x / SMOOTH_MESSAGES ;
+		float acc_w = delta_w / SMOOTH_MESSAGES ;
+
+		triskar_smooth_msg.x = triskar_prev_msg.x - acc_x;
+		triskar_smooth_msg.w = triskar_prev_msg.w - acc_w;
+		triskar_smooth_msg.y = 0 ;
+
+		pub_triskar_vel.publish(triskar_smooth_msg);
+
+		triskar_smooth_msg.x -= acc_x;
+		triskar_smooth_msg.w -= acc_w;
+		pub_triskar_vel.publish(triskar_smooth_msg);
+
+		triskar_smooth_msg.x -= acc_x;
+		triskar_smooth_msg.w -= acc_w;
+		pub_triskar_vel.publish(triskar_smooth_msg);
+
+		triskar_smooth_msg.x -= acc_x;
+		triskar_smooth_msg.w -= acc_w;
+		pub_triskar_vel.publish(triskar_smooth_msg);
+	}
+	else if(triskar_curr_msg.w > triskar_prev_msg.w)
+	{
+		float delta_w = triskar_curr_msg.w - triskar_prev_msg.w;
+		float acc_w = delta_w / SMOOTH_MESSAGES ;
+
+		triskar_smooth_msg.x = triskar_curr_msg.x;
+		triskar_smooth_msg.w = triskar_prev_msg.w + acc_w;
+		triskar_smooth_msg.y = 0 ;
+
+		pub_triskar_vel.publish(triskar_smooth_msg);
+
+		triskar_smooth_msg.w += acc_w;
+		pub_triskar_vel.publish(triskar_smooth_msg);
+
+		triskar_smooth_msg.w += acc_w;
+		pub_triskar_vel.publish(triskar_smooth_msg);
+
+		triskar_smooth_msg.w += acc_w;
+		pub_triskar_vel.publish(triskar_smooth_msg);
+	}
+	else if(triskar_curr_msg.w < triskar_prev_msg.w)
+	{
+		float delta_w = triskar_prev_msg.w - triskar_curr_msg.w;
+		float acc_w = delta_w / SMOOTH_MESSAGES ;
+
+		triskar_smooth_msg.x = triskar_curr_msg.x;
+		triskar_smooth_msg.w = triskar_prev_msg.w - acc_w;
+		triskar_smooth_msg.y = 0 ;
+
+		pub_triskar_vel.publish(triskar_smooth_msg);
+
+		triskar_smooth_msg.w -= acc_w;
+		pub_triskar_vel.publish(triskar_smooth_msg);
+
+		triskar_smooth_msg.w -= acc_w;
+		pub_triskar_vel.publish(triskar_smooth_msg);
+
+		triskar_smooth_msg.w -= acc_w;
+		pub_triskar_vel.publish(triskar_smooth_msg);
+	}
+	*/
+
 }
 
 
