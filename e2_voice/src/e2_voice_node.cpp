@@ -17,7 +17,7 @@
 #include <e2_voice/VoiceFeedback.h>
 #include <actionlib/server/simple_action_server.h>
 
-#define ROS_NODE_RATE	10
+#define ROS_NODE_RATE	5
 #define ROS_NODE_NAME	"e2_voice_node"
 
 //#define SPEECH_COMMAND "espeak"
