@@ -25,10 +25,13 @@ RobotInterface::RobotInterface(bool enable_neck,bool enable_voice,bool enable_tr
 	voice_enabled = enable_voice;
 	train_enabled = enable_train;
 
+	kinectMotorFree_ = true;
+
 	ac_mb = new MoveBaseClient("move_base", true);
 	ac_fr = new FRClient("face_recognition", true);
 	ac_nc = new NeckClient("e2_neck_controller",true);
 	ac_vc = new VoiceClient("e2_voice_node",true);
+	ac_kn = new KinectClient("kinect_motor", true);
 
 	while (!ac_mb->waitForServer(ros::Duration(5.0)))
 		ROS_INFO("[IRobot]:: Waiting for the move_base action server to come up");
@@ -44,7 +47,8 @@ RobotInterface::RobotInterface(bool enable_neck,bool enable_voice,bool enable_tr
 		while (!ac_nc->waitForServer(ros::Duration(5.0)))
 			ROS_INFO("[IRobot]:: Waiting for the neck_controller action server to come up");
 
-	kinect_pub_ = nh_.advertise<std_msgs::Float64>("tilt_angle", 1000);
+    while (!ac_kn->waitForServer(ros::Duration(5.0)))
+                ROS_INFO("[IRobot]:: Waiting for the kinect action server to come up");
 
 	ROS_INFO("[IRobot]:: Base ready");
 
@@ -58,6 +62,7 @@ RobotInterface::~RobotInterface()
 	delete ac_fr;
 	delete ac_nc;
 	delete ac_vc;
+	delete ac_kn;
 
 	ROS_INFO("[IRobot]:: Base disabled");
 }
@@ -81,6 +86,8 @@ void RobotInterface::cancell_all_goal()
 	ac_nc->cancelAllGoals();
 	ac_fr->cancelAllGoals();
 	ac_vc->cancelAllGoals();
+	ac_kn->cancelAllGoals();
+
 	ROS_DEBUG("[IRobot]:: All goal cancelled");
 }
 
@@ -140,12 +147,29 @@ void RobotInterface::base_stop()
 //=================================================================
 // Rotate kinect motor
 //=================================================================
-void RobotInterface::kinect_motor(float angle)
+void RobotInterface::kinect_action(float angle)
 {
-	ROS_INFO("[IRobot::Kinect]:: Motor rotate to %f deg",angle);
-	std_msgs::Float64 msg;
-	msg.data = (double) angle;
-	kinect_pub_.publish(msg);
+	if(kinectMotorFree_)
+	{
+		kinectMotorFree_= false;
+		ROS_INFO("[IRobot::Kinect]:: Motor rotate to %f deg",angle);
+		kinect_motor::KinectGoal kinectGoal;
+
+		kinectGoal.tilt = -100;
+
+		ac_kn->sendGoal(kinectGoal, boost::bind(&RobotInterface::kinectDoneCallback, this, _1, _2));
+		ac_kn->waitForResult(ros::Duration(5.0));
+
+		kinectGoal.tilt = (int)angle;
+		ac_kn->sendGoal(kinectGoal, boost::bind(&RobotInterface::kinectDoneCallback, this, _1, _2));
+
+		ac_kn->waitForResult(ros::Duration(5.0));
+	}
+	else
+	{
+		ROS_INFO("[IRobot::Kinect]:: Device busy...");
+	}
+
 }
 
 //=================================================================
@@ -241,7 +265,7 @@ bool RobotInterface::robot_train_user(string user_name)
 	if(train_enabled)
 	{
 		//neck_action(2,6);
-		kinect_motor(10);// To correctly get user face
+		kinect_action(10);// To correctly get user face
 
 		FaceRecognitionGoal goal;
 
@@ -263,7 +287,7 @@ bool RobotInterface::robot_train_user(string user_name)
 		bool finished_before_timeout = ac_fr->waitForResult(ros::Duration(30.0));
 
 		//neck_action(2,1); // straight neck
-		kinect_motor(-5); //Back in orizontal position
+		kinect_action(-5); //Back in orizontal position
 
 		if (finished_before_timeout)
 		{
@@ -360,3 +384,22 @@ void RobotInterface::setDetectedUser(t_user detectedUser)
 {
 	detected_user_ = detectedUser;
 }
+
+//======================================================================
+//======================================================================
+
+void RobotInterface::kinectDoneCallback(const actionlib::SimpleClientGoalState& state,const kinect_motor::KinectResultConstPtr& result)
+{
+	//ROS_INFO("[e2_brain]::Kinect motor set point reached [exit status %d]", (int)result->status);
+	kinectMotorFree_ = true;
+}
+
+//======================================================================
+//======================================================================
+void RobotInterface::kinectActiveCallback(){}
+
+
+//======================================================================
+//======================================================================
+void RobotInterface::kinectFeedbackCallback(const kinect_motor::KinectFeedbackConstPtr& feed){}
+

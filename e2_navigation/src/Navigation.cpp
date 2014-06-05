@@ -90,7 +90,7 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 	irobot_= new RobotInterface(en_neck,en_voice,en_train);
 	irobot_->neck_action(2,1);		// Staigth neck position
 	irobot_->neck_action(1,1);
-	irobot_->kinect_motor(15);
+	irobot_->kinect_action(15);
 }
 
 Navigation::~Navigation()
@@ -118,7 +118,7 @@ void Navigation::ActionController()
 	==================================================================*/
 	else if(navigate_target)
 	{
-		irobot_->kinect_motor(15);
+		irobot_->kinect_action(15);
 
 		if(!path_planned_)
 		{
@@ -223,7 +223,7 @@ void Navigation::ActionController()
 	}
 	else if (aproach_user_)
 	{
-		irobot_->kinect_motor(15);
+		irobot_->kinect_action(15);
 		/*
 		if(!path_planned_)
 		{
@@ -894,7 +894,7 @@ bool Navigation::talk_service(e2_msgs::Talk::Request& request, e2_msgs::Talk::Re
 //=====================================
 bool Navigation::kinect_service(e2_msgs::MotorAngle::Request& request, e2_msgs::MotorAngle::Response& response)
 {
-	irobot_->kinect_motor(request.angle);
+	irobot_->kinect_action(request.angle);
 
 	return true;
 }

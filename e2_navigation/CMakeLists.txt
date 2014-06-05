@@ -7,7 +7,6 @@ project(e2_navigation)
 find_package(catkin REQUIRED COMPONENTS
   actionlib
   e2_neck_controller
-  kinect_aux
   roscpp
   roslib
   actionlib_msgs
@@ -86,7 +85,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
   LIBRARIES e2_navigation
-  CATKIN_DEPENDS actionlib e2_neck_controller kinect_aux roscpp roslib actionlib_msgs tf
+  CATKIN_DEPENDS actionlib e2_neck_controller roscpp roslib actionlib_msgs tf
   DEPENDS system_lib
 )
 

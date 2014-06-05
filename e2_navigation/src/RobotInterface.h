@@ -11,9 +11,9 @@
 #ifndef ROBOTINTERFACE_H_
 #define ROBOTINTERFACE_H_
 
-#define BASE_ROTATION_ANGLE 0.785		// Radians 45°
-#define SPEECH_DELAY		30						// Time between each speech
-#define ERROR_DISTANCE	8							// distance greater than this will be considered as kinect error and so discarded. Mainly used for simulation bug
+#define BASE_ROTATION_ANGLE 	0.785					// Radians 45°
+#define SPEECH_DELAY			30						// Time between each speech
+#define ERROR_DISTANCE			8						// distance greater than this will be considered as kinect error and so discarded. Mainly used for simulation bug
 
 #include "common.h"
 
@@ -29,13 +29,12 @@ class RobotInterface
 
 		void cancell_all_goal();													//	Cancel all goal - neck, voice, base, facerec
 
-		string base_getStatus();																								//	Get current state of goal
-		void base_setGoal(MBGoal goal);																				// Set new goal for robot base
+		void base_setGoal(MBGoal goal);												// Set new goal for robot base
 		void base_rotate(char *direction,float angle = BASE_ROTATION_ANGLE);		// Rotate Robot base
-		void base_stop();																											//	Stop moving base
+		void base_stop();															// Stop base															//	Stop moving base
+		string base_getStatus();																								//	Get current state of goal
 
-		void kinect_motor(float angle);																					// rotate kinect
-
+		void kinect_action(float angle);																					// rotate kinect
 		void neck_action(int action, int sub_action);
 
 		void robot_talk(string text,bool force = false);
@@ -57,12 +56,19 @@ private:
 		NeckClient *ac_nc;
 		VoiceClient *ac_vc;
 		MoveBaseClient *ac_mb;
+		KinectClient *ac_kn;
+
+		bool kinectMotorFree_;
+
 		ros::NodeHandle nh_;
-	    ros::Publisher kinect_pub_;
 
 		t_user detected_user_;
 		Pose robot_pose_;
 		ros::Time last_speech_;
+
+		void kinectActiveCallback();
+		void kinectFeedbackCallback(const kinect_motor::KinectFeedbackConstPtr& feed);
+		void kinectDoneCallback(const actionlib::SimpleClientGoalState& state, const kinect_motor::KinectResultConstPtr& result);
 
 		void voice_callback(const actionlib::SimpleClientGoalState& state, const VoiceResultConstPtr& result);
 		void facerecognition_callback(const actionlib::SimpleClientGoalState& state, const FaceRecognitionResultConstPtr& result);
