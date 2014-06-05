@@ -23,7 +23,7 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 
 	// Default config
 	base_name_     = "base";
-	target_name_  = "airlab";
+	target_name_  = "target";
 	guest_name_   = "guest";				// User to be detected
 
 	pass_count_= 0;
@@ -118,10 +118,10 @@ void Navigation::ActionController()
 	==================================================================*/
 	else if(navigate_target)
 	{
-		irobot_->kinect_action(15);
 
 		if(!path_planned_)
 		{
+			irobot_->kinect_action(15);
 			nav_goto(target_name_);
 			abort_timeout_.start();
 			detect_timeout_.start();
@@ -279,7 +279,7 @@ void Navigation::ActionController()
 //=================================================================
 void Navigation::ActionAbort()
 {
-	ROS_INFO("[Navigator]:: Abort Task");
+	//ROS_INFO("[Navigator]:: Abort Task");
 	ActionReset();
 }
 
@@ -538,7 +538,7 @@ void Navigation::user_detectTimer(const ros::TimerEvent& e)
 	user_recognized_=false;
 
 	ros::Time init_detection = ros::Time::now();
-	ros::Duration timeout(30.0);
+	ros::Duration timeout(15.0);
 
 	while((ros::Time::now() - init_detection < timeout) && !user_recognized_)
 	{
@@ -583,11 +583,16 @@ void Navigation::user_detectTimer(const ros::TimerEvent& e)
 
 		irobot_->robot_talk(get_speech_by_name("check_complete"));	// Just talk a little bit
 
-		path_planned_=false;							//	Not usefull but to remember that	 now the controller had to recalculate new robot path to target
+		path_planned_=false;					//	Not usefull but to remember that	 now the controller had to recalculate new robot path to target
 		user_recognized_=false;					//	User found no more interesting
 	}
-	else if(navigate_target)								// Recover user only if there's a navigation goal to target location.
-		user_recover(guest_name_);				// User not found start Backtracking procedure
+	else if(navigate_target)
+	{
+		// Recover user only if there's a navigation goal to target location.
+		irobot_->robot_talk(get_speech_by_name("recover_start"));		// Just talk a little bit
+		user_recover(guest_name_);										// User not found start Backtracking procedure
+	}
+
 
 	// Reset timers
 	abort_timeout_.stop();

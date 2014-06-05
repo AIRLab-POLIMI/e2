@@ -38,10 +38,6 @@
   text: "Molto bene. Sei ancora qui. Proseguiamo."
   duration: 150
 
-- id: recover_start
-  text: "Il mio amico è scomparso. Devo trovarlo!"
-  duration: 150
-
 - id: joke_0
   text: "Trote e maiali sono triviali, di lor nessuna stima, ratti e sorci han piu fortuna dei porci, pero io l avro prima."
   duration: 150

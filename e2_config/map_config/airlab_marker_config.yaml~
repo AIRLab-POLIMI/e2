@@ -4,7 +4,7 @@
   orientation: [-0.73, 0.68]
 
 - id: 1
-  name: target
+  name: airlab
   position: [-0.948, -0.71, 0]
   orientation: [-0.69, 0.72]
 
