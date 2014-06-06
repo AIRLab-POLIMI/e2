@@ -30,7 +30,7 @@
 #include <message_filters/time_synchronizer.h>
 #include <sensor_msgs/image_encodings.h>
 
-#define RATE 4 // Hz
+#define RATE 10 // Hz
 
 using namespace std;
 using namespace sensor_msgs;
@@ -53,8 +53,8 @@ public:
 	{
 		ros::NodeHandle nh("~");
 
-		cvNamedWindow("rgb", CV_WINDOW_AUTOSIZE);
-		cvNamedWindow("depth", CV_WINDOW_AUTOSIZE);
+		cvNamedWindow("rgb");
+		//cvNamedWindow("depth", CV_WINDOW_AUTOSIZE);
 		cvInitFont(&font, CV_FONT_HERSHEY_PLAIN, 1.0, 4.0, 2, 2, CV_AA);
 
 		goal_id_ = -99;
@@ -62,7 +62,7 @@ public:
 		textColor = CV_RGB(0,255,255); 								// light blue text
 		confidence_value = 0.77;											//a face recognized with confidence value higher than the confidence_value threshold is accepted as valid.
 		show_screen_flag = false;											//if output screen is shown
-		add_face_number = 25;												//a parameter for the "add_face_images" goal which determines the number of training images for a new face (person) to be acquired from the video stream
+		add_face_number = 20;												//a parameter for the "add_face_images" goal which determines the number of training images for a new face (person) to be acquired from the video stream
 		person_number = 0;														//the number of persons in the training file (train.txt)
 
 		as_.start();																		//starting the actionlib server
@@ -84,7 +84,7 @@ public:
 	~FaceRecognition(void)
 	{
 		cvDestroyWindow("rgb");
-		cvDestroyWindow("depth");
+		//cvDestroyWindow("depth");
 	}
 
 	//==============================================================
@@ -313,7 +313,7 @@ public:
 			if (show_screen_flag)
 			{
 				cvShowImage("rgb", img_rgb);
-				cvShowImage("depth", img_depth);
+				//cvShowImage("depth", img_depth);
 				cvWaitKey(1);
 			}
 
@@ -349,7 +349,7 @@ public:
 
 		text_image.str("");
 		text_image << "Distance:  " <<  distance << "mm" <<endl;
-		cvPutText(img_rgb, text_image.str().c_str(), cvPoint(20, 50), &font,CV_RGB(255,0,0));
+		//cvPutText(img_rgb, text_image.str().c_str(), cvPoint(20, 50), &font,CV_RGB(255,0,0));
 
 		// Get the detected face image.
 		faceImg = frl.cropImage(greyImg, faceRect);
@@ -430,7 +430,7 @@ public:
 				if (show_screen_flag)
 				{
 					cvShowImage("rgb", img_rgb);
-					cvShowImage("depth", img_depth);
+					//cvShowImage("depth", img_depth);
 					cvWaitKey(1);
 				}
 
@@ -532,7 +532,7 @@ public:
 		if (show_screen_flag)
 		{
 			cvShowImage("rgb", img_rgb);
-			cvShowImage("depth", img_depth);
+			//cvShowImage("depth", img_depth);
 			cvWaitKey(1);
 		}
 

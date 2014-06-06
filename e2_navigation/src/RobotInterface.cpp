@@ -326,7 +326,7 @@ bool RobotInterface::robot_check_user(string user_name)
     goal.order_argument = user_name;
 
     ac_fr->sendGoal(goal, boost::bind(&RobotInterface::facerecognition_callback, this, _1, _2),FRClient::SimpleActiveCallback(), FRClient::SimpleFeedbackCallback());
-    ac_fr->waitForResult(ros::Duration(2.0));
+    ac_fr->waitForResult(ros::Duration(1.0));
 
     if(strcmp(detected_user_.name.c_str(),user_name.c_str())==0)
     	return true;

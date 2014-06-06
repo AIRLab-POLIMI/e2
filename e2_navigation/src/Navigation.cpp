@@ -334,7 +334,7 @@ void Navigation::NavigateTarget()
 
 	if(irobot_->train_enabled)
 	{
-		irobot_->robot_talk(get_speech_by_name("train_init"),true);
+		irobot_->robot_talk(get_speech_by_name("train_init"));
 
 		// Save new user face
 		if(irobot_->robot_train_user(guest_name_))
@@ -342,6 +342,7 @@ void Navigation::NavigateTarget()
 		else
 		{
 			irobot_->robot_talk(get_speech_by_name("train_failed"),true);
+			ActionReset();
 			return;
 		}
 	}
@@ -356,7 +357,10 @@ void Navigation::NavigateTarget()
 	detect_timeout_ = nh_.createTimer(ros::Duration(DETECT_TIMEOUT), &Navigation::user_detectTimer,this,false,false);
 
 	irobot_->neck_action(2,2);	//	Invitation Left
+
 	irobot_->robot_talk(get_speech_by_name("follow_me"),true);
+	nav_wait();
+
 	irobot_->neck_action(2,1);	//	Straight again
 }
 
@@ -515,7 +519,7 @@ void Navigation::getNavStatus()
 }
 
 //=================================================================
-//	Check user face and start backtract action if none detected
+//	Check user face and start
 //=================================================================
 void Navigation::user_detect(string user_name)
 {
@@ -545,10 +549,9 @@ void Navigation::user_detectTimer(const ros::TimerEvent& e)
 		irobot_->base_rotate(const_cast<char *>("LEFT"));	// Rotate robot base because he should be on the robot side
 
 		//Check user presence
-		if(irobot_->robot_check_user(guest_name_))					//	Check for guest user
-			setUserDetection(true);
+		user_detect(guest_name_);
 
-		irobot_->robot_talk(get_random_speech(string("joke_")));	// Just talk a little bit
+		//irobot_->robot_talk(get_random_speech(string("joke_")));	// Just talk a little bit
 
 		ros::spinOnce();
 		r_.sleep();
@@ -581,7 +584,7 @@ void Navigation::user_detectTimer(const ros::TimerEvent& e)
 		}
 		*/
 
-		irobot_->robot_talk(get_speech_by_name("check_complete"));	// Just talk a little bit
+		irobot_->robot_talk(get_speech_by_name("check_complete"),true);	// Just talk a little bit
 
 		path_planned_=false;					//	Not usefull but to remember that	 now the controller had to recalculate new robot path to target
 		user_recognized_=false;					//	User found no more interesting
