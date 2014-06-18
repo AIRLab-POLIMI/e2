@@ -58,13 +58,17 @@ public:
 			return;
 		}
 
-		ROS_DEBUG("["ROS_NODE_NAME"]:: Received action %d ",goal_id_);
+		ROS_INFO("["ROS_NODE_NAME"]:: Received action %d ",goal_id_);
 
 		switch(goal_id_)
 		{
 			case 0:
-				ROS_DEBUG("["ROS_NODE_NAME"]:: Abort current action");
-				as_.setAborted();
+				if(as_.isActive())
+				{
+					ROS_INFO("["ROS_NODE_NAME"]:: Abort current action");
+					as_.setAborted();
+					return;
+				}
 				break;
 			case 1:
 				ROS_INFO("["ROS_NODE_NAME"]:: %s ",msg->text.c_str());
@@ -74,7 +78,7 @@ public:
 				break;
 		}
 		as_.setSucceeded();
-		ROS_DEBUG("["ROS_NODE_NAME"]:: Action completed");
+		ROS_INFO("["ROS_NODE_NAME"]:: Action completed");
 	}
 
 private:

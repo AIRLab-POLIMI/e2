@@ -40,7 +40,6 @@ NeckInterface::~NeckInterface()
 // ========================================================================
 void NeckInterface::executeCB(const e2_neck_controller::NeckGoalConstPtr &goal)
 {
-	// Check if current goal is still active
 	if (as_.isPreemptRequested())
 	{
 		ROS_INFO("[INeck]:: There's an active action. Abort");
@@ -49,13 +48,13 @@ void NeckInterface::executeCB(const e2_neck_controller::NeckGoalConstPtr &goal)
 	}
 	goal_id_ = goal->action ;
 
-	//check if the name of the person has been provided for the add-face-images goal
 	if (goal_id_ > 10 || goal_id_ < 0 )
 	{
 		ROS_INFO("[INeck]:: %d is not a valid action. Abort",goal_id_);
 		as_.setPreempted();
 		return;
 	}
+
 	ROS_DEBUG("[INeck]:: Received action %d ",goal_id_);
 
 	switch(goal_id_)
