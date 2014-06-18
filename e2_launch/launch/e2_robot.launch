@@ -16,7 +16,7 @@
 	<include file="$(find e2_launch)/launch/components/e2_navigation.launch" />	
 
 	<!-- Voice Node Server-->
-  	<node name="e2_voice_node" pkg="e2_voice" type="e2_voice_node" respawn="false" output="screen" />
+  	<node name="e2_voice_node" pkg="e2_voice" type="e2_voice_node" respawn="false" />
   	
   	<!-- Kinect Motor-->
   	<node pkg="kinect_motor" name="kinect_motor" type="kinect_motor"/>
