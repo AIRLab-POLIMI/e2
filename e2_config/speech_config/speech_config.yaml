@@ -10,6 +10,10 @@
   text: "Non ho compiuto la mia missione. Che sfortuna non essere un daleek."
   duration: 150
 
+- id: here
+  text: "Hey amico! Sono qui!"
+  duration: 150
+
 - id: complete
   text: "Il nostro viaggio giunge al termine. Spero ti sia divertito."
   duration: 150
