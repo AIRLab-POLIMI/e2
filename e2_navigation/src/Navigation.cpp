@@ -19,7 +19,7 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 {
 
     string marker_config,speech_config;
-    bool en_neck,en_voice,en_train;
+    bool en_neck,en_voice,en_train,en_kinect;
 
 	// Default config
 	base_name_     = "base";
@@ -40,6 +40,7 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 	nh_.param<bool>("en_neck", en_neck, true);
 	nh_.param<bool>("en_voice", en_voice, true);
 	nh_.param<bool>("en_train", en_train, true);
+	nh_.param<bool>("en_kinect", en_kinect, true);
 
 	nh_.param("marker_config", marker_config, ros::package::getPath("e2_config")+"/map_config/sim_marker_config.yaml");
 	nh_.param("speech_config", speech_config, ros::package::getPath("e2_config")+"/speech_config/speech_config.yaml");
@@ -87,7 +88,7 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 	ROS_INFO("[Navigation]:: Loaded Speech Config %s with %d conversations", speech_config.c_str(),(int)doc_speech.size());
 
 	//	Enable Robot interface
-	irobot_= new RobotInterface(en_neck,en_voice,en_train);
+	irobot_= new RobotInterface(en_neck,en_voice,en_train,en_kinect);
 	irobot_->neck_action(2,1);		// Staigth neck position
 	irobot_->neck_action(1,1);
 	irobot_->kinect_action(15);
@@ -132,7 +133,7 @@ void Navigation::ActionController()
 			irobot_->robot_talk(get_random_speech(string("nav_")));
 
 			// If navigation is aborted the goal is blocked by an obstacle so robot will ask to pass
-			if(strcmp(irobot_->base_getStatus().c_str(),"ABORTED") ==0)
+			if(strcmp(irobot_->base_getStatus().c_str(),"ABORTED") == 0)
 			{
 				if(pass_count_>1)
 				{
@@ -161,7 +162,7 @@ void Navigation::ActionController()
 	/*==================================================================
 		Start Navigating in auto mode looking for user
 	==================================================================*/
-	else if (find_user_)
+	else if(find_user_)
 	{
 
 		if(!path_planned_)
@@ -173,14 +174,22 @@ void Navigation::ActionController()
 		{
 			if(irobot_->getDetectedUser().distance == 0)
 			{
+				irobot_->clearDetectedUser();
+				user_recognized_= false;		// Set path just once
+			}
+			else if(irobot_->getDetectedUser().distance < 1)
+			{
+				ROS_INFO("[Navigation]:: User in front of me !");
 				irobot_->neck_action(1,2); 	// happy face
 				action_completed_ =true;
 			}
-			if(irobot_->getDetectedUser().distance < 4)
+			else if(irobot_->getDetectedUser().distance > 1)
 			{
+				ROS_INFO("[Navigation]:: User is still far from me. M'avvicino !");
 
 				// Robot just find someone. Go toward him
 				nav_goto_detected_user(irobot_->getDetectedUser());
+				nav_goto(0.9,irobot_->getDetectedUser().angle); // slow aproach
 
 				irobot_->clearDetectedUser();
 				user_recognized_= false;		// Set path just once
@@ -208,9 +217,15 @@ void Navigation::ActionController()
 
 			if(user_recognized_)
 			{
-				find_user_= false;
-				action_completed_ = true;
-				irobot_->neck_action(1,2); 	// happy face
+				if(irobot_->getDetectedUser().distance < 1)
+				{
+					find_user_= false;
+					action_completed_ = true;
+					irobot_->neck_action(1,2); 	// happy face
+				}
+				else
+					path_to_user_= false;
+
 			}
 			else
 			{
@@ -528,6 +543,35 @@ void Navigation::user_detect(string user_name)
 }
 
 //=================================================================
+//	Check user face and start
+//=================================================================
+void Navigation::user_wait()
+{
+	ros::Time init_detection = ros::Time::now();
+	ros::Duration timeout(15.0);
+
+	if(irobot_->getDetectedUser().distance > WAIT_DISTANCE)
+	{
+		init_detection = ros::Time::now();
+		ROS_INFO("[Navigator]:: Guest user at %f m. I'll wait a bit..",irobot_->getDetectedUser().distance);
+
+		while((ros::Time::now() - init_detection < timeout) && irobot_->getDetectedUser().distance > WAIT_DISTANCE)
+		{
+			//Check user presence
+			if(irobot_->robot_check_user(guest_name_))					//	Check for guest user
+				setUserDetection(true);
+
+			irobot_->robot_talk(get_speech_by_name("here"),true);
+			nav_wait();
+
+			ros::spinOnce();
+			r_.sleep();
+		}
+
+	}
+}
+
+//=================================================================
 //	Fire a Detection timeout
 //=================================================================
 void Navigation::user_detectTimer(const ros::TimerEvent& e)
@@ -551,39 +595,15 @@ void Navigation::user_detectTimer(const ros::TimerEvent& e)
 		//Check user presence
 		user_detect(guest_name_);
 
-		//irobot_->robot_talk(get_random_speech(string("joke_")));	// Just talk a little bit
-
 		ros::spinOnce();
 		r_.sleep();
 	}
 
+	irobot_->base_stop();
+
 	if(navigate_target && user_recognized_)
 	{
-		// TODO - Distance check
-		/*
-		if(irobot_->getDetectedUser().distance > WAIT_DISTANCE)
-		{
-			init_detection = ros::Time::now();
-			ros::Duration timeout(WAIT_TIMEOUT);
-			while((ros::Time::now() - init_detection < timeout) && irobot_->getDetectedUser().distance > WAIT_DISTANCE)
-			{
-				//Check user presence
-				if(irobot_->robot_check_user(guest_name_))					//	Check for guest user
-					setUserDetection(true);
-
-				nav_wait();
-
-				ros::spinOnce();
-				r_.sleep();
-			}
-			if(irobot_->getDetectedUser().distance > WAIT_DISTANCE)
-			{
-				nav_abortTask();
-				return;
-			}
-		}
-		*/
-
+		user_wait();
 		irobot_->robot_talk(get_speech_by_name("check_complete"),true);	// Just talk a little bit
 
 		path_planned_=false;					//	Not usefull but to remember that	 now the controller had to recalculate new robot path to target
@@ -592,10 +612,10 @@ void Navigation::user_detectTimer(const ros::TimerEvent& e)
 	else if(navigate_target)
 	{
 		// Recover user only if there's a navigation goal to target location.
-		irobot_->robot_talk(get_speech_by_name("recover_start"));		// Just talk a little bit
+		irobot_->robot_talk(get_speech_by_name("recover_start"),true);		// Just talk a little bit
 		user_recover(guest_name_);										// User not found start Backtracking procedure
-	}
 
+	}
 
 	// Reset timers
 	abort_timeout_.stop();
@@ -621,9 +641,16 @@ void Navigation::user_recover(string user_name)
 		r_.sleep();
 	}
 
+	if(user_recognized_)
+	{
+		user_wait();
+		irobot_->robot_talk(get_speech_by_name("check_complete"),true);
+
+	}
 	if(!user_recognized_)
 	{
-		ROS_INFO("[Navigator]:: No user found during Backtracking. He disappear. Task Aborted. ");
+		ROS_INFO("[Navigator]:: No user found during Backtracking.");
+		irobot_->robot_talk(get_speech_by_name("abort"),true);
 		ActionAbort();
 	}
 }

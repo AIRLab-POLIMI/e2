@@ -28,7 +28,7 @@
 #define DETECT_TIMEOUT	 		30						// Define the time before fire a detection request
 #define ABORT_TIMEOUT 			300						// Navigation timeout
 #define WAIT_TIMEOUT			30						//	Min time the robot will wait in position before abort task
-#define WAIT_DISTANCE			2						//	Min distance the robot will stop to wait user
+#define WAIT_DISTANCE			1						//	Min distance the robot will stop to wait user
 #define WAIT_TIME				5						//	Time the robot wait in position
 
 class Navigation
@@ -131,6 +131,7 @@ class Navigation
 	    void nav_random_path();													//	Create a random navigation path
 	    void nav_wait();
 
+	    void user_wait();
 		void user_detect(string user_name); 								// Detect user face and check if it's the last trained person
 		void user_recover(string user_name);							// Recover User following the path of last position detection
 		void user_detectTimer(const ros::TimerEvent& e); 	// Timer to be fired after timeout

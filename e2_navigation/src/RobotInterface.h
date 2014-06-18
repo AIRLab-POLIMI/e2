@@ -11,7 +11,7 @@
 #ifndef ROBOTINTERFACE_H_
 #define ROBOTINTERFACE_H_
 
-#define BASE_ROTATION_ANGLE 	0.785					// Radians 45°
+#define BASE_ROTATION_ANGLE 	0.52					// Radians 30°
 #define SPEECH_DELAY			30						// Time between each speech
 #define ERROR_DISTANCE			8						// distance greater than this will be considered as kinect error and so discarded. Mainly used for simulation bug
 
@@ -23,8 +23,9 @@ class RobotInterface
 		bool neck_enabled;
 		bool voice_enabled;
 		bool train_enabled;
+		bool kinect_enabled;
 
-		RobotInterface(bool enable_neck=true,bool enable_voice=true,bool enable_train=true);
+		RobotInterface(bool enable_neck=true,bool enable_voice=true,bool enable_train=true,bool enable_kinect=true);
 		~RobotInterface();
 
 		void cancell_all_goal();													//	Cancel all goal - neck, voice, base, facerec
@@ -59,6 +60,7 @@ private:
 		KinectClient *ac_kn;
 
 		bool kinectMotorFree_;
+		bool voiceFree_;
 
 		ros::NodeHandle nh_;
 

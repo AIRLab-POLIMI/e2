@@ -13,7 +13,7 @@
 //=================================================================
 // Class Constructor
 //=================================================================
-RobotInterface::RobotInterface(bool enable_neck,bool enable_voice,bool enable_train)
+RobotInterface::RobotInterface(bool enable_neck,bool enable_voice,bool enable_train,bool enable_kinect)
 {
 	last_speech_= ros::Time::now() - ros::Duration(SPEECH_DELAY);
 
@@ -24,7 +24,9 @@ RobotInterface::RobotInterface(bool enable_neck,bool enable_voice,bool enable_tr
 	neck_enabled = enable_neck;
 	voice_enabled = enable_voice;
 	train_enabled = enable_train;
+	kinect_enabled = enable_kinect;
 
+	voiceFree_ = true;
 	kinectMotorFree_ = true;
 
 	ac_mb = new MoveBaseClient("move_base", true);
@@ -43,12 +45,14 @@ RobotInterface::RobotInterface(bool enable_neck,bool enable_voice,bool enable_tr
 		while (!ac_vc->waitForServer(ros::Duration(5.0)))
 			ROS_INFO("[IRobot]:: Waiting for the voice action server to come up");
 
+
 	if(neck_enabled)
 		while (!ac_nc->waitForServer(ros::Duration(5.0)))
 			ROS_INFO("[IRobot]:: Waiting for the neck_controller action server to come up");
 
-    while (!ac_kn->waitForServer(ros::Duration(5.0)))
-                ROS_INFO("[IRobot]:: Waiting for the kinect action server to come up");
+	if(kinect_enabled)
+		while (!ac_kn->waitForServer(ros::Duration(5.0)))
+			ROS_INFO("[IRobot]:: Waiting for the kinect action server to come up");
 
 	ROS_INFO("[IRobot]:: Base ready");
 
@@ -141,7 +145,7 @@ void RobotInterface::base_rotate(char *direction,float angle)
 void RobotInterface::base_stop()
 {
 	ROS_DEBUG("[IRobot::Base]:: Robot Stopped ");
-	cancell_all_goal();
+	ac_mb->cancelAllGoals();
 }
 
 //=================================================================
@@ -149,10 +153,10 @@ void RobotInterface::base_stop()
 //=================================================================
 void RobotInterface::kinect_action(float angle)
 {
-	if(kinectMotorFree_)
+	if(kinectMotorFree_ && kinect_enabled)
 	{
 		kinectMotorFree_= false;
-		ROS_INFO("[IRobot::Kinect]:: Motor rotate to %f deg",angle);
+		ROS_DEBUG("[IRobot::Kinect]:: Motor rotate to %f deg",angle);
 		kinect_motor::KinectGoal kinectGoal;
 
 		kinectGoal.tilt = -100;
@@ -167,7 +171,7 @@ void RobotInterface::kinect_action(float angle)
 	}
 	else
 	{
-		ROS_INFO("[IRobot::Kinect]:: Device busy...");
+		ROS_DEBUG("[IRobot::Kinect]:: Device problem...");
 	}
 
 }
@@ -218,22 +222,36 @@ void RobotInterface::robot_talk(string text, bool force)
 
 	if((ros::Time::now() - last_speech_ > timeout) || force )
 	{
+		VoiceGoal goal;
 
 		if(force)
-			ac_vc->waitForResult(timeout);
+		{
+			goal.action_id = 0;
+			ac_vc->sendGoal(goal, boost::bind(&RobotInterface::voice_callback, this, _1, _2),VoiceClient::SimpleActiveCallback(), VoiceClient::SimpleFeedbackCallback());
+			ac_vc->waitForResult();
+		}
 
 		if(voice_enabled)
 		{
 			last_speech_=ros::Time::now();
 			neck_action(1,6); // Start Moving mouth
 
-			VoiceGoal goal;
 			goal.action_id = 1;
 			goal.text = text;
 			ac_vc->sendGoal(goal, boost::bind(&RobotInterface::voice_callback, this, _1, _2),VoiceClient::SimpleActiveCallback(), VoiceClient::SimpleFeedbackCallback());
+
+			voiceFree_ = false;
+
+			ROS_INFO("[IRobot::Voice]:: %s", text.c_str());
+
 		}
 		else
 			ROS_INFO("[IRobot]:: Robot can't talk. Enable voice support");
+
+		if(force)
+		{
+			ac_vc->waitForResult();
+		}
 
 	}else
 		ROS_DEBUG("[IRobot]:: Passed to few time");
@@ -246,6 +264,7 @@ void RobotInterface::voice_callback(const actionlib::SimpleClientGoalState& stat
 {
 	ROS_DEBUG("[IRobot]:: Voice CallBack");
 	neck_action(1,7); // stop Moving mouth
+	voiceFree_ = true;
 }
 
 //=================================================================
