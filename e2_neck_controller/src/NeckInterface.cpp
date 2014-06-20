@@ -194,5 +194,33 @@ void NeckInterface::other_actions(int action)
 			pE2PololuInterface->stopScriptAndGoHome();
 			delete pE2PololuInterface;
 			break;
+		case 2:
+			ROS_INFO("[INeck::Other]:: Led Blinking for 10 seconds.. Test !");
+			pE2PololuInterface->blinkLed();
+			break;
+		case 3:
+			ROS_INFO("[INeck::Other]:: Set High Speed");
+			pE2PololuInterface->setHighSpeed();
+			break;
+		case 4:
+			ROS_INFO("[INeck::Other]:: Set Normal Speed");
+			pE2PololuInterface->setNormalSpeed();
+			break;
+		case 5:
+			ROS_INFO("[INeck::Other]:: Set Low Speed");
+			pE2PololuInterface->setLowSpeed();
+			break;
+		case 6:
+			ROS_INFO("[INeck::Other]:: Set High Acc");
+			pE2PololuInterface->setHighAcc();
+			break;
+		case 7:
+			ROS_INFO("[INeck::Other]:: Set Normal Acc");
+			pE2PololuInterface->setNormalAcc();
+			break;
+		case 8:
+			ROS_INFO("[INeck::Other]:: Set Low Acc");
+			pE2PololuInterface->setLowAcc();
+			break;
 	}
 }
