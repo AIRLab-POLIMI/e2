@@ -196,7 +196,9 @@ void E2_Pololu_Interface::bendRight()
 
 void E2_Pololu_Interface::expressSurprise()
 {
+	happyFace();
 	runFaceEmotionalSubroutine( SURPRISEBEHAVIOUR );
+	standardFace();
 }
 
 void E2_Pololu_Interface::reachStraightPosition()
