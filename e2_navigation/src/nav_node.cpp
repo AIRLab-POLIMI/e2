@@ -95,7 +95,7 @@ public:
 				break;
 			case 2:	// Aproach user
 				ROS_DEBUG("["ROS_NODE_NAME"]:: Aproaching user");
-				nav->AproachUser(msg->distance,msg->angle);
+				nav->ApproachUser();
 				break;
 			case 3: // Looking for user
 				ROS_DEBUG("["ROS_NODE_NAME"]:: Looking for users");

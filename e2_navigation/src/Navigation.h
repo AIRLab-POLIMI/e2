@@ -14,12 +14,14 @@
 #include "RobotInterface.h"
 #include "yaml-operator.h"
 
+#include "std_srvs/Empty.h"
 #include "e2_msgs/Goto.h"
 #include "e2_msgs/Train.h"
 #include "e2_msgs/Talk.h"
 #include "e2_msgs/NeckAction.h"
 #include "e2_msgs/MotorAngle.h"
-#include "std_srvs/Empty.h"
+
+#include <user_tracker/Com.h>
 #include <tf/transform_listener.h>
 
 #include <stdlib.h>
@@ -30,6 +32,13 @@
 #define WAIT_TIMEOUT			30						//	Min time the robot will wait in position before abort task
 #define WAIT_DISTANCE			1						//	Min distance the robot will stop to wait user
 #define WAIT_TIME				5						//	Time the robot wait in position
+
+typedef struct user_detected
+{
+	bool detected;
+	float angle;		// angle respect center of camera
+	float distance;  	// center respect center of camera
+}user_detected;
 
 class Navigation
 {
@@ -45,7 +54,7 @@ class Navigation
 
 	    void NavigateTarget();							 							// Start a new navigation task
 	    void LookingUser();															// Start looking for user in the ambient
-	    void AproachUser(float distance, float angle);
+	    void ApproachUser();
 
 	    void ActionAbort(); 															// Kill a current action
 	    void ActionAbort(const ros::TimerEvent& e); 				// Kill a current action for timer
@@ -64,13 +73,20 @@ class Navigation
 		bool train_service(e2_msgs::Train::Request& request, e2_msgs::Train::Response& response);
 		bool talk_service(e2_msgs::Talk::Request& request, e2_msgs::Talk::Response& response);
 
+		bool approach_user_service(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
 		bool find_user_service(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
 		bool navigate_target_service(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
 
+		void face_callback(const user_tracker::ComConstPtr& msg);
 		void odometry_callback(const nav_msgs::Odometry::ConstPtr& msg);
 
+
 	private:
+
 		bool abort;							// to quit loop
+
+		user_detected userdetected_;
+
 		ros::NodeHandle nh_;
 		ros::Rate r_;
 	    ros::Time initial_time_;
@@ -82,8 +98,10 @@ class Navigation
 
 		// Services & subscribers
 		ros::Subscriber odom_sub_;
+		ros::Subscriber face_sub_;
 		ros::ServiceServer abort_service_;
 		ros::ServiceServer navigate_target_service_;
+		ros::ServiceServer approach_user_service_;
 		ros::ServiceServer find_user_service_;
 		ros::ServiceServer goto_service_;
 		ros::ServiceServer detect_service_;
@@ -101,9 +119,11 @@ class Navigation
 
 		int pass_count_;
 
-		bool aproach_user_;
-		bool find_user_;							//	If true the robot will start to randomly navigate in the ambient looking for people
-		bool navigate_target;					//if there's an active task
+		// Behaviours
+		bool approach_user_;
+		bool find_user_;				//	If true the robot will start to randomly navigate in the ambient looking for people
+		bool navigate_target;			//if there's an active task
+
 	    bool path_planned_;				// if the robot is following a navigation path
 	    bool path_to_user_;				// true if the robot is following a path to reach a user
 	    bool user_recognized_;			// User recognized by facerecognition
@@ -135,7 +155,7 @@ class Navigation
 		void user_detect(string user_name); 								// Detect user face and check if it's the last trained person
 		void user_recover(string user_name);							// Recover User following the path of last position detection
 		void user_detectTimer(const ros::TimerEvent& e); 	// Timer to be fired after timeout
-
+		void user_clear();									// Delete user data
 
 };
 

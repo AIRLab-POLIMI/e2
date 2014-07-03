@@ -34,6 +34,10 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 	user_recognized_ = false;
 	action_completed_ = false;
 
+	userdetected_.detected = false;
+	userdetected_.angle = 0;
+	userdetected_.distance = 0;
+
 	initial_time_ = ros::Time::now();
 
     nh_.param<bool>("en_auto", find_user_, true);
@@ -46,11 +50,14 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 	nh_.param("speech_config", speech_config, ros::package::getPath("e2_config")+"/speech_config/speech_config.yaml");
 
 	//	Suscribers
+	face_sub_= nh_.subscribe("/com", 10,&Navigation::face_callback,this);
 	odom_sub_= nh_.subscribe("/odom", 10,&Navigation::odometry_callback,this);
 
 	// Enable Services
 	abort_service_ = nh_.advertiseService(name+"/abort",&Navigation::abort_service,this);
+
 	find_user_service_ = nh_.advertiseService(name+"/find_user",&Navigation::find_user_service,this);
+	approach_user_service_= nh_.advertiseService(name+"/approach_user",&Navigation::approach_user_service,this);
 	navigate_target_service_ = nh_.advertiseService(name+"/navigate_target",&Navigation::navigate_target_service,this);
 
 	goto_service_ = nh_.advertiseService(name+"/test_goto",&Navigation::goto_service,this);
@@ -236,56 +243,36 @@ void Navigation::ActionController()
 		}
 
 	}
-	else if (aproach_user_)
+	/*==================================================================
+		Navigate to approach a user detected TODO
+	==================================================================*/
+	else if(approach_user_)
 	{
-		irobot_->kinect_action(15);
-		/*
-		if(!path_planned_)
+		if(userdetected_.detected)
 		{
-			nav_random_path();			// Ramdom navigation
-			path_planned_ = true;
-		}
-		else if(user_recognized_)
-		{
-			irobot_->neck_action(1,2); 		// happy face
-
-			// Robot just find someone. Go toward him
-			nav_goto_detected_user(irobot_->getDetectedUser());
-
-			irobot_->clearDetectedUser();
-			user_recognized_= false;		// Set path just once
-			path_to_user_ = true;			// Set following user path
-		}
-		else if(!path_to_user_)
-		{
-			user_detect("unknown");
-		}
-
-
-		if(strcmp(irobot_->base_getStatus().c_str(),"ABORTED")==0)
-		{
-			if(path_to_user_)
-				path_to_user_= false;
-
-			path_planned_ = false;
-		}
-		else if(strcmp(irobot_->base_getStatus().c_str(),"SUCCEEDED")==0)
-		{
-			user_detect("unknown");
-
-			if(user_recognized_)
+			if(!path_planned_)
 			{
-				   find_user_= false;
-				   action_completed_ = true;
+				// if distance is lower than 1 meter or is not too far from center camera the robot stay on place
+				if(userdetected_.distance < 1 && (userdetected_.angle < 22 && userdetected_.angle > -22))
+				{
+					ROS_INFO("[Navigation]:: User at distance %f and %f deg from camera. No action Done ! ",userdetected_.distance,userdetected_.angle);
+					action_completed_ = true;
+				}else{
+
+					nav_goto(userdetected_.distance,userdetected_.angle);
+					path_planned_ = true;
+				}
 			}
-			else
+			else if(strcmp(irobot_->base_getStatus().c_str(),"ABORTED")==0)
 			{
 				path_planned_ = false;
-				path_to_user_= false;
 			}
-
+			else if(strcmp(irobot_->base_getStatus().c_str(),"SUCCEEDED")==0)
+			{
+				action_completed_ = true;
+			}
 		}
-*/
+
 	}
 }
 
@@ -321,7 +308,7 @@ void Navigation::ActionReset()
 	pass_count_= 0;
 	navigate_target = false;
 	find_user_= false;
-	aproach_user_ = false;
+	approach_user_ = false;
 
 	action_completed_ = false;
 	path_planned_  = false;
@@ -390,17 +377,21 @@ bool Navigation::isActionCompleted()
 //=================================================================
 // Enable start Looking for user
 //=================================================================
+void Navigation::ApproachUser()
+{
+	ROS_INFO("[Navigator]:: Approach user");
+
+	approach_user_=true;
+}
+
+//=================================================================
+// Enable start Looking for user
+//=================================================================
 void Navigation::LookingUser()
 {
 	ROS_INFO("[Navigator]:: Looking for user");
 
 	find_user_=true;
-}
-
-void Navigation::AproachUser(float distance, float angle)
-{
-	ROS_INFO("[Navigator]:: Aproach user");
-	aproach_user_ = true;
 }
 
 //=================================================================
@@ -531,6 +522,16 @@ void Navigation::getNavStatus()
 		ROS_INFO("[Navigator]:: Going to %s",target_name_.c_str());
 	else
 		ROS_INFO("[Navigator]:: Waiting for an action");
+}
+
+//=================================================================
+//	Clear data of detected user
+//=================================================================
+void Navigation::user_clear()
+{
+	userdetected_.detected = false;
+	userdetected_.angle = 0;
+	userdetected_.distance = 0;
 }
 
 //=================================================================
@@ -802,6 +803,22 @@ void Navigation::odometry_callback(const nav_msgs::Odometry::ConstPtr& msg)
 	//ROS_DEBUG("[Odometry]:: Odometry orient z,w: [%f,%f]: ", pose.orientation.z,pose.orientation.w);
 	irobot_->setRobotPose(pose);
 }
+//=====================================
+// FACE CALLBACK
+//=====================================
+void Navigation::face_callback(const user_tracker::ComConstPtr& msg)
+{
+	//ROS_INFO("[USER INFO]:: Face[x,y,z]: %f--%f--%f", msg->comPoints.x,msg->comPoints.y,msg->comPoints.z);
+
+	const float angle_pixel_kinect = 0.07125;
+	float x = msg->comPoints.x;
+	float y = msg->comPoints.y;
+
+	userdetected_.detected = true;
+	userdetected_.angle = -(320 - x) * angle_pixel_kinect;
+	userdetected_.distance = msg->comPoints.z/1000; // convert in m
+}
+
 
 //=====================================
 // Kill everything and shutdown
@@ -827,6 +844,15 @@ bool Navigation::navigate_target_service(std_srvs::Empty::Request& request, std_
 bool Navigation::find_user_service(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
 {
 	LookingUser();
+	return true;
+}
+
+//=====================================
+// Service to start autonomous navigation with known user
+//=====================================
+bool Navigation::approach_user_service(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
+{
+	ApproachUser();
 	return true;
 }
 
