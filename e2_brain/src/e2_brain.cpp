@@ -260,7 +260,7 @@ int main(int argc, char **argv)
 
 
 	//TODO - MAIN REMOVE this variables
-	navigate_user = true;
+	find_user = true;
 	while(ros::ok())
 	{
 		//======================================================================
@@ -939,59 +939,13 @@ int getVectorOutputValue(vector<int>* vector)
 	return result;
 }
 
-//======================================================================
-//======================================================================
-void voiceDoneCallback(const actionlib::SimpleClientGoalState& state,
-											 const e2_voice::VoiceResultConstPtr& result)
-{
-	ROS_INFO("[e2_brain]::Speak done [exit status %s]",result->result.c_str());
-	sampleCounter = 40;
-	speakHandlerFree = true;
-}
 
-//======================================================================
-//======================================================================
-void voiceActiveCallback()
-{
-	
-}
-
-
-//======================================================================
-//======================================================================
-void voiceFeedbackCallback(const e2_voice::VoiceFeedbackConstPtr& feed)
-{
-	
-}
-
-//======================================================================
-//======================================================================
-void navDoneCallback(const actionlib::SimpleClientGoalState& state,const e2_navigation::NavResultConstPtr& result)
-{
-	navHandlerFree = true;
-	ROS_INFO("[e2_brain]:: Navigation for task %d %s ",result->action_id,state.toString().c_str());
-
-	if(state.toString() == "SUCCEEDED")
-	{
-		if(result->action_id == 1)
-		{
-			find_user=false;
-			approach_user=true;
-			check_user_interested=true;
-		}
-	}
-}
-
-//======================================================================
-//======================================================================
-void navActiveCallback()
-{}
-
-//======================================================================
-//======================================================================
-void navFeedbackCallback(const e2_navigation::NavFeedbackConstPtr& feed)
-{}
-
+//============================================================================================================================================
+//============================================================================================================================================
+//==============================================	Service & CALLBACKS		==================================================================
+//============================================================================================================================================
+//============================================================================================================================================
+//TODO - CALLBACKS NAVIGATION
 bool start_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
 {
 	find_user = true;
@@ -1007,20 +961,63 @@ bool stop_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response&
 }
 
 //======================================================================
+//	Navigation Callbacks
 //======================================================================
+void navDoneCallback(const actionlib::SimpleClientGoalState& state,const e2_navigation::NavResultConstPtr& result)
+{
+	navHandlerFree = true;
+	ROS_INFO("[e2_brain]:: Navigation for task %d %s ",result->action_id,state.toString().c_str());
 
-void kinectDoneCallback(const actionlib::SimpleClientGoalState& state,
-											 const kinect_motor::KinectResultConstPtr& result)
+	if(state.toString() == "SUCCEEDED")
+	{
+		if(result->action_id == 1)
+		{
+			find_user=false;
+			approach_user=true;
+			check_user_interested=true;
+		}
+		else if(result->action_id == 3)
+			initialize();
+
+	}
+	else if(state.toString() == "ABORTED")
+	{
+		if(result->action_id == 3)
+			initialize();
+	}
+}
+
+void navActiveCallback()
+{}
+void navFeedbackCallback(const e2_navigation::NavFeedbackConstPtr& feed)
+{}
+
+//======================================================================
+// Kinect Callbacks
+//======================================================================
+void kinectDoneCallback(const actionlib::SimpleClientGoalState& state, const kinect_motor::KinectResultConstPtr& result)
 {
 	//ROS_INFO("[e2_brain]::Kinect motor set point reached [exit status %d]", (int)result->status);
 	kinectMotorFree = true;
 }
-
-//======================================================================
-//======================================================================
 void kinectActiveCallback(){}
-
-
-//======================================================================
-//======================================================================
 void kinectFeedbackCallback(const kinect_motor::KinectFeedbackConstPtr& feed){}
+
+//======================================================================
+// Voice Callbacks
+//======================================================================
+void voiceDoneCallback(const actionlib::SimpleClientGoalState& state,
+											 const e2_voice::VoiceResultConstPtr& result)
+{
+	ROS_INFO("[e2_brain]::Speak done [exit status %s]",result->result.c_str());
+	sampleCounter = 40;
+	speakHandlerFree = true;
+}
+void voiceActiveCallback()
+{
+
+}
+void voiceFeedbackCallback(const e2_voice::VoiceFeedbackConstPtr& feed)
+{
+
+}

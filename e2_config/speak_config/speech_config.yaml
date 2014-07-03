@@ -39,7 +39,11 @@
   duration: 150
 
 - id: check_complete
-  text: "Molto bene. Sei ancora qui. Proseguiamo."
+  text: "Molto bene. Proseguiamo."
+  duration: 150
+
+- id: check_final
+  text: "Sei ancora qui ?"
   duration: 150
 
 - id: recover_start

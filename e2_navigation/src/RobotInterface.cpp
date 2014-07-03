@@ -336,7 +336,7 @@ bool RobotInterface::robot_train_user(string user_name)
 //=====================================
 bool RobotInterface::robot_check_user(string user_name)
 {
-	ROS_INFO("[IRobot]:: Checking for known faces.");
+	//ROS_INFO("[IRobot]:: Checking for known faces.");
 
 	FaceRecognitionGoal goal;
 
@@ -370,7 +370,7 @@ void RobotInterface::facerecognition_callback(const actionlib::SimpleClientGoalS
 	{
 		if(result->distance[0]/1000 < ERROR_DISTANCE)	//	If distance is greater than 15m there's something wrong
 		{
-			ROS_INFO("[IRobot]:: Detected User: %s at %f mm",result->names[0].c_str(),result->distance[0]);
+			ROS_ERROR("[IRobot]:: Detected %s at %f mm",result->names[0].c_str(),result->distance[0]);
 			detected_user_.name = result->names[0];
 			detected_user_.distance = result->distance[0]/1000; 				// convert mm from kinect to meters
 			detected_user_.angle = result->angle[0];

@@ -111,18 +111,22 @@ public:
 		ros::Rate rate(ROS_NODE_RATE);
 
 		// Start Navigation Controller
-		while(!g_request_shutdown && !nav->isActionCompleted())
+		while(!g_request_shutdown && !nav->isActionCompleted() && !nav->isActionAborted())
 		{
 			nav->ActionController();
 			ros::spinOnce();
 			rate.sleep();
 		}
 
-		nav->ActionReset();
 		result_.action_id = goal_id_;
-		as_.setSucceeded(result_,"OK");
 
-		ROS_DEBUG("["ROS_NODE_NAME"]:: Action completed");
+		if(nav->isActionCompleted())
+			as_.setSucceeded(result_,"OK");
+		else
+			as_.setAborted(result_,"FAILED");
+
+		nav->ActionReset();
+
 	}
 
 private:

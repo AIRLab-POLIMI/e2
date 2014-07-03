@@ -31,7 +31,7 @@
 #define ABORT_TIMEOUT 			300						// Navigation timeout
 #define WAIT_TIMEOUT			30						//	Min time the robot will wait in position before abort task
 #define WAIT_DISTANCE			1						//	Min distance the robot will stop to wait user
-#define WAIT_TIME				5						//	Time the robot wait in position
+#define WAIT_TIME				2						//	Time the robot wait in position
 
 typedef struct user_detected
 {
@@ -50,18 +50,19 @@ class Navigation
 		~Navigation();
 
 		// Navigation functions
-	    void ActionController(); 																// Navigation controller loop
+	    void ActionController(); 												// Navigation controller loop
 
-	    void NavigateTarget();							 							// Start a new navigation task
-	    void LookingUser();															// Start looking for user in the ambient
+	    void NavigateTarget();							 						// Start a new navigation task
+	    void LookingUser();														// Start looking for user in the ambient
 	    void ApproachUser();
 
-	    void ActionAbort(); 															// Kill a current action
-	    void ActionAbort(const ros::TimerEvent& e); 				// Kill a current action for timer
+	    void ActionAbort(); 													// Kill a current action
+	    void ActionAbort(const ros::TimerEvent& e); 							// Kill a current action for timer
+	    bool isActionAborted();													// Check if an action is aborted
 	    bool isActionCompleted();												// Check if an action is completed
-	    void ActionReset();															// Reset navigation status
+	    void ActionReset();														// Reset navigation status
 
-	    void getNavStatus(); 														// Print navigation info in console
+	    void getNavStatus(); 													// Print navigation info in console
 
 		// Define services
 		bool abort_service(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
@@ -127,7 +128,9 @@ class Navigation
 	    bool path_planned_;				// if the robot is following a navigation path
 	    bool path_to_user_;				// true if the robot is following a path to reach a user
 	    bool user_recognized_;			// User recognized by facerecognition
+	    bool action_aborted_;
 	    bool action_completed_;
+
 
 	    tf::TransformListener listener_;
 
