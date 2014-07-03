@@ -47,7 +47,7 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 	nh_.param<bool>("en_kinect", en_kinect, true);
 
 	nh_.param("marker_config", marker_config, ros::package::getPath("e2_config")+"/map_config/sim_marker_config.yaml");
-	nh_.param("speech_config", speech_config, ros::package::getPath("e2_config")+"/speech_config/speech_config.yaml");
+	nh_.param("speech_config", speech_config, ros::package::getPath("e2_config")+"/speak_config/speech_config.yaml");
 
 	//	Suscribers
 	face_sub_= nh_.subscribe("/com", 10,&Navigation::face_callback,this);
@@ -83,16 +83,16 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 	marker_size_=doc_marker.size();
 	speech_size_=doc_speech.size();
 
-	ROS_INFO("[Navigation]:: Auto Enabled '%s' ",(find_user_ ? "true" : "false"));
-	ROS_INFO("[Navigation]:: Neck Enabled '%s' ",(en_neck ? "true" : "false"));
-	ROS_INFO("[Navigation]:: Voice Enabled '%s' ",(en_voice ? "true" : "false"));
-	ROS_INFO("[Navigation]:: Train Enabled '%s' ",(en_train ? "true" : "false"));
+	ROS_ERROR("[Navigation]:: Auto Enabled '%s' ",(find_user_ ? "true" : "false"));
+	ROS_ERROR("[Navigation]:: Neck Enabled '%s' ",(en_neck ? "true" : "false"));
+	ROS_ERROR("[Navigation]:: Voice Enabled '%s' ",(en_voice ? "true" : "false"));
+	ROS_ERROR("[Navigation]:: Train Enabled '%s' ",(en_train ? "true" : "false"));
 
-	ROS_INFO("[Navigation]:: Default User Name set to '%s' ", guest_name_.c_str());
-	ROS_INFO("[Navigation]:: Default Base location set to '%s' ",base_name_.c_str());
+	ROS_ERROR("[Navigation]:: Default User Name set to '%s' ", guest_name_.c_str());
+	ROS_ERROR("[Navigation]:: Default Base location set to '%s' ",base_name_.c_str());
 
-	ROS_INFO("[Navigation]:: Loaded Marker Config %s with %d markers", marker_config.c_str(),(int)doc_marker.size());
-	ROS_INFO("[Navigation]:: Loaded Speech Config %s with %d conversations", speech_config.c_str(),(int)doc_speech.size());
+	ROS_ERROR("[Navigation]:: Loaded Marker Config %s with %d markers", marker_config.c_str(),(int)doc_marker.size());
+	ROS_ERROR("[Navigation]:: Loaded Speech Config %s with %d conversations", speech_config.c_str(),(int)doc_speech.size());
 
 	//	Enable Robot interface
 	irobot_= new RobotInterface(en_neck,en_voice,en_train,en_kinect);
@@ -117,7 +117,7 @@ void Navigation::ActionController()
 	==================================================================*/
 	if(strcasecmp(irobot_->get_battery_status(),"LOW") == 0)
 	{
-		ROS_INFO("[Navigation]:: WARNING ! Battery Low, go to base to refill");
+		ROS_ERROR("[Navigation]:: WARNING ! Battery Low, go to base to refill");
 		irobot_->robot_talk(get_speech_by_name("battery_empty"));
 		nav_goto(base_name_);
 	}
@@ -188,7 +188,7 @@ void Navigation::ActionController()
 			{
 				ROS_INFO("[Navigation]:: User in front of me !");
 				irobot_->neck_action(1,2); 	// happy face
-				action_completed_ =true;
+				action_completed_ = true;
 			}
 			else if(irobot_->getDetectedUser().distance > 1)
 			{
@@ -290,7 +290,7 @@ void Navigation::ActionAbort()
 //=================================================================
 void Navigation::ActionAbort(const ros::TimerEvent& e)
 {
-	ROS_INFO("[Navigator]:: Task killed due to timeout. Go back home.");
+	ROS_ERROR("[Navigator]:: Task killed due to timeout. Go back home.");
 
 	ActionAbort();
 	nav_goto(base_name_);
@@ -301,7 +301,7 @@ void Navigation::ActionAbort(const ros::TimerEvent& e)
 //=================================================================
 void Navigation::ActionReset()
 {
-	ROS_INFO("[Navigator]:: Reset Navigation");
+	ROS_ERROR("[Navigator]:: Reset Navigation");
 
 	irobot_->cancell_all_goal();
 
@@ -330,7 +330,7 @@ void Navigation::ActionReset()
 //=================================================================
 void Navigation::NavigateTarget()
 {
-	ROS_INFO("[Navigator]:: New navigation task started");
+	ROS_ERROR("[Navigator]:: New navigation task started");
 
 	irobot_->neck_action(1,2); 	// happy face
 
@@ -379,7 +379,7 @@ bool Navigation::isActionCompleted()
 //=================================================================
 void Navigation::ApproachUser()
 {
-	ROS_INFO("[Navigator]:: Approach user");
+	ROS_ERROR("[Navigator]:: Approach user");
 
 	approach_user_=true;
 }
@@ -389,7 +389,7 @@ void Navigation::ApproachUser()
 //=================================================================
 void Navigation::LookingUser()
 {
-	ROS_INFO("[Navigator]:: Looking for user");
+	ROS_ERROR("[Navigator]:: Looking for user");
 
 	find_user_=true;
 }
@@ -501,7 +501,7 @@ bool Navigation::nav_is_goal_reached()
 //=================================================================
 void Navigation::nav_wait()
 {
-	ROS_INFO("[Navigation]:: Waiting...");
+	ROS_ERROR("[Navigation]:: Waiting...");
 	sleep(WAIT_TIME);
 }
 
@@ -554,7 +554,7 @@ void Navigation::user_wait()
 	if(irobot_->getDetectedUser().distance > WAIT_DISTANCE)
 	{
 		init_detection = ros::Time::now();
-		ROS_INFO("[Navigator]:: Guest user at %f m. I'll wait a bit..",irobot_->getDetectedUser().distance);
+		ROS_ERROR("[Navigator]:: Guest user at %f m. I'll wait a bit..",irobot_->getDetectedUser().distance);
 
 		while((ros::Time::now() - init_detection < timeout) && irobot_->getDetectedUser().distance > WAIT_DISTANCE)
 		{
@@ -577,7 +577,7 @@ void Navigation::user_wait()
 //=================================================================
 void Navigation::user_detectTimer(const ros::TimerEvent& e)
 {
-	ROS_INFO("[Navigator]:: Detect timeout. Check user presence.");
+	ROS_ERROR("[Navigator]:: Detect timeout. Check user presence.");
 
 	//	First Stop every robot action
 	irobot_->cancell_all_goal();
@@ -628,7 +628,7 @@ void Navigation::user_detectTimer(const ros::TimerEvent& e)
 //=====================================
 void Navigation::user_recover(string user_name)
 {
-	ROS_INFO("[Navigator]:: Start backtracking user.");
+	ROS_ERROR("[Navigator]:: Start backtracking user.");
 
 	irobot_->base_setGoal(last_user_detection_);						//	Go to last detection position of user
 

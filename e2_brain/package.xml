@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>e2_interest</name>
+  <name>e2_brain</name>
   <version>0.0.0</version>
-  <description>The e2_interest package</description>
+  <description>The e2_brain package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
@@ -19,7 +19,7 @@
   <!-- Url tags are optional, but mutiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/e2_interest</url> -->
+  <!-- <url type="website">http://wiki.ros.org/e2_brain</url> -->
 
 
   <!-- Author tags are optional, mutiple are allowed, one per tag -->

@@ -1,0 +1,8 @@
+<launch> 
+  	<node pkg="e2_brain" name="e2_brain" type="e2_brain" output="screen"/>     	
+	<!-- User TRacker-->
+  	<node name="user_tracker" pkg="user_tracker" type="user_tracker" respawn="false" />
+  	<!-- Head Analyzer-->
+  	<node name="head_analyzer" pkg="head_analyzer" type="head_analyzer" respawn="true" />
+	
+</launch>

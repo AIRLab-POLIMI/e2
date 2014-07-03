@@ -72,6 +72,9 @@ public:
 
 	void executeCB(const e2_navigation::NavGoalConstPtr& msg)
 	{
+		ROS_INFO("---------------------------------------");
+		ROS_INFO("---------------------------------------");
+		ROS_INFO("---------------------------------------");
 		// Check if current goal is still active
 		if (as_.isPreemptRequested())
 		{
@@ -87,19 +90,21 @@ public:
 		{
 			case 0:	// Abort
 				ROS_DEBUG("["ROS_NODE_NAME"]:: Abort current action");
+				nav->ActionReset();
 				as_.setAborted();
+				return;
 				break;
-			case 1:	// Start Navigation for interested people
-				ROS_DEBUG("["ROS_NODE_NAME"]:: Start navigation to target");
-				nav->NavigateTarget();
+			case 1:	// Looking for user
+				ROS_DEBUG("["ROS_NODE_NAME"]:: Looking for users");
+				nav->LookingUser();
 				break;
 			case 2:	// Aproach user
 				ROS_DEBUG("["ROS_NODE_NAME"]:: Aproaching user");
 				nav->ApproachUser();
 				break;
-			case 3: // Looking for user
-				ROS_DEBUG("["ROS_NODE_NAME"]:: Looking for users");
-				nav->LookingUser();
+			case 3: // Start Navigation for interested people
+				ROS_DEBUG("["ROS_NODE_NAME"]:: Start navigation to target");
+				nav->NavigateTarget();
 				break;
 		}
 
@@ -114,7 +119,8 @@ public:
 		}
 
 		nav->ActionReset();
-		as_.setSucceeded();
+		result_.action_id = goal_id_;
+		as_.setSucceeded(result_,"OK");
 
 		ROS_DEBUG("["ROS_NODE_NAME"]:: Action completed");
 	}
@@ -150,10 +156,10 @@ int main(int argc, char **argv)
 	// Start Navigation Controller
 	while(!g_request_shutdown)
 	{
-		 if(nav->isActionCompleted())
-			 nav->ActionReset();
+		//if(nav->isActionCompleted())
+		//	 nav->ActionReset();
 
-		nav->ActionController();
+		//nav->ActionController();
 
 		ros::spinOnce();
 		r.sleep();

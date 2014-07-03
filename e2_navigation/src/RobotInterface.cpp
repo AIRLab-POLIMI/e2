@@ -76,8 +76,8 @@ RobotInterface::~RobotInterface()
 //=================================================================
 void RobotInterface::base_setGoal(MBGoal goal)
 {
-	ROS_INFO("[IRobot]:: Received new goal: %f , %f , %f ",goal.target_pose.pose.position.x,goal.target_pose.pose.position.y,goal.target_pose.pose.position.z);
-	ROS_INFO("[IRobot]:: Orientation z, w : %f , %f",goal.target_pose.pose.orientation.z,goal.target_pose.pose.orientation.w);
+	//ROS_INFO("[IRobot]:: Received new goal: %f , %f , %f ",goal.target_pose.pose.position.x,goal.target_pose.pose.position.y,goal.target_pose.pose.position.z);
+	//ROS_INFO("[IRobot]:: Orientation z, w : %f , %f",goal.target_pose.pose.orientation.z,goal.target_pose.pose.orientation.w);
 	ac_mb->sendGoal(goal);
 }
 
@@ -92,7 +92,7 @@ void RobotInterface::cancell_all_goal()
 	ac_vc->cancelAllGoals();
 	ac_kn->cancelAllGoals();
 
-	ROS_DEBUG("[IRobot]:: All goal cancelled");
+	//ROS_DEBUG("[IRobot]:: All goal cancelled");
 }
 
 //=================================================================
@@ -120,7 +120,7 @@ string RobotInterface::base_getStatus()
 //=================================================================
 void RobotInterface::base_rotate(char *direction,float angle)
 {
-	ROS_DEBUG("[IRobot::Base]:: Rotating %s of %f rad ",direction,angle);
+	//ROS_DEBUG("[IRobot::Base]:: Rotating %s of %f rad ",direction,angle);
 
 	double th = tf::getYaw(robot_pose_.orientation);
 	double th_new;
@@ -144,7 +144,7 @@ void RobotInterface::base_rotate(char *direction,float angle)
 //=================================================================
 void RobotInterface::base_stop()
 {
-	ROS_DEBUG("[IRobot::Base]:: Robot Stopped ");
+	//ROS_DEBUG("[IRobot::Base]:: Robot Stopped ");
 	ac_mb->cancelAllGoals();
 }
 
@@ -192,7 +192,7 @@ void RobotInterface::neck_action(int action,int sub_action)
 		ac_nc->sendGoal(n_goal);
 	}
 	else
-		ROS_INFO("[IRobot::Neck]:: Neck is not enabled. Action %d - %d Aborted",action,sub_action);
+		ROS_DEBUG("[IRobot::Neck]:: Neck is not enabled. Action %d - %d Aborted",action,sub_action);
 }
 
 //=================================================================
@@ -246,15 +246,14 @@ void RobotInterface::robot_talk(string text, bool force)
 
 		}
 		else
-			ROS_INFO("[IRobot]:: Robot can't talk. Enable voice support");
+			ROS_DEBUG("[IRobot]:: Robot can't talk. Enable voice support");
 
 		if(force)
 		{
 			ac_vc->waitForResult();
 		}
 
-	}else
-		ROS_DEBUG("[IRobot]:: Passed to few time");
+	}
 }
 
 //=====================================

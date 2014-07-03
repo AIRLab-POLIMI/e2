@@ -38,7 +38,9 @@
 	  	<param name="en_kinect" type="bool" value="false" />
 		<param name="marker_config" type="string" value="$(arg stand_fiera)" />
 	</node>
-		  	
+
+	<include file="$(find e2_launch)/launch/components/e2_brain.launch" />
+
     <!-- Rviz -->
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find e2_launch)/launch/config/simulation.rviz"/>
     

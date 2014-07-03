@@ -1,7 +1,7 @@
 //======================================================================
 // Authors:	cristianmandelli@gmail.com 
-//	      			deborahzamponi@gmail.com
-// 				ripani.lorenzo@gmail.com
+//	      	deborahzamponi@gmail.com
+// 			ripani.lorenzo@gmail.com
 // Modified: 26/05/2014
 // Data: 11/02/2012
 // Description: This is e2 brain. This module manages data from vision
@@ -25,7 +25,6 @@
 #include <kinect_motor/KinectAction.h>
 #include <e2_voice/VoiceAction.h>
 #include <e2_navigation/NavAction.h>
-#include <e2_neck_controller/NeckAction.h>
 #include <actionlib/client/simple_action_client.h>
 //Modules
 #include <user_tracker/Com.h>
@@ -52,7 +51,6 @@ using namespace std;
 //Action clients definition
 typedef actionlib::SimpleActionClient<e2_voice::VoiceAction> VoiceClient;
 typedef actionlib::SimpleActionClient<e2_navigation::NavAction> NavClient;
-typedef actionlib::SimpleActionClient<e2_neck_controller::NeckAction> NeckClient;
 typedef actionlib::SimpleActionClient<kinect_motor::KinectAction> KinectClient;
 
 //Enum
@@ -138,8 +136,14 @@ bool navHandlerFree;
 bool visionDataCapture;
 bool visionDataAnalyze;
 bool firstInteraction;
+
+// TODO VAriabili comportamento
+bool find_user;
+bool approach_user;
+bool check_user_interested;
+bool navigate_user;
+
 bool user_interested;
-bool start;
 
 vector<phraseData> phrases;
 userStruct userData;
@@ -151,19 +155,16 @@ apiCode activationAPI;
 //Server action done callbacks
 void voiceDoneCallback(const actionlib::SimpleClientGoalState& state, const e2_voice::VoiceResultConstPtr& result);
 void navDoneCallback(const actionlib::SimpleClientGoalState& state,  const e2_navigation::NavResultConstPtr& result);
-void neckDoneCallback(const actionlib::SimpleClientGoalState& state,  const e2_neck_controller::NeckResultConstPtr& result);
 void kinectDoneCallback(const actionlib::SimpleClientGoalState& state, const kinect_motor::KinectResultConstPtr& result);
 
 //Server action activated callbacks
 void voiceActiveCallback();
 void navActiveCallback();
-void neckActiveCallback();
 void kinectActiveCallback();
 
 //Server action feedBack callback
 void voiceFeedbackCallback(const e2_voice::VoiceFeedbackConstPtr& feed);
 void navFeedbackCallback(const e2_navigation::NavFeedbackConstPtr& feed);
-void neckFeedbackCallback(const e2_neck_controller::NeckFeedbackConstPtr& feed);
 void kinectFeedbackCallback(const kinect_motor::KinectFeedbackConstPtr& feed);
 
 //Messages callbacks
@@ -179,6 +180,7 @@ int getUserLeftEyeRatioBehaviour(vector<float>* vector);
 int getUserRightEyeRatioBehaviour(vector<float>* vector);
 char detectMeaningfulMove(vector<char>* vector);
 //Other functions
+void initialize();
 int getVectorOutputValue(vector<int>* vector);
 float getVectorOutputValue(vector<float>* vector);
 void loadSpeakConfigFile(string file);
@@ -187,8 +189,9 @@ int setMaxValueBt(int a, int b);
 void primitiveMSGParser(string primitiveStr, string paramsStr);
 
 bool start_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
+bool stop_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
 
-//Main
+// Main
 //======================================================================
 //======================================================================
 int main(int argc, char **argv)
@@ -197,23 +200,6 @@ int main(int argc, char **argv)
 	ros::init(argc, argv, "e2_brain");
 	ros::NodeHandle nh;
 	
-	//Controls variables initializations
-	userPositionDataReady = false;
-	userEyesDataReady = false;
-	userMoveDataReady = false;
-	userHeadRatioDataReady = false;
-	userHeadPitchDataReady = false;
-	userHeadRollDataReady = false;
-	kinectMotorFree = false;
-	speakHandlerFree = true;
-	neckHandlerFree = true;
-  	navHandlerFree = true;
-	visionDataCapture = false;
-	visionDataAnalyze = false;
-	firstInteraction = true;
-	user_interested = false;
-	start = false;
-
 	//Variables
 	vectorStruct dataVectors;	//Values from vision modules
 	Node* node;
@@ -223,106 +209,89 @@ int main(int argc, char **argv)
 	ros::Subscriber subUserHeadData = nh.subscribe("headData", 10, getUserHeadData);
 	ros::Subscriber subUserEyesData = nh.subscribe("eyesData", 10, getUserEyesData);
 	ros::Subscriber subUserMoveData = nh.subscribe("moveData", 10, getUserMoveData);
-
+	//Services
 	ros::ServiceServer start_service = nh.advertiseService("e2_brain/start",start_callback);
 	
+	//Inizializza le variabili di sistema allo stato iniziale
+	initialize();
+
 	//Load state machines that controls the interaction process
 	StateMachine *sm = new StateMachine();
-	string stateMachineConfigFile = ros::package::getPath("e2_brain")+"/config/state_machine_config/state_machine.txt";
+	string stateMachineConfigFile = ros::package::getPath("e2_config")+"/state_machine_config/state_machine.txt";
 	err = sm->loadFromFile(stateMachineConfigFile);
 	sm->printMap();
 	if(err < 0)
-		ROS_ERROR("[e2_brain]::Error loading state machine from configuration file");
+		ROS_ERROR("[e2_brain]:: Error loading state machine from configuration file");
 	else
-		ROS_INFO("[e2_brain]::State machine from configuration file ... [OK]");
+		ROS_INFO("[e2_brain]:: State machine from configuration file ... [OK]");
 	
 	//Load speak configuration file
-	string speakConfigFile = ros::package::getPath("e2_brain")+"/config/speak_config/speak.txt";
+	string speakConfigFile = ros::package::getPath("e2_config")+"/speak_config/speak.txt";
 	loadSpeakConfigFile(speakConfigFile);
 	
 	//Clients definition
 	VoiceClient voiceClient("e2_voice_node", true);
-	NeckClient neckClient("e2_neck_controller", true);
 	NavClient navClient("e2_nav",true);
 	KinectClient kinectClient("kinect_motor", true);
 	
 	//Servers goal definitions
 	e2_voice::VoiceGoal voiceGoal;
 	e2_navigation::NavGoal navGoal;
-	e2_neck_controller::NeckGoal neckGoal;
 	kinect_motor::KinectGoal kinectGoal;
 	
 	//Wait for servers
-        while (!navClient.waitForServer(ros::Duration(5.0)))
-                ROS_INFO("[e2_brain]:: Waiting for the navigation action server to come up");
-        while (!voiceClient.waitForServer(ros::Duration(5.0)))
-                ROS_INFO("[IRobot]:: Waiting for the voice action server to come up");
-        while (!neckClient.waitForServer(ros::Duration(5.0)))
-                ROS_INFO("[IRobot]:: Waiting for the neck action server to come up");
-        while (!kinectClient.waitForServer(ros::Duration(5.0)))
-                    ROS_INFO("[IRobot]:: Waiting for the kinect action server to come up");
+	while (!navClient.waitForServer(ros::Duration(5.0)))
+		ROS_INFO("[e2_brain]:: Waiting for the navigation action server to come up");
+	while (!voiceClient.waitForServer(ros::Duration(5.0)))
+		ROS_INFO("[e2_brain]:: Waiting for the voice action server to come up");
+	//while (!kinectClient.waitForServer(ros::Duration(5.0)))
+	//	ROS_INFO("[e2_brain]:: Waiting for the kinect action server to come up");
 
-	//voiceClient.waitForServer();
-	//navClient.waitForServer();
-	//neckClient.waitForServer();
-	//kinectClient.waitForServer();
+
 	ROS_INFO("[e2_brain]::Servers connected ... [OK]");
 	
 	//KinectMotor initializations
-
 	kinectGoal.tilt = -100;
 	kinectClient.sendGoal(kinectGoal, &kinectDoneCallback, &kinectActiveCallback, &kinectFeedbackCallback);
 	kinectMotorFree = false;
 
 	//RosLoop
 	ros::Rate r(ROS_NODE_RATE);
+
+
+	//TODO - MAIN REMOVE this variables
+	navigate_user = true;
 	while(ros::ok())
 	{
-	
-		if(start)
+		//======================================================================
+		//					I STEP - FIND USER
+		//======================================================================
+		if(find_user)
 		{
-			/*==================================================================
-													Kinect_motor management
-			==================================================================*/
-
-			if(userPositionDataReady && userDistance < 1500 && navHandlerFree)
+			if(navHandlerFree)
 			{
-				//ROS_INFO("[e2_brain]:: kinect move");
-
-				if(userDistanceY > USER_Y_MIN_POSITION && kinectMotorFree)
-				{
-					kinectMotorFree = false;
-					kinectGoal.tilt = -2;
-					kinectClient.sendGoal(kinectGoal, &kinectDoneCallback, &kinectActiveCallback, &kinectFeedbackCallback);
-				}
-				else if(userDistanceY < USER_Y_MAX_POSITION && kinectMotorFree)
-				{
-					kinectMotorFree = false;
-					kinectGoal.tilt = 2;
-					kinectClient.sendGoal(kinectGoal, &kinectDoneCallback, &kinectActiveCallback, &kinectFeedbackCallback);
-				}
-			}
-
-			/*==================================================================
-													Locate user
-			==================================================================*/
-			if(!userPositionDataReady && navHandlerFree)
-			{
-				ROS_INFO("[e2_brain]:: Looking for user");
-				//Looking for user
-				navGoal.action_id = 3;	// Start navigation task full optional
+				ROS_ERROR("[e2_brain]:: Request to find a user sent at e2_navigation module...");
+				navGoal.action_id = 1;
 				navClient.sendGoal(navGoal, &navDoneCallback, &navActiveCallback, &navFeedbackCallback);
 				navHandlerFree = false;
+				navClient.waitForResult();
 			}
 
+		}
+
+		//======================================================================
+		//					II STEP - APPROACH USER IF TOO DISTANT
+		//======================================================================
+		if(approach_user)
+		{
 			/*==================================================================
-													Vision data management
+								Vision data management
 			==================================================================*/
 			if(userPositionDataReady && userDistance < 1000 && navHandlerFree)
 				visionDataCapture = true;
 			else if(userPositionDataReady && userDistance > 1000 && navHandlerFree)
 			{
-				ROS_INFO("[e2_brain]:: Aproach user, %d",userDistance);
+				ROS_ERROR("[e2_brain]:: NEED TO APPROACH!!!!!!!!, %d distance",userDistance);
 				//Aproach user
 				//navGoal.action_id = 2;
 				//navGoal.angle=0;
@@ -374,7 +343,7 @@ int main(int argc, char **argv)
 					dataVectors.userMovesVect.push_back(userMoveClass);
 					userMoveDataReady = false;
 				}
-				
+
 				//Stop acquisition and start analysis when all data are acquired
 				if((sampleCounter == INTERACTION_SAMPLES) && (speakHandlerFree))
 				{
@@ -386,11 +355,18 @@ int main(int argc, char **argv)
 					visionDataAnalyze = true;
 				}
 			}
-			
+
+		}
+
+		//======================================================================
+		//					III STEP - CHECK IF USER IS INTERESTED
+		//======================================================================
+		if(check_user_interested)
+		{
 			/*==================================================================
-													Vision data analysis
+								INTEREST DETECTION - Vision data analysis
 			==================================================================*/
-			if(visionDataAnalyze && navHandlerFree)
+			if(visionDataAnalyze)
 			{
 				int t = 1;
 				if(!firstInteraction)
@@ -410,7 +386,7 @@ int main(int argc, char **argv)
 					ROS_ERROR("userHeadRatioVector -> [OK]");
 					if (userData.headData.roll != 0) {setStatusValue(2, -2);}
 					else if (userData.headData.roll == 0) {setStatusValue(1, 0);}
-					
+
 					//User Pitch analysis
 					userData.headData.pitch = getUserHeadPitchBehaviour(&dataVectors.userHeadPitchVect);
 					ROS_ERROR("userHeadPitchVector -> [OK]");
@@ -424,7 +400,7 @@ int main(int argc, char **argv)
 					if (userData.eyesData.leftRatio > 0) {setStatusValue(1, -1); }
 					else if (userData.eyesData.leftRatio == 0) {setStatusValue(0, 0); }
 					else if (userData.eyesData.leftRatio < 0) {setStatusValue(-1, 1); }
-					
+
 					//User right eye ratio analysis
 					userData.eyesData.rightRatio = getUserRightEyeRatioBehaviour(&dataVectors.userEyeRRatioVect);
 					ROS_ERROR("userRightEyeRatioVector -> [OK]");
@@ -441,7 +417,7 @@ int main(int argc, char **argv)
 					else if (userData.movement == 'R') {setStatusValue(-1, 2); }
 
 					ROS_ERROR("Counters value INTERESTED=%d NOT_INTERESTED=%d",
-					interestedCounter, not_interestedCounter);
+							interestedCounter, not_interestedCounter);
 
 					//Select interaction action
 					t = setMaxValueBt(interestedCounter, not_interestedCounter);
@@ -477,14 +453,6 @@ int main(int argc, char **argv)
 						//Check state machines output and send goals to servers
 						primitiveMSGParser(node->getOutput(), node->getParams());
 
-						/*for(int i=0; i < 10;  i++)
-						{
-							ROS_ERROR("code %d", activationAPI.apiCode[i]);
-							ROS_ERROR("param %s", activationAPI.apiPar[i].c_str());
-
-						}*/
-
-
 						//Enable capturing fase
 						visionDataCapture = true;
 						visionDataAnalyze = false;
@@ -498,86 +466,89 @@ int main(int argc, char **argv)
 
 						if (user_interested)
 						{
-							ROS_INFO("------------------Navigation----------------------");
-
-							// Define Goal to navigation
-							navGoal.action_id = 1;	// Start navigation task full optional
-							navClient.sendGoal(navGoal, &navDoneCallback, &navActiveCallback, &navFeedbackCallback);
+							ROS_ERROR("[e2_brain]:: User INTERESTED ! Going to Base...");
+							navigate_user = true;
+							approach_user = false;
+							check_user_interested = false;
+						}
+						else
+						{
+							ROS_ERROR("[e2_brain]:: User NOT INTERESTED !");
+							initialize();
 						}
 
 					}
 				}
 			}
-			
-			/*==================================================================
-												Send Data to server (Actionlib)
-			==================================================================*/
-			//Speaking
-			if(activationAPI.apiCode[SPEAK] == 1)
-			{
-				activationAPI.apiCode[SPEAK] = -1;
-				speakHandlerFree = false;
-				
-				//Get phrase number
-				stringstream ss(activationAPI.apiPar[SPEAK]);
-				int temp;
-				ss >> temp;
 
-				//Define goal and send it to the server side
-				voiceGoal.action_id = 1;
-				voiceGoal.text = phrases[temp].data;
-				voiceClient.sendGoal(voiceGoal, &voiceDoneCallback, &voiceActiveCallback, &voiceFeedbackCallback);
-			}
-
-			//Face move
-			if(activationAPI.apiCode[NECK] == 1)
-			{
-				activationAPI.apiCode[NECK] = -1;
-
-				neckHandlerFree = false;
-				int temp;
-				//Get head action code (first value of params)
-				size_t found = 0;
-				found = activationAPI.apiPar[NECK].find_first_of(",");
-				if(found > 0)
-				{
-					string activationCode = activationAPI.apiPar[NECK].substr(0, found);
-					stringstream ss(activationCode);
-					ss >>temp;
-					//Remove fiurst params to string
-					activationAPI.apiPar[NECK].erase(0, found + 1);
-
-					//Set goal gode
-					neckGoal.action = 1 ;
-					neckGoal.sub_action = temp;
-				}
-				else
-				{
-					stringstream ss(activationAPI.apiPar[NECK]);
-					ss >> temp;
-					//Set goal gode
-					neckGoal.action = 1 ;
-					neckGoal.sub_action = temp;
-				}
-
-				//Define goal and send it to the server side
-				neckClient.sendGoal(neckGoal, &neckDoneCallback, &neckActiveCallback, &neckFeedbackCallback);
-			}
-
-
-
-
-			/*==================================================================
-												Ending i-th iteration
-			==================================================================*/
 		}
+
+		//======================================================================
+		//					III STEP - NAVIGATE TO BASE (KEEP TRACK OF THE USER)
+		//======================================================================
+		if(navigate_user && navHandlerFree)
+		{
+			ROS_ERROR("[e2_brain]:: Navigate user to the base...");
+			navGoal.action_id = 3;
+			navClient.sendGoal(navGoal, &navDoneCallback, &navActiveCallback, &navFeedbackCallback);
+			navHandlerFree = false;
+		}
+
+		/*==================================================================
+			Do you need to say something E-2?
+		==================================================================*/
+		//Speaking
+		if(activationAPI.apiCode[SPEAK] == 1)
+		{
+			activationAPI.apiCode[SPEAK] = -1;
+			speakHandlerFree = false;
+
+			//Get phrase number
+			stringstream ss(activationAPI.apiPar[SPEAK]);
+			int temp;
+			ss >> temp;
+
+			//Define goal and send it to the server side
+			voiceGoal.action_id = 1;
+			voiceGoal.text = phrases[temp].data;
+			voiceClient.sendGoal(voiceGoal, &voiceDoneCallback, &voiceActiveCallback, &voiceFeedbackCallback);
+		}
+
 		ros::spinOnce();
 		r.sleep();
 	}
 }
-//Functions
+
 //======================================================================
+// Functions
 //======================================================================
+
+void initialize()
+{
+	//Controls variables initializations
+	userPositionDataReady = false;
+	userEyesDataReady = false;
+	userMoveDataReady = false;
+	userHeadRatioDataReady = false;
+	userHeadPitchDataReady = false;
+	userHeadRollDataReady = false;
+	kinectMotorFree = false;
+	speakHandlerFree = true;
+	neckHandlerFree = true;
+  	navHandlerFree = true;
+	visionDataCapture = false;
+	visionDataAnalyze = false;
+	firstInteraction = true;
+
+
+	find_user = false;
+	approach_user = false;
+	check_user_interested = false;
+	navigate_user = false;
+
+	user_interested = false;
+}
+
 void primitiveMSGParser(string primitiveStr, string paramsStr)
 {
 	
@@ -995,29 +966,20 @@ void voiceFeedbackCallback(const e2_voice::VoiceFeedbackConstPtr& feed)
 
 //======================================================================
 //======================================================================
-void neckDoneCallback(const actionlib::SimpleClientGoalState& state,
-											 const e2_neck_controller::NeckResultConstPtr& result)
-{
-	neckHandlerFree = true;
-}
-
-//======================================================================
-//======================================================================
-void neckActiveCallback()
-{}
-
-
-//======================================================================
-//======================================================================
-void neckFeedbackCallback(const e2_neck_controller::NeckFeedbackConstPtr& feed)
-{}
-
-//======================================================================
-//======================================================================
 void navDoneCallback(const actionlib::SimpleClientGoalState& state,const e2_navigation::NavResultConstPtr& result)
 {
 	navHandlerFree = true;
-	ROS_INFO("NAVIS FREEEEEEEEEEEEEEEeee");
+	ROS_INFO("[e2_brain]:: Navigation for task %d %s ",result->action_id,state.toString().c_str());
+
+	if(state.toString() == "SUCCEEDED")
+	{
+		if(result->action_id == 1)
+		{
+			find_user=false;
+			approach_user=true;
+			check_user_interested=true;
+		}
+	}
 }
 
 //======================================================================
@@ -1032,7 +994,15 @@ void navFeedbackCallback(const e2_navigation::NavFeedbackConstPtr& feed)
 
 bool start_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
 {
-	start = true;
+	find_user = true;
+	return true;
+}
+
+bool stop_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
+{
+
+	//TODO - reset navigation
+
 	return true;
 }
 
