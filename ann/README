@@ -1,0 +1,7 @@
+Installation notes
+=======================================================
+To correctly install ann it had to be compiled from ann-build directory
+
+# make installed
+
+next copy library libANN.a just compiled on top lib directory than catkin_make 
