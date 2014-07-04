@@ -19,7 +19,17 @@ Download the e2 repository in your catkin workspace src directory
 $ git clone https://github.com/boottp/e2
 
 
-Then go in ann directory and follow instruction to compile libraries and to install.
+Then go in ann directory to compile library
+
+$ cd e2/ann/ann-build
+
+compile
+
+$ make installed
+
+copy to top folder
+
+cp ann/lib ../ -R
 
 after this you can compile the workspace with 
 
@@ -30,7 +40,11 @@ Testing
 You can test the package by running the simulated enviroment, using V-rep simulator [http://www.coppeliarobotics.com/]
 Once open v-rep open e2simulation_fiera_devel.ttt in vrep_scenario folder. Start simulation and launch e2  stack using the following command:
 
-roslaunch e2_launch e2_simulation_robot.launch
+$ roslaunch e2_launch simulation_robot.launch
+
+On the robot
+
+$ roslaunch e2_launch e2_robot.launch
 
 Here are some service you can invoke to make some test
 
