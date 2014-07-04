@@ -176,6 +176,7 @@ void Navigation::ActionController()
 				if(user_recognized_)
 				{
 					irobot_->neck_action(1,2); 	// happy face
+					irobot_->neck_action(1,4);	// Make a Bow
 					irobot_->base_stop();
 					irobot_->robot_talk(get_speech_by_name("complete"),true);
 					action_completed_ = true;
@@ -245,9 +246,8 @@ void Navigation::ActionController()
 			path_planned_ = false;
 			ActionAbort();
 		}
-		else if(strcmp(irobot_->base_getStatus().c_str(),"SUCCEEDED")==0)
+		else if(strcmp(irobot_->base_getStatus().c_str(),"SUCCEEDED")==0 )
 		{
-			irobot_->robot_talk(get_speech_by_name("check_final"),true);
 
 			user_detect("unknown");
 
@@ -258,6 +258,7 @@ void Navigation::ActionController()
 					find_user_= false;
 					action_completed_ = true;
 					irobot_->neck_action(1,2); 	// happy face
+					ROS_ERROR("[Navigation]:: Sono davanti una persona !");
 				}
 				else
 					path_to_user_= false;
