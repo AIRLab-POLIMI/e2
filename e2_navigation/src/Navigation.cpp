@@ -130,6 +130,7 @@ void Navigation::ActionController()
 	{
 		if(!path_planned_)
 		{
+			irobot_->neck_action(1,1); 	// Norm face
 			irobot_->kinect_action(15);
 			abort_timeout_.start();
 			detect_timeout_.start();
@@ -181,7 +182,7 @@ void Navigation::ActionController()
 				}
 				else
 				{
-					irobot_->neck_action(1,2); 	// happy face
+					irobot_->neck_action(1,3); 	// angry face
 					irobot_->robot_talk(get_speech_by_name("abort"),true);
 					action_aborted_ = true;
 				}
@@ -198,6 +199,7 @@ void Navigation::ActionController()
 
 		if(!path_planned_)
 		{
+			irobot_->neck_action(1,1); 	// norm face
 			nav_random_path();			// Ramdom navigation
 			path_planned_ = true;
 		}
@@ -369,9 +371,13 @@ void Navigation::NavigateTarget()
 
 		// Save new user face
 		if(irobot_->robot_train_user(guest_name_))
+		{
+			irobot_->neck_action(1,2);	// happy
 			irobot_->robot_talk(get_speech_by_name("train_success"),true);
+		}
 		else
 		{
+			irobot_->neck_action(1,3);	// angry
 			irobot_->robot_talk(get_speech_by_name("train_failed"),true);
 			ActionReset();
 			return;
