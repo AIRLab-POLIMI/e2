@@ -161,7 +161,7 @@ void Navigation::ActionController()
 			{
 				ros::Time init_detection = ros::Time::now();
 				ros::Duration timeout(20.0);
-
+				user_recognized_ = false;
 				while((ros::Time::now() - init_detection < timeout) && !user_recognized_)
 				{
 					irobot_->base_rotate(const_cast<char *>("LEFT"));	// Rotate robot base because he should be on the robot side
@@ -217,13 +217,13 @@ void Navigation::ActionController()
 				irobot_->neck_action(1,2); 	// happy face
 				action_completed_ = true;
 			}
-			else if(irobot_->getDetectedUser().distance > 1)
+			else if(irobot_->getDetectedUser().distance >= 1)
 			{
 				ROS_INFO("[Navigation]:: User is still far from me. M'avvicino !");
 
 				// Robot just find someone. Go toward him
-				nav_goto_detected_user(irobot_->getDetectedUser());
-				nav_goto(0.9,irobot_->getDetectedUser().angle); // slow aproach
+				//nav_goto_detected_user(irobot_->getDetectedUser());
+				nav_goto(0.4,irobot_->getDetectedUser().angle); // slow aproach
 
 				irobot_->clearDetectedUser();
 				user_recognized_= false;		// Set path just once
@@ -240,11 +240,18 @@ void Navigation::ActionController()
 		if(strcmp(irobot_->base_getStatus().c_str(),"ABORTED")==0)
 		{
 
-			if(path_to_user_)
-				path_to_user_= false;
+			if(user_recognized_)
+			{
 
-			path_planned_ = false;
-			ActionAbort();
+			}
+			else
+			{
+				if(path_to_user_)
+					path_to_user_= false;
+
+				path_planned_ = false;
+				ActionAbort();
+			}
 		}
 		else if(strcmp(irobot_->base_getStatus().c_str(),"SUCCEEDED")==0 )
 		{
@@ -278,6 +285,7 @@ void Navigation::ActionController()
 	==================================================================*/
 	else if(approach_user_)
 	{
+
 		if(userdetected_.detected)
 		{
 			if(!path_planned_)
@@ -289,7 +297,7 @@ void Navigation::ActionController()
 					action_completed_ = true;
 				}else{
 
-					nav_goto(userdetected_.distance,userdetected_.angle);
+					nav_goto(0.2,userdetected_.angle);
 					path_planned_ = true;
 				}
 			}
@@ -297,12 +305,11 @@ void Navigation::ActionController()
 			{
 				path_planned_ = false;
 			}
-			else if(strcmp(irobot_->base_getStatus().c_str(),"SUCCEEDED")==0)
+			else if(strcmp(irobot_->base_getStatus().c_str(),"SUCCEEDED")==0 && userdetected_.distance < 1)
 			{
 				action_completed_ = true;
 			}
 		}
-
 	}
 }
 
@@ -394,7 +401,7 @@ void Navigation::NavigateTarget()
 	irobot_->neck_action(2,2);	//	Invitation Left
 
 	abort_timeout_ = nh_.createTimer(ros::Duration(ABORT_TIMEOUT), &Navigation::ActionAbort,this,true,false);
-	detect_timeout_ = nh_.createTimer(ros::Duration(DETECT_TIMEOUT), &Navigation::user_detectTimer,this,false,false);
+	detect_timeout_ = nh_.createTimer(ros::Duration(DETECT_TIMEOUT), &Navigation::user_detectTimer,this,true,false);
 
 	irobot_->neck_action(2,1);	//	Straight again
 	irobot_->neck_action(1,1);	//	Norm face

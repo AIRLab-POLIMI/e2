@@ -260,7 +260,7 @@ int main(int argc, char **argv)
 
 
 	//TODO - MAIN REMOVE this variables
-	find_user = true;
+
 	while(ros::ok())
 	{
 		//======================================================================
@@ -285,19 +285,37 @@ int main(int argc, char **argv)
 		if(approach_user)
 		{
 			/*==================================================================
+							Kinect_motor management
+			==================================================================*/
+
+			if(userPositionDataReady && userDistance < 1500 && navHandlerFree)
+			{
+				if(userDistanceY > USER_Y_MIN_POSITION && kinectMotorFree)
+				{
+					kinectMotorFree = false;
+					kinectGoal.tilt = -2;
+					kinectClient.sendGoal(kinectGoal, &kinectDoneCallback, &kinectActiveCallback, &kinectFeedbackCallback);
+				}
+				else if(userDistanceY < USER_Y_MAX_POSITION && kinectMotorFree)
+				{
+					kinectMotorFree = false;
+					kinectGoal.tilt = 2;
+					kinectClient.sendGoal(kinectGoal, &kinectDoneCallback, &kinectActiveCallback, &kinectFeedbackCallback);
+				}
+			}
+
+			/*==================================================================
 								Vision data management
 			==================================================================*/
-			if(userPositionDataReady && userDistance < 1000 && navHandlerFree)
+			if(userPositionDataReady && userDistance < 1200 && navHandlerFree)
 				visionDataCapture = true;
-			else if(userPositionDataReady && userDistance > 1000 && navHandlerFree)
+			else if(userPositionDataReady && userDistance > 1200 && navHandlerFree)
 			{
-				ROS_ERROR("[e2_brain]:: NEED TO APPROACH!!!!!!!!, %d distance",userDistance);
-				//Aproach user
-				//navGoal.action_id = 2;
-				//navGoal.angle=0;
-				//navGoal.distance= userDistance - 900;
-				//navClient.sendGoal(navGoal, &navDoneCallback, &navActiveCallback, &navFeedbackCallback);
-				//navHandlerFree = false;
+				ROS_ERROR("[e2_brain]:: NEED TO APPROACH!!!!!!!! Manual request, %d distance",userDistance);
+
+				navGoal.action_id = 2;
+				navClient.sendGoal(navGoal, &navDoneCallback, &navActiveCallback, &navFeedbackCallback);
+				navHandlerFree = false;
 			}
 
 			if(visionDataCapture && !visionDataAnalyze && navHandlerFree)
@@ -956,7 +974,7 @@ bool stop_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response&
 {
 
 	//TODO - reset navigation
-
+	initialize();
 	return true;
 }
 
