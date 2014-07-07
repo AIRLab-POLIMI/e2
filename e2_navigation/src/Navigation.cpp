@@ -291,13 +291,13 @@ void Navigation::ActionController()
 			if(!path_planned_)
 			{
 				// if distance is lower than 1 meter or is not too far from center camera the robot stay on place
-				if(userdetected_.distance < 1 && (userdetected_.angle < 22 && userdetected_.angle > -22))
+				if(userdetected_.distance < 1.2)
 				{
 					ROS_INFO("[Navigation]:: User at distance %f and %f deg from camera. No action Done ! ",userdetected_.distance,userdetected_.angle);
 					action_completed_ = true;
 				}else{
 
-					nav_goto(0.2,userdetected_.angle);
+					nav_goto(0.3,0);
 					path_planned_ = true;
 				}
 			}
@@ -308,7 +308,8 @@ void Navigation::ActionController()
 			else if(strcmp(irobot_->base_getStatus().c_str(),"SUCCEEDED")==0 && userdetected_.distance < 1)
 			{
 				action_completed_ = true;
-			}
+			}else
+				path_planned_= false;
 		}
 	}
 }
@@ -397,9 +398,9 @@ void Navigation::NavigateTarget()
 	// Save current position as first user detection position
 	initial_time_ = ros::Time::now();
 	setUserDetection(true);
-
+	nav_wait();
 	irobot_->neck_action(2,2);	//	Invitation Left
-
+	nav_wait();
 	abort_timeout_ = nh_.createTimer(ros::Duration(ABORT_TIMEOUT), &Navigation::ActionAbort,this,true,false);
 	detect_timeout_ = nh_.createTimer(ros::Duration(DETECT_TIMEOUT), &Navigation::user_detectTimer,this,true,false);
 

@@ -268,6 +268,7 @@ int main(int argc, char **argv)
 		//======================================================================
 		if(find_user)
 		{
+
 			if(navHandlerFree)
 			{
 				ROS_ERROR("[e2_brain]:: Request to find a user sent at e2_navigation module...");
@@ -314,8 +315,8 @@ int main(int argc, char **argv)
 				ROS_ERROR("[e2_brain]:: NEED TO APPROACH!!!!!!!! Manual request, %d distance",userDistance);
 
 				navGoal.action_id = 2;
-				navClient.sendGoal(navGoal, &navDoneCallback, &navActiveCallback, &navFeedbackCallback);
-				navHandlerFree = false;
+				//navClient.sendGoal(navGoal, &navDoneCallback, &navActiveCallback, &navFeedbackCallback);
+				//navHandlerFree = false;
 			}
 
 			if(visionDataCapture && !visionDataAnalyze && navHandlerFree)

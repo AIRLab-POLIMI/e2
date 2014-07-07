@@ -31,7 +31,7 @@
 #define ABORT_TIMEOUT 			300						// Navigation timeout
 #define WAIT_TIMEOUT			30						//	Min time the robot will wait in position before abort task
 #define WAIT_DISTANCE			1						//	Min distance the robot will stop to wait user
-#define WAIT_TIME				2						//	Time the robot wait in position
+#define WAIT_TIME				1						//	Time the robot wait in position
 
 typedef struct user_detected
 {
