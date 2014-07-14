@@ -27,6 +27,8 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 	guest_name_   = "guest";				// User to be detected
 
 	pass_count_= 0;
+	delay_detect = 0;
+
 	find_user_ =  false;
 	navigate_target = false;
 	path_planned_  = false;
@@ -369,6 +371,8 @@ void Navigation::ActionReset()
 	irobot_->cancell_all_goal();
 
 	pass_count_= 0;
+	delay_detect = 0;
+
 	navigate_target = false;
 	find_user_= false;
 	approach_user_ = false;
@@ -691,6 +695,13 @@ void Navigation::user_detectTimer(const ros::TimerEvent& e)
 
 		path_planned_=false;					//	Not usefull but to remember that	 now the controller had to recalculate new robot path to target
 		user_recognized_=false;					//	User found no more interesting
+
+		// User is following increase dalay before next check
+		delay_detect +=DELAY_DETECT;
+		detect_timeout_.stop();
+		detect_timeout_ = nh_.createTimer(ros::Duration(DETECT_TIMEOUT + delay_detect), &Navigation::user_detectTimer,this,true,false);
+
+
 	}
 	else if(navigate_target)
 	{

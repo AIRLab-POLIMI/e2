@@ -196,6 +196,8 @@ bool stop_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response&
 StateMachine *sm;
 string stateMachineConfigFile;
 
+ros::Timer abort_timeout;
+
 // Main
 //======================================================================
 //======================================================================
@@ -216,6 +218,9 @@ int main(int argc, char **argv)
 	ros::Subscriber subUserMoveData = nh.subscribe("moveData", 10, getUserMoveData);
 	//Services
 	ros::ServiceServer start_service = nh.advertiseService("e2_brain/start",start_callback);
+	// Abort Timer
+	abort_timeout = nh.createTimer(ros::Duration(120),abort_call,true,false); // Timer per annullare l'operazione
+
 	
 	//Inizializza le variabili di sistema allo stato iniziale
 	stateMachineConfigFile = ros::package::getPath("e2_config")+"/state_machine_config/state_machine.txt";
@@ -242,9 +247,6 @@ int main(int argc, char **argv)
 		ROS_INFO("[e2_brain]:: Waiting for the voice action server to come up");
 	//while (!kinectClient.waitForServer(ros::Duration(5.0)))
 	//	ROS_INFO("[e2_brain]:: Waiting for the kinect action server to come up");
-
-
-	ros::Timer abort_timeout = nh.createTimer(ros::Duration(60),abort_call,true,false); // Timer per annullare l'operazione
 
 	ROS_INFO("[e2_brain]::Servers connected ... [OK]");
 	
@@ -483,14 +485,17 @@ int main(int argc, char **argv)
 
 						if (user_interested)
 						{
-							ROS_ERROR("[e2_brain]:: User INTERESTED ! Going to Base...");
+							ROS_ERROR("[e2_brain]:: User INTERESTED !");
+
 							navigate_user = true;
 							approach_user = false;
 							check_user_interested = false;
+							abort_timeout.stop();
 						}
 						else
 						{
 							ROS_ERROR("[e2_brain]:: User NOT INTERESTED !");
+							// Initialize due to not interested user
 							initialize();
 							abort_timeout.stop();
 						}
@@ -585,6 +590,8 @@ void initialize()
 		ROS_ERROR("[e2_brain]:: Error loading state machine from configuration file");
 	else
 		ROS_INFO("[e2_brain]:: State machine from configuration file ... [OK]");
+
+	abort_timeout.stop();
 
 }
 

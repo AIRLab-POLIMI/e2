@@ -32,6 +32,7 @@
 #define WAIT_TIMEOUT			30						//	Min time the robot will wait in position before abort task
 #define WAIT_DISTANCE			1						//	Min distance the robot will stop to wait user
 #define WAIT_TIME				1						//	Time the robot wait in position
+#define DELAY_DETECT			10						// Add more 10 sec if user is found before check again
 
 typedef struct user_detected
 {
@@ -119,6 +120,7 @@ class Navigation
 		string base_name_,target_name_,guest_name_;
 
 		int pass_count_;
+		int delay_detect;
 
 		// Behaviours
 		bool approach_user_;
