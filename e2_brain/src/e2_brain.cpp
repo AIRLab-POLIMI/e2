@@ -181,6 +181,8 @@ int getUserRightEyeRatioBehaviour(vector<float>* vector);
 char detectMeaningfulMove(vector<char>* vector);
 //Other functions
 void initialize();
+void abort_call(const ros::TimerEvent& event);
+
 int getVectorOutputValue(vector<int>* vector);
 float getVectorOutputValue(vector<float>* vector);
 void loadSpeakConfigFile(string file);
@@ -190,6 +192,9 @@ void primitiveMSGParser(string primitiveStr, string paramsStr);
 
 bool start_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
 bool stop_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
+
+StateMachine *sm;
+string stateMachineConfigFile;
 
 // Main
 //======================================================================
@@ -213,17 +218,8 @@ int main(int argc, char **argv)
 	ros::ServiceServer start_service = nh.advertiseService("e2_brain/start",start_callback);
 	
 	//Inizializza le variabili di sistema allo stato iniziale
+	stateMachineConfigFile = ros::package::getPath("e2_config")+"/state_machine_config/state_machine.txt";
 	initialize();
-
-	//Load state machines that controls the interaction process
-	StateMachine *sm = new StateMachine();
-	string stateMachineConfigFile = ros::package::getPath("e2_config")+"/state_machine_config/state_machine.txt";
-	err = sm->loadFromFile(stateMachineConfigFile);
-	sm->printMap();
-	if(err < 0)
-		ROS_ERROR("[e2_brain]:: Error loading state machine from configuration file");
-	else
-		ROS_INFO("[e2_brain]:: State machine from configuration file ... [OK]");
 	
 	//Load speak configuration file
 	string speakConfigFile = ros::package::getPath("e2_config")+"/speak_config/speak.txt";
@@ -248,6 +244,8 @@ int main(int argc, char **argv)
 	//	ROS_INFO("[e2_brain]:: Waiting for the kinect action server to come up");
 
 
+	ros::Timer abort_timeout = nh.createTimer(ros::Duration(60),abort_call,true,false); // Timer per annullare l'operazione
+
 	ROS_INFO("[e2_brain]::Servers connected ... [OK]");
 	
 	//KinectMotor initializations
@@ -257,9 +255,6 @@ int main(int argc, char **argv)
 
 	//RosLoop
 	ros::Rate r(ROS_NODE_RATE);
-
-
-	//TODO - MAIN REMOVE this variables
 
 	while(ros::ok())
 	{
@@ -382,6 +377,7 @@ int main(int argc, char **argv)
 		//======================================================================
 		if(check_user_interested)
 		{
+
 			/*==================================================================
 								INTEREST DETECTION - Vision data analysis
 			==================================================================*/
@@ -396,7 +392,6 @@ int main(int argc, char **argv)
 					if (userData.distance > 0) {setStatusValue(-1, 1);}
 					else if (userData.distance == 0) {setStatusValue(1, 0);}
 					else if (userData.distance < 0) {setStatusValue(2, -2);}
-					ROS_INFO("qui ci sono");
 
 					//User Ratio and Roll analysis
 					userData.headData.roll = getUserHeadRollBehaviour(&dataVectors.userHeadRollVect, &dataVectors.userHeadRatioVect);
@@ -446,6 +441,9 @@ int main(int argc, char **argv)
 					else
 						user_interested = false;
 				}
+				else
+					abort_timeout.start();
+
 				//Clear vector
 				dataVectors.userDistanceVect.clear();
 				dataVectors.userHeadRatioVect.clear();
@@ -494,6 +492,7 @@ int main(int argc, char **argv)
 						{
 							ROS_ERROR("[e2_brain]:: User NOT INTERESTED !");
 							initialize();
+							abort_timeout.stop();
 						}
 
 					}
@@ -542,6 +541,12 @@ int main(int argc, char **argv)
 // Functions
 //======================================================================
 
+void abort_call(const ros::TimerEvent& event)
+{
+	ROS_ERROR("[e2_brain]:: Timeout occured, abort current action");
+	initialize();
+}
+
 void initialize()
 {
 	//Controls variables initializations
@@ -566,6 +571,21 @@ void initialize()
 	navigate_user = false;
 
 	user_interested = false;
+
+	interestedCounter = 0;
+	not_interestedCounter = 0;
+	sampleCounter = 0;
+
+	//Load state machines that controls the interaction process
+	sm = new StateMachine();
+
+	err = sm->loadFromFile(stateMachineConfigFile);
+	//sm->printMap();
+	if(err < 0)
+		ROS_ERROR("[e2_brain]:: Error loading state machine from configuration file");
+	else
+		ROS_INFO("[e2_brain]:: State machine from configuration file ... [OK]");
+
 }
 
 void primitiveMSGParser(string primitiveStr, string paramsStr)
@@ -967,6 +987,7 @@ int getVectorOutputValue(vector<int>* vector)
 //TODO - CALLBACKS NAVIGATION
 bool start_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
 {
+	initialize();
 	find_user = true;
 	return true;
 }

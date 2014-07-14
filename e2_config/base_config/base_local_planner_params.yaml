@@ -1,5 +1,5 @@
 controller_frequency: 10.0
-recovery_behavior_enabled: true
+recovery_behavior_enabled: false
 clearing_rotation_allowed: false
 
 TrajectoryPlannerROS:
@@ -12,10 +12,10 @@ TrajectoryPlannerROS:
    escape_vel: -0.3
    acc_lim_x: 0.5
    acc_lim_y: 0.6
-   acc_lim_th: 0.2
+   acc_lim_th: 2.1
 
    holonomic_robot: false
-   yaw_goal_tolerance: 0.3 
+   yaw_goal_tolerance: 0.4 
    xy_goal_tolerance: 0.3
    latch_xy_goal_tolerance: true
    gdist_scale: 0.8

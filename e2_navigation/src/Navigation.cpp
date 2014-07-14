@@ -195,7 +195,7 @@ void Navigation::ActionController()
 	/*==================================================================
 		Start Navigating in auto mode looking for user
 	==================================================================*/
-	else if(find_user_)
+	else if(find_user_) //TODO
 	{
 
 		if(!path_planned_)
@@ -206,28 +206,53 @@ void Navigation::ActionController()
 		}
 		else if(user_recognized_)
 		{
-			if(irobot_->getDetectedUser().distance == 0)
+			if(userdetected_.detected)
 			{
-				irobot_->clearDetectedUser();
-				user_recognized_= false;		// Set path just once
-			}
-			else if(irobot_->getDetectedUser().distance < 1)
-			{
-				ROS_INFO("[Navigation]:: User in front of me !");
-				irobot_->neck_action(1,2); 	// happy face
-				action_completed_ = true;
-			}
-			else if(irobot_->getDetectedUser().distance >= 1)
-			{
-				ROS_INFO("[Navigation]:: User is still far from me. M'avvicino !");
+				ROS_INFO("UTENTE PRESOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+				userdetected_.detected = false;
 
-				// Robot just find someone. Go toward him
-				//nav_goto_detected_user(irobot_->getDetectedUser());
-				nav_goto(0.4,irobot_->getDetectedUser().angle); // slow aproach
+				if(userdetected_.distance < 1)
+				{
+					ROS_INFO("[Navigation]:: User in front of me !");
+					irobot_->neck_action(1,2); 	// happy face
+					action_completed_ = true;
+				}
+				else
+				{
+					ROS_INFO("[Navigation]:: User is still far from me. M'avvicino !");
+					nav_goto(0.4,irobot_->getDetectedUser().angle); // slow aproach
 
-				irobot_->clearDetectedUser();
-				user_recognized_= false;		// Set path just once
-				path_to_user_ = true;			// Set following user path
+					irobot_->clearDetectedUser();
+					user_recognized_= false;		// Set path just once
+					path_to_user_ = true;			// Set following user path
+				}
+			}
+			else
+			{
+
+				if(irobot_->getDetectedUser().distance == 0)
+				{
+					irobot_->clearDetectedUser();
+					user_recognized_= false;		// Set path just once
+				}
+				else if(irobot_->getDetectedUser().distance < 1)
+				{
+					ROS_INFO("[Navigation]:: User in front of me !");
+					irobot_->neck_action(1,2); 	// happy face
+					action_completed_ = true;
+				}
+				else if(irobot_->getDetectedUser().distance >= 1)
+				{
+					ROS_INFO("[Navigation]:: User is still far from me. M'avvicino !");
+
+					// Robot just find someone. Go toward him
+					//nav_goto_detected_user(irobot_->getDetectedUser());
+					nav_goto(0.4,irobot_->getDetectedUser().angle); // slow aproach
+
+					irobot_->clearDetectedUser();
+					user_recognized_= false;		// Set path just once
+					path_to_user_ = true;			// Set following user path
+				}
 			}
 
 		}
@@ -401,6 +426,7 @@ void Navigation::NavigateTarget()
 	nav_wait();
 	irobot_->neck_action(2,2);	//	Invitation Left
 	nav_wait();
+
 	abort_timeout_ = nh_.createTimer(ros::Duration(ABORT_TIMEOUT), &Navigation::ActionAbort,this,true,false);
 	detect_timeout_ = nh_.createTimer(ros::Duration(DETECT_TIMEOUT), &Navigation::user_detectTimer,this,true,false);
 
