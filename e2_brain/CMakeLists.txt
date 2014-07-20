@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   head_analyzer
   kinect_motor
   roscpp
+  roslib
   user_tracker
 )
 
@@ -84,7 +85,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES e2_brain
-#  CATKIN_DEPENDS actionlib head_analyzer kinect_motor roscpp user_tracker
+  CATKIN_DEPENDS actionlib head_analyzer kinect_motor roscpp user_tracker roslib
 #  DEPENDS system_lib
 )
 
@@ -110,5 +111,6 @@ include_directories(
 ## Specify libraries to link a library or executable target against
  target_link_libraries(e2_brain
    StateMachine
+   yaml-cpp
    ${catkin_LIBRARIES}
  )

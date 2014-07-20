@@ -2,6 +2,18 @@
   text: "Aiuto! Aiuto! Sono a secco!"
   duration: 150
 
+- id: ack
+  text: "Come desidera!"
+  duration: 150
+
+- id: yhbt
+  text: "Non sei molto gentile."
+  duration: 150
+
+- id: ack_fail
+  text: "Non sono programmato per questo!"
+  duration: 150
+
 - id: hello
   text: "Ciao, il mio nome è edueee."
   duration: 150

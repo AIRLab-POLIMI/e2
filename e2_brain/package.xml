@@ -31,7 +31,8 @@
   <run_depend>kinect_motor</run_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>user_tracker</run_depend>
-
+  <run_depend>roslib</run_depend>
+  <build_depend>roslib</build_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

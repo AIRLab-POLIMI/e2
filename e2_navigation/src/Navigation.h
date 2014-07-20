@@ -41,6 +41,8 @@ typedef struct user_detected
 	float distance;  	// center respect center of camera
 }user_detected;
 
+using namespace std ;
+
 class Navigation
 {
 

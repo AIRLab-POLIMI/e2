@@ -1086,3 +1086,5 @@ void operator >> (const YAML::Node& node, Speech& speech)
 	node["text"] >> speech.text;
 	node["duration"] >> speech.duration;
 }
+
+

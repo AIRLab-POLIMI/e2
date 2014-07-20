@@ -34,6 +34,7 @@
 
 //OtherLibs
 #include "StateMachine.h"
+#include "yaml-operator.h"
 
 //Primitives API
 #define PRIMITIVE_API 10
@@ -137,6 +138,10 @@ bool visionDataCapture;
 bool visionDataAnalyze;
 bool firstInteraction;
 
+// Load Speech
+Speech *speechs_;
+int speech_size_;
+
 // TODO VAriabili comportamento
 bool find_user;
 bool approach_user;
@@ -172,6 +177,8 @@ void getUserPositionData(const user_tracker::Com com);
 void getUserEyesData(const head_analyzer::EyesDataMSG eyes);
 void getUserHeadData(const head_analyzer::HeadDataMSG head);
 void getUserMoveData(const head_analyzer::MoveDataMSG move);
+void getVoiceCommands(const std_msgs::String command);
+
 //Behaviour functions
 int getUserDistanceBehaviour(vector<int>* vector);
 int getUserHeadRollBehaviour(vector<int>* roll, vector<float>* ratio);
@@ -179,9 +186,16 @@ int getUserHeadPitchBehaviour(vector<int>* vector);
 int getUserLeftEyeRatioBehaviour(vector<float>* vector);
 int getUserRightEyeRatioBehaviour(vector<float>* vector);
 char detectMeaningfulMove(vector<char>* vector);
+
+
 //Other functions
 void initialize();
 void abort_call(const ros::TimerEvent& event);
+
+void robot_talk(string text);
+string get_speech_by_name(string name);
+string get_random_speech(string what);
+void loadSpeakData(YAML::Node& doc);
 
 int getVectorOutputValue(vector<int>* vector);
 float getVectorOutputValue(vector<float>* vector);
@@ -197,6 +211,13 @@ StateMachine *sm;
 string stateMachineConfigFile;
 
 ros::Timer abort_timeout;
+
+//Servers goal definitions
+e2_voice::VoiceGoal voiceGoal;
+e2_navigation::NavGoal navGoal;
+kinect_motor::KinectGoal kinectGoal;
+
+VoiceClient *voiceClient;
 
 // Main
 //======================================================================
@@ -216,6 +237,8 @@ int main(int argc, char **argv)
 	ros::Subscriber subUserHeadData = nh.subscribe("headData", 10, getUserHeadData);
 	ros::Subscriber subUserEyesData = nh.subscribe("eyesData", 10, getUserEyesData);
 	ros::Subscriber subUserMoveData = nh.subscribe("moveData", 10, getUserMoveData);
+	ros::Subscriber subVoiceCommand = nh.subscribe("/recognizer/output", 10, getVoiceCommands);
+
 	//Services
 	ros::ServiceServer start_service = nh.advertiseService("e2_brain/start",start_callback);
 	// Abort Timer
@@ -230,20 +253,26 @@ int main(int argc, char **argv)
 	string speakConfigFile = ros::package::getPath("e2_config")+"/speak_config/speak.txt";
 	loadSpeakConfigFile(speakConfigFile);
 	
+	string speech_config = ros::package::getPath("e2_config")+"/speak_config/speech_config.yaml";
+	// Load Stand positions in memory
+	YAML::Node doc_speech;
+	ifstream fin_speech(speech_config.c_str());
+	YAML::Parser parser_speech(fin_speech);
+	parser_speech.GetNextDocument(doc_speech);
+	loadSpeakData(doc_speech);
+	speech_size_=doc_speech.size();
+
+	ROS_ERROR("[e2_brain]:: Loaded Speech Config %s with %d conversations", speech_config.c_str(),(int)doc_speech.size());
+
 	//Clients definition
-	VoiceClient voiceClient("e2_voice_node", true);
+	voiceClient = new VoiceClient("e2_voice_node", true);
 	NavClient navClient("e2_nav",true);
 	KinectClient kinectClient("kinect_motor", true);
-	
-	//Servers goal definitions
-	e2_voice::VoiceGoal voiceGoal;
-	e2_navigation::NavGoal navGoal;
-	kinect_motor::KinectGoal kinectGoal;
 	
 	//Wait for servers
 	while (!navClient.waitForServer(ros::Duration(5.0)))
 		ROS_INFO("[e2_brain]:: Waiting for the navigation action server to come up");
-	while (!voiceClient.waitForServer(ros::Duration(5.0)))
+	while (!voiceClient->waitForServer(ros::Duration(5.0)))
 		ROS_INFO("[e2_brain]:: Waiting for the voice action server to come up");
 	//while (!kinectClient.waitForServer(ros::Duration(5.0)))
 	//	ROS_INFO("[e2_brain]:: Waiting for the kinect action server to come up");
@@ -534,7 +563,7 @@ int main(int argc, char **argv)
 			//Define goal and send it to the server side
 			voiceGoal.action_id = 1;
 			voiceGoal.text = phrases[temp].data;
-			voiceClient.sendGoal(voiceGoal, &voiceDoneCallback, &voiceActiveCallback, &voiceFeedbackCallback);
+			voiceClient->sendGoal(voiceGoal, &voiceDoneCallback, &voiceActiveCallback, &voiceFeedbackCallback);
 		}
 
 		ros::spinOnce();
@@ -700,6 +729,77 @@ void getUserPositionData(const user_tracker::Com com)
     //ROS_INFO("[e2_brain]::UserPositionDataMSG received = Distance %d  --  DistantThr %d", userDistance, userDistanceThreshold);
 }
 
+//======================================================================
+//	Get voice commands and start the right action TODO
+//======================================================================
+void getVoiceCommands(const std_msgs::String command)
+{
+	std::size_t found = command.data.find("e_two");
+
+	if (found!=std::string::npos)
+	{
+		ROS_ERROR("[e2_brain::Voice]:: Ho ricevuto un comando !");
+
+		found = command.data.find("find people");
+		if (found!=std::string::npos)
+		{
+			ROS_ERROR("[e2_brain::Voice]:: Trova persone !");
+			robot_talk(get_speech_by_name("ack"));
+
+			initialize();
+			find_user = true;
+
+			return;
+		}
+
+		found = command.data.find("tell joke");
+		if (found!=std::string::npos)
+		{
+			ROS_ERROR("[e2_brain::Voice]:: Racconto una barzelletta!");
+			robot_talk(get_speech_by_name("ack"));
+			voiceClient->waitForResult();
+			robot_talk(get_random_speech(string("joke_")));
+			voiceClient->waitForResult();
+			return;
+		}
+
+		found = command.data.find("tell news");
+		if (found!=std::string::npos)
+		{
+			ROS_ERROR("[e2_brain::Voice]:: Racconto una notizia!");
+			robot_talk(get_speech_by_name("ack"));
+			voiceClient->waitForResult();
+
+			robot_talk(get_random_speech(string("nav_")));
+			voiceClient->waitForResult();
+
+			return;
+		}
+
+		found = command.data.find("go hell");
+		if (found!=std::string::npos)
+		{
+			ROS_ERROR("[e2_brain::Voice]:: System Overflow - YHBT ");
+			robot_talk(get_speech_by_name("yhbt"));
+			voiceClient->waitForResult();
+			return;
+		}
+
+		found = command.data.find("stop");
+		if (found!=std::string::npos)
+		{
+			ROS_ERROR("[e2_brain::Voice]:: Mi Fermo!");
+			initialize();
+
+			robot_talk(get_speech_by_name("ack"));
+			voiceClient->waitForResult();
+			return;
+		}
+
+
+	}
+
+}
 
 //======================================================================
 //======================================================================
@@ -1066,5 +1166,80 @@ void voiceActiveCallback()
 }
 void voiceFeedbackCallback(const e2_voice::VoiceFeedbackConstPtr& feed)
 {
+
+}
+
+
+//=================================================================
+// Retrieve text for a conversation using string id
+//=================================================================
+string get_speech_by_name(string name)
+{
+	int i=0;
+	for (i=0; i < speech_size_ ; ++i)
+	{
+		if(strcmp(speechs_[i].id.c_str(),name.c_str()) == 0)
+			break;
+	}
+
+	return speechs_[i].text;
+}
+
+//=================================================================
+// Retrieve text for a conversation using string id
+//=================================================================
+string get_random_speech(string what)
+{
+	int i=0;
+	int topic_tot=0;
+
+	for (i=0; i < speech_size_ ; ++i)
+	{
+		// different member versions of find in the same order as above:
+		std::size_t found = speechs_[i].id.find(what);
+		if (found!=std::string::npos)
+			topic_tot++;
+	}
+
+	srand (time(NULL));
+	int rand_= rand() % topic_tot;
+	std::stringstream out;
+	out << what << rand_;
+
+	return get_speech_by_name(out.str());
+
+}
+//=====================================
+// Load Speech data
+//=====================================
+void loadSpeakData(YAML::Node& doc)
+{
+	speechs_ = new Speech [doc.size()];
+	// Load Markers from map file
+	for(unsigned i=0;i<doc.size();i++)
+		doc[i] >> speechs_[i];
+}
+
+void operator >> (const YAML::Node& node, Speech& speech)
+{
+	node["id"] >> speech.id;
+	node["text"] >> speech.text;
+	node["duration"] >> speech.duration;
+}
+
+//=================================================================
+// Make the robot talk
+//=================================================================
+void robot_talk(string text)
+{
+	if(speakHandlerFree)
+	{
+		speakHandlerFree = false;
+		//Define goal and send it to the server side
+		voiceGoal.action_id = 1;
+		voiceGoal.text = text;
+		voiceClient->sendGoal(voiceGoal, &voiceDoneCallback, &voiceActiveCallback, &voiceFeedbackCallback);
+	}
+
 
 }
