@@ -274,8 +274,8 @@ int main(int argc, char **argv)
 		ROS_INFO("[e2_brain]:: Waiting for the navigation action server to come up");
 	while (!voiceClient->waitForServer(ros::Duration(5.0)))
 		ROS_INFO("[e2_brain]:: Waiting for the voice action server to come up");
-	//while (!kinectClient.waitForServer(ros::Duration(5.0)))
-	//	ROS_INFO("[e2_brain]:: Waiting for the kinect action server to come up");
+	while (!kinectClient.waitForServer(ros::Duration(5.0)))
+		ROS_INFO("[e2_brain]:: Waiting for the kinect action server to come up");
 
 	ROS_INFO("[e2_brain]::Servers connected ... [OK]");
 	
@@ -334,9 +334,9 @@ int main(int argc, char **argv)
 			/*==================================================================
 								Vision data management
 			==================================================================*/
-			if(userPositionDataReady && userDistance < 1200 && navHandlerFree)
+			if(userPositionDataReady && userDistance < 1500 && navHandlerFree)
 				visionDataCapture = true;
-			else if(userPositionDataReady && userDistance > 1200 && navHandlerFree)
+			else if(userPositionDataReady && userDistance > 1500 && navHandlerFree)
 			{
 				ROS_ERROR("[e2_brain]:: NEED TO APPROACH!!!!!!!! Manual request, %d distance",userDistance);
 
@@ -526,6 +526,7 @@ int main(int argc, char **argv)
 							ROS_ERROR("[e2_brain]:: User NOT INTERESTED !");
 							// Initialize due to not interested user
 							initialize();
+							find_user = true;
 							abort_timeout.stop();
 						}
 
