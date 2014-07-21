@@ -210,7 +210,6 @@ void Navigation::ActionController()
 		{
 
 			ROS_ERROR("[Navigation]:: Ho trovato qualcosa!");
-			userdetected_.detected = false;
 
 			if(userdetected_.distance < 1.5)
 			{
@@ -221,16 +220,15 @@ void Navigation::ActionController()
 				user_recognized_= false;
 				action_completed_ = true;
 			}
-			else
+			else if(!path_to_user_)
 			{
-				ROS_INFO("[Navigation]:: User is still distant (%f) . Approaching !",userdetected_.distance);
+				ROS_INFO("[Navigation]:: User is still distant (%f) (%f) . Approaching !",userdetected_.distance,userdetected_.angle);
 				float distance = 1.5 - userdetected_.distance;
-
 
 				if(distance > 1)
 					distance = 0.6;
 
-				nav_goto(distance,irobot_->getDetectedUser().angle); // slow aproach
+				nav_goto(distance,userdetected_.angle); // slow aproach
 				path_to_user_ = true;			// Set following user path
 			}
 
