@@ -273,6 +273,7 @@ void Navigation::ActionController()
 
 		}
 
+		user_clear();
 		irobot_->clearDetectedUser();
 
 
