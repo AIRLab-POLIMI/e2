@@ -234,7 +234,6 @@ void RobotInterface::robot_talk(string text, bool force)
 		if(voice_enabled)
 		{
 			last_speech_=ros::Time::now();
-			neck_action(1,6); // Start Moving mouth
 
 			goal.action_id = 1;
 			goal.text = text;
@@ -262,7 +261,6 @@ void RobotInterface::robot_talk(string text, bool force)
 void RobotInterface::voice_callback(const actionlib::SimpleClientGoalState& state, const VoiceResultConstPtr& result)
 {
 	ROS_DEBUG("[IRobot]:: Voice CallBack");
-	neck_action(1,7); // stop Moving mouth
 	voiceFree_ = true;
 }
 
