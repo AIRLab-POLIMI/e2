@@ -100,7 +100,9 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 
 	//	Enable Robot interface
 	irobot_= new RobotInterface(en_neck,en_voice,en_train,en_kinect);
-	irobot_->neck_action(2,1);		// Staigth neck position
+
+	// Staigth neck and clear face
+	irobot_->neck_action(2,1);
 	irobot_->neck_action(1,1);
 	irobot_->kinect_action(15);
 }
@@ -122,22 +124,29 @@ void Navigation::ActionController()
 	if(strcasecmp(irobot_->get_battery_status(),"LOW") == 0)
 	{
 		ROS_ERROR("[Navigation]:: WARNING ! Battery Low, go to base to refill");
+
 		irobot_->robot_talk(get_speech_by_name("battery_empty"));
 		nav_goto(base_name_);
 	}
 	/*==================================================================
-		Starting new Task - Navigation + detection
+		Starting new Task - Navigation Base + detection
 	==================================================================*/
 	else if(navigate_target)
 	{
 		if(!path_planned_)
 		{
-			irobot_->neck_action(1,1); 	// Norm face
+			ROS_ERROR("[Navigation]:: Path planned. I'm going home !");
+
+			// Clear Face
+			irobot_->neck_action(1,1);
 			irobot_->kinect_action(15);
+
+			// Start Timer
 			abort_timeout_.start();
 			detect_timeout_.start();
-			nav_goto(target_name_);
 
+			// Go Home....Bzzzz
+			nav_goto(target_name_);
 			path_planned_ = true;
 		}
 		else if(path_planned_)
@@ -145,17 +154,20 @@ void Navigation::ActionController()
 			// If navigation is aborted the goal is blocked by an obstacle so robot will ask to pass
 			if(strcmp(irobot_->base_getStatus().c_str(),"ABORTED") == 0)
 			{
-				if(pass_count_>1)
+				if(pass_count_> 1 )
 				{
 					irobot_->neck_action(1,3); 	// Angry face
 					irobot_->robot_talk(get_speech_by_name("abort"),true);
+
 					ActionAbort();
 				}
 				else
 				{
+
 					irobot_->robot_talk(get_speech_by_name("pass"),true);
 					nav_wait();
-					path_planned_=false;		// Force to set goal again
+
+					path_planned_= false;		// Force to set goal again
 					pass_count_++;
 				}
 			}
@@ -164,6 +176,11 @@ void Navigation::ActionController()
 				ros::Time init_detection = ros::Time::now();
 				ros::Duration timeout(20.0);
 				user_recognized_ = false;
+
+				// Stop Timer
+				abort_timeout_.stop();
+				detect_timeout_.stop();
+
 				while((ros::Time::now() - init_detection < timeout) && !user_recognized_)
 				{
 					irobot_->base_rotate(const_cast<char *>("LEFT"));	// Rotate robot base because he should be on the robot side
@@ -175,23 +192,24 @@ void Navigation::ActionController()
 					r_.sleep();
 				}
 
+				irobot_->base_stop();
+
 				if(user_recognized_)
 				{
 					irobot_->neck_action(1,2); 	// happy face
 					irobot_->neck_action(1,4);	// Make a Bow
-					irobot_->base_stop();
 					irobot_->robot_talk(get_speech_by_name("complete"),true);
+
 					action_completed_ = true;
 				}
 				else
 				{
 					irobot_->neck_action(1,3); 	// angry face
 					irobot_->robot_talk(get_speech_by_name("abort"),true);
+
 					action_aborted_ = true;
 				}
-
 			}
-
 		}
 	}
 	/*==================================================================
@@ -200,75 +218,75 @@ void Navigation::ActionController()
 	else if(find_user_) //TODO
 	{
 
+		// Plan a Random Path to find people
 		if(!path_planned_)
 		{
 			irobot_->neck_action(1,1); 	// norm face
 			nav_random_path();			// Ramdom navigation
+
 			path_planned_ = true;
-		}
-		else if(userdetected_.detected)
+		}// Once planned we need to recognize user's faces
+		else
 		{
+			user_detect("unknown");
 
-			ROS_ERROR("[Navigation]:: Ho trovato qualcosa!");
-
-			if(userdetected_.distance < 1.5)
+			if(user_recognized_ && userdetected_.detected)
 			{
-				ROS_INFO("[Navigation]:: User in front of me !");
-				irobot_->neck_action(1,2); 	// happy face
-				irobot_->base_stop();
+				ROS_ERROR("[Navigation]:: Ho trovato qualcosa !");
 
-				user_recognized_= false;
-				action_completed_ = true;
-			}
-			else if(!path_to_user_)
-			{
-				ROS_INFO("[Navigation]:: User is still distant (%f) (%f) . Approaching !",userdetected_.distance,userdetected_.angle);
-				float distance = 1.5 - userdetected_.distance;
-
-				if(distance > 1)
-					distance = 0.6;
-
-				nav_goto(distance,userdetected_.angle); // slow aproach
-				path_to_user_ = true;			// Set following user path
-			}
-
-		}
-
-		if(strcmp(irobot_->base_getStatus().c_str(),"ABORTED")==0)
-		{
-
-			if(path_to_user_)
-			{
-				ROS_INFO("[Navigation]:: Non posso avvicinarmi alla persona (dist %f).",userdetected_.distance);
-			}
-			else
-			{
-				path_planned_ = false;
-				ActionAbort();
-			}
-		}
-		else if(strcmp(irobot_->base_getStatus().c_str(),"SUCCEEDED")==0 )
-		{
-
-			if(userdetected_.detected)
-			{
-				if(userdetected_.distance < 1.5)
+				if(userdetected_.distance < 1.5 || irobot_->getDetectedUser().distance < 1.5)
 				{
-					find_user_= false;
-					action_completed_ = true;
+					ROS_INFO("[Navigation]:: User in front of me !");
 					irobot_->neck_action(1,2); 	// happy face
-					ROS_ERROR("[Navigation]:: Sono davanti una persona !");
+
+					action_completed_ = true;
+				}
+				else if(!path_to_user_)
+				{
+					ROS_INFO("[Navigation]:: User still distant (%f-%f)(%f-%f) !",userdetected_.distance,userdetected_.angle,irobot_->getDetectedUser().distance,irobot_->getDetectedUser().angle);
+					nav_goto(0.4,irobot_->getDetectedUser().angle); // slow aproach
+					path_to_user_ = true; // Set following user path
+
+				}
+			}
+
+
+			if(strcmp(irobot_->base_getStatus().c_str(),"ABORTED")==0)
+			{
+				if(path_to_user_)
+				{
+					ROS_INFO("[Navigation]:: Non posso avvicinarmi alla persona (dist %f).",userdetected_.distance);
 				}
 				else
 				{
-					ROS_ERROR("[Navigation]:: Sono arrivato ma la pesona è lontana!");
+					path_planned_ = false;
+					ActionAbort();
+				}
+			}
+			else if(strcmp(irobot_->base_getStatus().c_str(),"SUCCEEDED")==0 )
+			{
+
+				if(userdetected_.detected && path_to_user_)
+				{
+					if(userdetected_.distance < 1.5)
+					{
+						find_user_= false;
+						action_completed_ = true;
+						irobot_->neck_action(1,2); 	// happy face
+						ROS_ERROR("[Navigation]:: Sono davanti una persona !");
+					}
+					else
+					{
+						ROS_ERROR("[Navigation]:: Sono arrivato ma la pesona è lontana!");
+					}
+
+				}
+				else
+				{
+					path_planned_ = false;
+					path_to_user_= false;
 				}
 
-			}
-			else
-			{
-				path_planned_ = false;
-				path_to_user_= false;
 			}
 
 		}
@@ -289,7 +307,7 @@ void Navigation::ActionController()
 			if(!path_planned_)
 			{
 				// if distance is lower than 1 meter or is not too far from center camera the robot stay on place
-				if(userdetected_.distance < 1.2)
+				if(userdetected_.distance < 1.5)
 				{
 					ROS_INFO("[Navigation]:: User at distance %f and %f deg from camera. No action Done ! ",userdetected_.distance,userdetected_.angle);
 					action_completed_ = true;
@@ -303,7 +321,7 @@ void Navigation::ActionController()
 			{
 				path_planned_ = false;
 			}
-			else if(strcmp(irobot_->base_getStatus().c_str(),"SUCCEEDED")==0 && userdetected_.distance < 1)
+			else if(strcmp(irobot_->base_getStatus().c_str(),"SUCCEEDED")==0 && userdetected_.distance < 1.5)
 			{
 				action_completed_ = true;
 			}else
