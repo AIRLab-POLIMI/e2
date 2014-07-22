@@ -157,13 +157,13 @@ void Navigation::ActionController()
 			{
 				ROS_ERROR("[Navigation]:: Detection Timeout !");
 				user_detectTimer();
-
 			}
 
 			//===============================================
 			//	Check Navigation Status
 			//================================================
-			if(strcmp(irobot_->base_getStatus().c_str(),"ABORTED") == 0)
+			string nav_status = irobot_->base_getStatus();
+			if(strcmp(nav_status.c_str(),"ABORTED") == 0)
 			{
 				if(pass_count_> 1 )
 				{
@@ -174,7 +174,6 @@ void Navigation::ActionController()
 				}
 				else
 				{
-
 					irobot_->robot_talk(get_speech_by_name("pass"),true);
 					nav_wait();
 
@@ -182,14 +181,12 @@ void Navigation::ActionController()
 					pass_count_++;
 				}
 			}
-			else if(strcmp(irobot_->base_getStatus().c_str(),"SUCCEEDED")==0)
+			else if(strcmp(nav_status.c_str(),"SUCCEEDED")==0)
 			{
 				//Sono arrivato a destinazione. C'è ancora la persona ? Controllo
 				ros::Time init_detection = ros::Time::now();
 				ros::Duration timeout(20.0);
 				user_recognized_ = false;
-
-
 
 				while((ros::Time::now() - init_detection < timeout) && !user_recognized_)
 				{
@@ -202,6 +199,7 @@ void Navigation::ActionController()
 					r_.sleep();
 				}
 
+				// Stop Engines !! Jawol !!
 				irobot_->base_stop();
 
 				if(user_recognized_)
@@ -263,8 +261,8 @@ void Navigation::ActionController()
 				}
 			}
 
-
-			if(strcmp(irobot_->base_getStatus().c_str(),"ABORTED")==0)
+			string nav_status = irobot_->base_getStatus();
+			if(strcmp(nav_status.c_str(),"ABORTED")==0)
 			{
 				if(path_to_user_)
 				{
@@ -276,16 +274,17 @@ void Navigation::ActionController()
 					ActionAbort();
 				}
 			}
-			else if(strcmp(irobot_->base_getStatus().c_str(),"SUCCEEDED")==0 )
+			else if(strcmp(nav_status.c_str(),"SUCCEEDED")==0 )
 			{
 
 				if(userdetected_.detected && path_to_user_)
 				{
 					if(userdetected_.distance < 1.5)
 					{
+						ROS_ERROR("[Navigation]:: Sono davanti una persona !");
+
 						action_completed_ = true;
 						irobot_->neck_action(1,2); 	// happy face
-						ROS_ERROR("[Navigation]:: Sono davanti una persona !");
 					}
 					else
 					{
