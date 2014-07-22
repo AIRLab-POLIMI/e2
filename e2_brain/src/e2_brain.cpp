@@ -343,6 +343,8 @@ int main(int argc, char **argv)
 				navGoal.action_id = 2;
 				//navClient.sendGoal(navGoal, &navDoneCallback, &navActiveCallback, &navFeedbackCallback);
 				//navHandlerFree = false;
+				userPositionDataReady = false;
+				userDistance = 9999;
 			}
 
 			if(visionDataCapture && !visionDataAnalyze && navHandlerFree)
@@ -721,7 +723,7 @@ void getUserPositionData(const user_tracker::Com com)
     if (userDistance > 0)
     {
       userPositionDataReady = true;
-		}
+	}
     else
     {
         ROS_INFO("User out of camera");

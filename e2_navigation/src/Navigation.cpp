@@ -660,10 +660,10 @@ void Navigation::user_detectTimer(const ros::TimerEvent& e)
 	ros::Time init_detection = ros::Time::now();
 	ros::Duration timeout(20.0);
 
+	irobot_->base_rotate(const_cast<char *>("LEFT"));	// Rotate robot base because he should be on the robot side
+
 	while((ros::Time::now() - init_detection < timeout) && !user_recognized_)
 	{
-		irobot_->base_rotate(const_cast<char *>("LEFT"));	// Rotate robot base because he should be on the robot side
-
 		//Check user presence
 		user_detect(guest_name_);
 
