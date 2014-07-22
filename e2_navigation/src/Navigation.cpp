@@ -141,9 +141,8 @@ void Navigation::ActionController()
 			irobot_->neck_action(1,1);
 			irobot_->kinect_action(15);
 
-			// Start Timer
-			abort_timeout_.start();
-			detect_timeout_.start();
+			// Start
+			init_detect_time = ros::Time::now();
 
 			// Go Home....Bzzzz
 			nav_goto(target_name_);
@@ -151,7 +150,22 @@ void Navigation::ActionController()
 		}
 		else if(path_planned_)
 		{
-			// If navigation is aborted the goal is blocked by an obstacle so robot will ask to pass
+
+			//===============================================
+			//	Check if need to detect user
+			//================================================
+			ros::Duration timeout(DETECT_TIMEOUT+delay_detect);
+
+			if((ros::Time::now() - init_detect_time > timeout))
+			{
+				ROS_ERROR("[Navigation]:: Detection Timeout !");
+				user_detectTimer();
+
+			}
+
+			//===============================================
+			//	Check Navigation Status
+			//================================================
 			if(strcmp(irobot_->base_getStatus().c_str(),"ABORTED") == 0)
 			{
 				if(pass_count_> 1 )
@@ -173,13 +187,12 @@ void Navigation::ActionController()
 			}
 			else if(strcmp(irobot_->base_getStatus().c_str(),"SUCCEEDED")==0)
 			{
+				//Sono arrivato a destinazione. C'è ancora la persona ? Controllo
 				ros::Time init_detection = ros::Time::now();
 				ros::Duration timeout(20.0);
 				user_recognized_ = false;
 
-				// Stop Timer
-				abort_timeout_.stop();
-				detect_timeout_.stop();
+
 
 				while((ros::Time::now() - init_detection < timeout) && !user_recognized_)
 				{
@@ -210,6 +223,9 @@ void Navigation::ActionController()
 					action_aborted_ = true;
 				}
 			}
+
+
+
 		}
 	}
 	/*==================================================================
@@ -234,7 +250,7 @@ void Navigation::ActionController()
 			{
 				ROS_ERROR("[Navigation]:: Ho trovato qualcosa !");
 
-				if(userdetected_.distance < 1.5 || irobot_->getDetectedUser().distance < 1.5)
+				if(userdetected_.distance < 1.5)
 				{
 					ROS_INFO("[Navigation]:: User in front of me !");
 					irobot_->neck_action(1,2); 	// happy face
@@ -270,7 +286,6 @@ void Navigation::ActionController()
 				{
 					if(userdetected_.distance < 1.5)
 					{
-						find_user_= false;
 						action_completed_ = true;
 						irobot_->neck_action(1,2); 	// happy face
 						ROS_ERROR("[Navigation]:: Sono davanti una persona !");
@@ -341,16 +356,6 @@ void Navigation::ActionAbort()
 }
 
 //=================================================================
-// Abort current taskpath_to_user_ action
-//=================================================================
-void Navigation::ActionAbort(const ros::TimerEvent& e)
-{
-	ROS_ERROR("[Navigation]:: Task killed due to timeout. Go back home.");
-	ActionAbort();
-
-}
-
-//=================================================================
 // Reset current navigation status
 //=================================================================
 void Navigation::ActionReset()
@@ -372,9 +377,6 @@ void Navigation::ActionReset()
 	path_planned_  = false;
 	path_to_user_   = false;
 	user_recognized_ = false;
-
-	abort_timeout_.stop();
-	detect_timeout_.stop();
 
 	sleep(2);	//	Sleep a bit
 
@@ -419,9 +421,6 @@ void Navigation::NavigateTarget()
 	nav_wait();
 	irobot_->neck_action(2,2);	//	Invitation Left
 	nav_wait();
-
-	abort_timeout_ = nh_.createTimer(ros::Duration(ABORT_TIMEOUT), &Navigation::ActionAbort,this,true,false);
-	detect_timeout_ = nh_.createTimer(ros::Duration(DETECT_TIMEOUT), &Navigation::user_detectTimer,this,true,false);
 
 	irobot_->neck_action(2,1);	//	Straight again
 	irobot_->neck_action(1,1);	//	Norm face
@@ -646,9 +645,9 @@ void Navigation::user_wait()
 //=================================================================
 //	Fire a Detection timeout
 //=================================================================
-void Navigation::user_detectTimer(const ros::TimerEvent& e)
+void Navigation::user_detectTimer()
 {
-	ROS_ERROR("[Navigation]:: Detect timeout. Check user presence.");
+	ROS_INFO("[Navigation]:: Checking user presence.");
 
 	//	First Stop every robot action
 	irobot_->cancell_all_goal();
@@ -660,10 +659,10 @@ void Navigation::user_detectTimer(const ros::TimerEvent& e)
 	ros::Time init_detection = ros::Time::now();
 	ros::Duration timeout(20.0);
 
-	irobot_->base_rotate(const_cast<char *>("LEFT"));	// Rotate robot base because he should be on the robot side
-
 	while((ros::Time::now() - init_detection < timeout) && !user_recognized_)
 	{
+		irobot_->base_rotate(const_cast<char *>("LEFT"));	// Rotate robot base because he should be on the robot side
+
 		//Check user presence
 		user_detect(guest_name_);
 
@@ -676,10 +675,12 @@ void Navigation::user_detectTimer(const ros::TimerEvent& e)
 	if(navigate_target && user_recognized_)
 	{
 		user_wait();
-		irobot_->robot_talk(get_random_speech(string("nav_")),true);
+
+		//irobot_->robot_talk(get_random_speech(string("nav_")),true);
 		irobot_->robot_talk(get_speech_by_name("check_complete"),true);	// Just talk a little bit
 
 		irobot_->cancell_all_goal();
+
 		nav_wait();
 
 		path_planned_=false;					//	Not usefull but to remember that	 now the controller had to recalculate new robot path to target
@@ -687,9 +688,6 @@ void Navigation::user_detectTimer(const ros::TimerEvent& e)
 
 		// User is following increase dalay before next check
 		delay_detect +=DELAY_DETECT;
-		detect_timeout_.stop();
-		detect_timeout_ = nh_.createTimer(ros::Duration(DETECT_TIMEOUT + delay_detect), &Navigation::user_detectTimer,this,true,false);
-
 
 	}
 	else if(navigate_target)
@@ -700,9 +698,6 @@ void Navigation::user_detectTimer(const ros::TimerEvent& e)
 
 	}
 
-	// Reset timers
-	abort_timeout_.stop();
-	detect_timeout_.stop();
 }
 
 //=====================================
@@ -714,7 +709,7 @@ void Navigation::user_recover(string user_name)
 
 	irobot_->base_setGoal(last_user_detection_);						//	Go to last detection position of user
 
-	user_recognized_=false;															// Just in case
+	user_recognized_=false;												// Just in case
 
 	while(!nav_is_goal_reached() && !user_recognized_)		//	Check if reached last detection position or if the user has been found
 	{
@@ -729,6 +724,7 @@ void Navigation::user_recover(string user_name)
 	if(user_recognized_)
 	{
 		user_wait();
+		irobot_->robot_talk(get_random_speech(string("nav_")),true);
 		irobot_->robot_talk(get_speech_by_name("check_complete"),true);
 		path_planned_=false;
 	}

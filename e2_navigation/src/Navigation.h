@@ -30,7 +30,7 @@
 #define DETECT_TIMEOUT	 		30						// Define the time before fire a detection request
 #define ABORT_TIMEOUT 			300						// Navigation timeout
 #define WAIT_TIMEOUT			30						//	Min time the robot will wait in position before abort task
-#define WAIT_DISTANCE			1						//	Min distance the robot will stop to wait user
+#define WAIT_DISTANCE			1.5						//	Min distance the robot will stop to wait user
 #define WAIT_TIME				1						//	Time the robot wait in position
 #define DELAY_DETECT			10						// Add more 10 sec if user is found before check again
 
@@ -60,10 +60,9 @@ class Navigation
 	    void ApproachUser();
 
 	    void ActionAbort(); 													// Kill a current action
-	    void ActionAbort(const ros::TimerEvent& e); 							// Kill a current action for timer
+	    void ActionReset();														// Reset navigation status
 	    bool isActionAborted();													// Check if an action is aborted
 	    bool isActionCompleted();												// Check if an action is completed
-	    void ActionReset();														// Reset navigation status
 
 	    void getNavStatus(); 													// Print navigation info in console
 
@@ -94,8 +93,7 @@ class Navigation
 		ros::NodeHandle nh_;
 		ros::Rate r_;
 	    ros::Time initial_time_;
-	    ros::Timer abort_timeout_;
-	    ros::Timer detect_timeout_;
+	    ros::Time init_detect_time;
 
 		RobotInterface *irobot_;
 		MoveBaseGoal last_user_detection_;
@@ -161,7 +159,7 @@ class Navigation
 	    void user_wait();
 		void user_detect(string user_name); 								// Detect user face and check if it's the last trained person
 		void user_recover(string user_name);							// Recover User following the path of last position detection
-		void user_detectTimer(const ros::TimerEvent& e); 	// Timer to be fired after timeout
+		void user_detectTimer();							// Timer to be fired after timeout
 		void user_clear();									// Delete user data
 
 };

@@ -11,7 +11,7 @@
 #ifndef ROBOTINTERFACE_H_
 #define ROBOTINTERFACE_H_
 
-#define BASE_ROTATION_ANGLE 	3.14					//  180 gradi
+#define BASE_ROTATION_ANGLE 	0.74					// radians
 #define SPEECH_DELAY			30						// Time between each speech
 #define ERROR_DISTANCE			8						// distance greater than this will be considered as kinect error and so discarded. Mainly used for simulation bug
 
