@@ -274,8 +274,8 @@ int main(int argc, char **argv)
 		ROS_INFO("[e2_brain]:: Waiting for the navigation action server to come up");
 	while (!voiceClient->waitForServer(ros::Duration(5.0)))
 		ROS_INFO("[e2_brain]:: Waiting for the voice action server to come up");
-	while (!kinectClient.waitForServer(ros::Duration(5.0)))
-		ROS_INFO("[e2_brain]:: Waiting for the kinect action server to come up");
+	//while (!kinectClient.waitForServer(ros::Duration(5.0)))
+	//	ROS_INFO("[e2_brain]:: Waiting for the kinect action server to come up");
 
 	ROS_INFO("[e2_brain]::Servers connected ... [OK]");
 	
