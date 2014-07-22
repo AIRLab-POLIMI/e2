@@ -59,17 +59,14 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 
 	// Enable Services
 	abort_service_ = nh_.advertiseService(name+"/abort",&Navigation::abort_service,this);
+	goto_service_ = nh_.advertiseService(name+"/test_goto",&Navigation::goto_service,this);
+	talk_service_ = nh_.advertiseService(name+"/test_voice",&Navigation::talk_service,this);
+	neck_service_ = nh_.advertiseService(name+"/test_neck",&Navigation::neck_service,this);
 
 	find_user_service_ = nh_.advertiseService(name+"/find_user",&Navigation::find_user_service,this);
 	approach_user_service_= nh_.advertiseService(name+"/approach_user",&Navigation::approach_user_service,this);
 	navigate_target_service_ = nh_.advertiseService(name+"/navigate_target",&Navigation::navigate_target_service,this);
 
-	goto_service_ = nh_.advertiseService(name+"/test_goto",&Navigation::goto_service,this);
-	detect_service_ = nh_.advertiseService(name+"/test_detect",&Navigation::detect_service,this);
-	talk_service_ = nh_.advertiseService(name+"/test_voice",&Navigation::talk_service,this);
-	train_service_ = nh_.advertiseService(name+"/test_train",&Navigation::train_service,this);
-	neck_service_ = nh_.advertiseService(name+"/test_neck",&Navigation::neck_service,this);
-	motor_service_ = nh_.advertiseService(name+"/test_kinect_motor",&Navigation::kinect_service,this);
 
 	// Load Stand positions in memory
 	YAML::Node doc_marker,doc_speech;
@@ -855,7 +852,7 @@ void Navigation::loadSpeakData(YAML::Node& doc)
 
 
 //=====================================
-// Service definitions
+// Service definitions && Callbacks
 //=====================================
 
 //=====================================
@@ -955,57 +952,6 @@ bool Navigation::goto_service(e2_msgs::Goto::Request& request, e2_msgs::Goto::Re
 	return true;
 }
 
-//=====================================
-// This service launch a detection face
-//=====================================
-bool Navigation::detect_service(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
-{
-	user_recognized_ = false;
-
-	ros::Time init_detection = ros::Time::now();
-	ros::Duration timeout(30.0);
-
-	while((ros::Time::now() - init_detection < timeout) && !user_recognized_)
-		user_detect("unknown");
-
-	if(user_recognized_)
-	{
-		nav_goto_detected_user(irobot_->getDetectedUser());
-
-		user_recognized_ = false;
-		irobot_->clearDetectedUser();
-	}
-	else
-	{
-		ROS_INFO("[Brain::Test] Detection Failed. No face detected in 30 sec.");
-		return false;
-	}
-
-
-	return true;
-}
-
-//=====================================
-// Train callback
-//=====================================
-bool Navigation::train_service(e2_msgs::Train::Request& request, e2_msgs::Train::Response& response)
-{
-	if(strcmp(request.username.c_str(), "") == 0)
-	{
-		ROS_INFO("[Navigation]:: Can't train without a username. Abort action.");
-		return false;
-	}
-
-	irobot_->robot_talk(get_speech_by_name("train"));
-	if(irobot_->robot_train_user(request.username.c_str()))
-	{
-		irobot_->robot_talk(get_speech_by_name("train_success"));
-		return true;
-	}
-	irobot_->robot_talk(get_speech_by_name("train_failed"));
-	return false;
-
-}
 
 //=====================================
 // Service to test neck actions
@@ -1027,16 +973,6 @@ bool Navigation::talk_service(e2_msgs::Talk::Request& request, e2_msgs::Talk::Re
 		return false;
 	}
 	irobot_->robot_talk(get_speech_by_name(request.text),true);
-
-	return true;
-}
-
-//=====================================
-// Make kinect motor move
-//=====================================
-bool Navigation::kinect_service(e2_msgs::MotorAngle::Request& request, e2_msgs::MotorAngle::Response& response)
-{
-	irobot_->kinect_action(request.angle);
 
 	return true;
 }

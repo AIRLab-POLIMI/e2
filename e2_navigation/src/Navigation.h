@@ -68,12 +68,8 @@ class Navigation
 
 		// Define services
 		bool abort_service(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
-		bool detect_service(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
 		bool goto_service(e2_msgs::Goto::Request& request, e2_msgs::Goto::Response& response);
-
-		bool kinect_service(e2_msgs::MotorAngle::Request& request, e2_msgs::MotorAngle::Response& response);
 		bool neck_service(e2_msgs::NeckAction::Request& request, e2_msgs::NeckAction::Response& response);
-		bool train_service(e2_msgs::Train::Request& request, e2_msgs::Train::Response& response);
 		bool talk_service(e2_msgs::Talk::Request& request, e2_msgs::Talk::Response& response);
 
 		bool approach_user_service(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
@@ -102,15 +98,14 @@ class Navigation
 		ros::Subscriber odom_sub_;
 		ros::Subscriber face_sub_;
 		ros::ServiceServer abort_service_;
+		ros::ServiceServer goto_service_;
+		ros::ServiceServer talk_service_;
+		ros::ServiceServer neck_service_;
+
 		ros::ServiceServer navigate_target_service_;
 		ros::ServiceServer approach_user_service_;
 		ros::ServiceServer find_user_service_;
-		ros::ServiceServer goto_service_;
-		ros::ServiceServer detect_service_;
-		ros::ServiceServer talk_service_;
-		ros::ServiceServer train_service_;
-		ros::ServiceServer neck_service_;
-		ros::ServiceServer motor_service_;
+
 
 	    // Stand Location and speech data
 		Marker *markers_;
