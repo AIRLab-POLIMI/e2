@@ -204,12 +204,11 @@ void Navigation::ActionController()
 
 				if(user_recognized_)
 				{
-					irobot_->neck_action(1,2); 	// happy face
 					irobot_->neck_action(2,4);	// Make a Bow
 					irobot_->robot_talk(get_speech_by_name("complete"),true);
-
+ 					irobot_->neck_action(1,2);
+					
 					action_completed_ = true;
-
 				}
 				else
 				{

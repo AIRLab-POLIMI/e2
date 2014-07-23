@@ -1,7 +1,7 @@
 <launch>
   
   <!-- Neck controller Node -->
-  <node name="e2_neck_controller" pkg="e2_neck_controller" type="e2_neck_controller_node" respawn="false" output="screen"> 
+  <node name="e2_neck_controller" pkg="e2_neck_controller" type="e2_neck_controller_node" respawn="false"> 
   	<param name="usb_device" type="string" value="/dev/ttyACM0" />
   </node>
 
