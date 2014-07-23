@@ -205,10 +205,11 @@ void Navigation::ActionController()
 				if(user_recognized_)
 				{
 					irobot_->neck_action(1,2); 	// happy face
-					irobot_->neck_action(1,4);	// Make a Bow
+					irobot_->neck_action(2,4);	// Make a Bow
 					irobot_->robot_talk(get_speech_by_name("complete"),true);
 
 					action_completed_ = true;
+
 				}
 				else
 				{
@@ -241,7 +242,7 @@ void Navigation::ActionController()
 		{
 			user_detect("unknown");
 
-			if(user_recognized_ && userdetected_.detected)
+			if(user_recognized_ )
 			{
 				ROS_ERROR("[Navigation]:: Ho trovato qualcosa !");
 
@@ -653,7 +654,7 @@ void Navigation::user_detectTimer()
 	user_recognized_=false;
 
 	ros::Time init_detection = ros::Time::now();
-	ros::Duration timeout(20.0);
+	ros::Duration timeout(30.0);
 
 	while((ros::Time::now() - init_detection < timeout) && !user_recognized_)
 	{
