@@ -252,13 +252,14 @@ void Navigation::ActionController()
 
 					action_completed_ = true;
 				}
-				else if(!path_to_user_)
-				{
-					ROS_INFO("[Navigation]:: User still distant (%f-%f)(%f-%f) !",userdetected_.distance,userdetected_.angle,irobot_->getDetectedUser().distance,irobot_->getDetectedUser().angle);
-					nav_goto(0.4,userdetected_.angle); // slow aproach
-					path_to_user_ = true; // Set following user path
 
-				}
+			}
+			else if(!path_to_user_ && user_recognized_)
+			{
+				ROS_INFO("[Navigation]:: User still distant (%f-%f)(%f-%f) !",userdetected_.distance,userdetected_.angle,irobot_->getDetectedUser().distance,irobot_->getDetectedUser().angle);
+				nav_goto(0.4,irobot_->getDetectedUser().angle); // slow aproach
+				path_to_user_ = true; // Set following user path
+
 			}
 
 			string nav_status = irobot_->base_getStatus();
