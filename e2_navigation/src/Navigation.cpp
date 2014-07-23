@@ -242,7 +242,7 @@ void Navigation::ActionController()
 		{
 			user_detect("unknown");
 
-			if(user_recognized_ )
+			if(userdetected_.detected)
 			{
 				ROS_ERROR("[Navigation]:: Ho trovato qualcosa !");
 
@@ -256,7 +256,7 @@ void Navigation::ActionController()
 				else if(!path_to_user_)
 				{
 					ROS_INFO("[Navigation]:: User still distant (%f-%f)(%f-%f) !",userdetected_.distance,userdetected_.angle,irobot_->getDetectedUser().distance,irobot_->getDetectedUser().angle);
-					nav_goto(0.4,irobot_->getDetectedUser().angle); // slow aproach
+					nav_goto(0.4,userdetected_.angle); // slow aproach
 					path_to_user_ = true; // Set following user path
 
 				}
@@ -268,11 +268,11 @@ void Navigation::ActionController()
 				if(path_to_user_)
 				{
 					ROS_INFO("[Navigation]:: Non posso avvicinarmi alla persona (dist %f).",userdetected_.distance);
+					path_to_user_ = false;
 				}
 				else
 				{
 					path_planned_ = false;
-					ActionAbort();
 				}
 			}
 			else if(strcmp(nav_status.c_str(),"SUCCEEDED")==0 )
@@ -290,11 +290,13 @@ void Navigation::ActionController()
 					else
 					{
 						ROS_ERROR("[Navigation]:: Sono arrivato ma la pesona è lontana!");
+						path_to_user_ = false;
 					}
 
 				}
 				else
 				{
+					ROS_ERROR("[Navigation]:: Sono arrivato ma la pesona non c'è restart!");
 					path_planned_ = false;
 					path_to_user_= false;
 				}
