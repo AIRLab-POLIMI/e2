@@ -29,6 +29,7 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 	pass_count_= 0;
 	delay_detect = 0;
 
+	rotating = false;
 	find_user_ =  false;
 	navigate_target = false;
 	path_planned_  = false;
@@ -59,6 +60,7 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 	//	Suscribers
 	face_sub_= nh_.subscribe("/com", 10,&Navigation::face_callback,this);
 	odom_sub_= nh_.subscribe("/odom", 10,&Navigation::odometry_callback,this);
+	cmd_vel_sub_ = nh_.subscribe("/cmd_vel", 10,&Navigation::velocity_callback,this);
 	sonar_sub_ = nh_.subscribe("/e2_sonar", 1,&Navigation::sonar_callback,this);
 
 	// Enable Services
@@ -374,6 +376,7 @@ void Navigation::ActionReset()
 
 	pass_count_= 0;
 	delay_detect = 0;
+	rotating = false;
 
 	navigate_target = false;
 	find_user_= false;
@@ -917,13 +920,27 @@ void Navigation::face_callback(const user_tracker::ComConstPtr& msg)
 	guest_user_info_.angle = -(320 - x) * angle_pixel_kinect;
 	guest_user_info_.distance = msg->comPoints.z/1000; // convert in m
 }
+//=====================================
+// Velocity CALLBACK
+//=====================================
+void Navigation::velocity_callback(const geometry_msgs::Twist::ConstPtr& msg)
+{
+
+	if(msg->linear.x  == 0 && msg->angular.z > 0)
+	{
+		rotating=true;
+		ROS_INFO("[Navigation]:: Robot is rotating....................in place");
+	}
+	else
+		rotating=false;
+}
 
 //=====================================
 // Sonar CALLBACK - TODO
 //=====================================
 void Navigation::sonar_callback(const e2_sonar::Sonar::ConstPtr& msg)
 {
-	if(path_planned_)
+	if(path_planned_ && !rotating)
 	{
 		// Sonar Sinistra: 5-4-6
 		// Sonar Destra: 1-2-0

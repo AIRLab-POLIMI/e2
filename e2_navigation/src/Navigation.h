@@ -87,10 +87,12 @@ class Navigation
 		void face_callback(const user_tracker::ComConstPtr& msg);
 		void sonar_callback(const e2_sonar::Sonar::ConstPtr& msg);
 		void odometry_callback(const nav_msgs::Odometry::ConstPtr& msg);
+		void velocity_callback(const geometry_msgs::Twist::ConstPtr& msg);
 
 	private:
 
 		bool abort;							// to quit loop
+		bool rotating;
 
 		user_detected guest_user_info_;
 
@@ -102,10 +104,12 @@ class Navigation
 		RobotInterface *irobot_;
 		MoveBaseGoal last_user_detection_;
 
+
 		// Services & subscribers
 		ros::Subscriber odom_sub_;
 		ros::Subscriber face_sub_;
 		ros::Subscriber sonar_sub_;
+		ros::Subscriber cmd_vel_sub_;
 
 		ros::ServiceServer abort_service_;
 		ros::ServiceServer goto_service_;
