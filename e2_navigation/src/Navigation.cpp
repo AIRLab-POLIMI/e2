@@ -30,6 +30,8 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 	delay_detect = 0;
 
 	rotating = false;
+	moving = false;
+
 	find_user_ =  false;
 	navigate_target = false;
 	path_planned_  = false;
@@ -679,10 +681,11 @@ void Navigation::user_detectTimer()
 
 	while((ros::Time::now() - init_detection < timeout) && !user_recognized_)
 	{
-		if(guest_user_info_.user_left)
-			irobot_->base_rotate(const_cast<char *>("LEFT"));	// Rotate robot base because he should be on the robot side
-		else
-			irobot_->base_rotate(const_cast<char *>("RIGHT"));	// Rotate robot base because he should be on the robot side
+		if(!rotating)
+			if(guest_user_info_.user_left)
+				irobot_->base_rotate(const_cast<char *>("LEFT"));	// Rotate robot base because he should be on the robot side
+			else
+				irobot_->base_rotate(const_cast<char *>("RIGHT"));	// Rotate robot base because he should be on the robot side
 
 		//Check user presence
 		user_detect(guest_name_);
