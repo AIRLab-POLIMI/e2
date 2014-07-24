@@ -35,6 +35,7 @@
 #define WAIT_DISTANCE			1.5						//	Min distance the robot will stop to wait user
 #define WAIT_TIME				1						//	Time the robot wait in position
 #define DELAY_DETECT			10						// Add more 10 sec if user is found before check again
+#define USER_SONAR_DISTANCE		60
 
 typedef struct user_detected
 {

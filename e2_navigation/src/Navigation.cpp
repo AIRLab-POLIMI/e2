@@ -935,42 +935,48 @@ void Navigation::sonar_callback(const e2_sonar::Sonar::ConstPtr& msg)
 			// DO SOMETHING
 
 		}
-		// Right Data
-		if((msg->sonar0 > 0 || msg->sonar1 > 0 || msg->sonar2 > 0) && guest_user_info_.user_right)
+
+		// Left Data
+		if(guest_user_info_.user_left )
 		{
-			ROS_INFO("[Navigation::Sonar]:: Qualcosa a destra");
+			if((msg->sonar6 > 0 || msg->sonar5 > 0 || msg->sonar4 > 0) && ((msg->sonar6 < USER_SONAR_DISTANCE || msg->sonar5 < USER_SONAR_DISTANCE || msg->sonar4 < USER_SONAR_DISTANCE)) )
+			{
+				ROS_INFO("[Navigation::Sonar]:: Utente a sinistra");
 
-			// Salvo i valori dei sonar
-			prev_sonar_0_ = msg->sonar0 ;
-			prev_sonar_1_ = msg->sonar1 ;
-			prev_sonar_2_ = msg->sonar2 ;
+				// Salvo i valori dei sonar
+				prev_sonar_6_ = msg->sonar6 ;
+				prev_sonar_5_ = msg->sonar5 ;
+				prev_sonar_4_ = msg->sonar4 ;
 
-			guest_user_info_.user_lost = false;
-			init_detect_time = ros::Time::now();
+				guest_user_info_.user_lost = false;
+				init_detect_time = ros::Time::now();
+			}
+			else if(!guest_user_info_.user_lost)
+			{
+				//ROS_ERROR("[Navigation::Sonar]:: User Lost by LEFT sonar");
+				guest_user_info_.user_lost = true;
+			}
 		}
 		else if(guest_user_info_.user_right)
 		{
-			//ROS_ERROR("[Navigation::Sonar]:: User Lost by RIGHT sonar");
-			guest_user_info_.user_lost = true;
-		}
+			// Right Data
+			if((msg->sonar0 > 0 || msg->sonar1 > 0 || msg->sonar2 > 0) && (msg->sonar0 < USER_SONAR_DISTANCE || msg->sonar1 < USER_SONAR_DISTANCE || msg->sonar2 < USER_SONAR_DISTANCE))
+			{
+				ROS_INFO("[Navigation::Sonar]:: Utente a destra");
 
-		// Left Data
-		if((msg->sonar6 > 0 || msg->sonar5 > 0 || msg->sonar4 > 0) && guest_user_info_.user_left )
-		{
-			ROS_INFO("[Navigation::Sonar]:: Utente a sinistra");
+				// Salvo i valori dei sonar
+				prev_sonar_0_ = msg->sonar0 ;
+				prev_sonar_1_ = msg->sonar1 ;
+				prev_sonar_2_ = msg->sonar2 ;
 
-			// Salvo i valori dei sonar
-			prev_sonar_6_ = msg->sonar6 ;
-			prev_sonar_5_ = msg->sonar5 ;
-			prev_sonar_4_ = msg->sonar4 ;
-
-			guest_user_info_.user_lost = false;
-			init_detect_time = ros::Time::now();
-		}
-		else if(guest_user_info_.user_left)
-		{
-			//ROS_ERROR("[Navigation::Sonar]:: User Lost by LEFT sonar");
-			guest_user_info_.user_lost = true;
+				guest_user_info_.user_lost = false;
+				init_detect_time = ros::Time::now();
+			}
+			else if(!guest_user_info_.user_lost)
+			{
+				//ROS_ERROR("[Navigation::Sonar]:: User Lost by RIGHT sonar");
+				guest_user_info_.user_lost = true;
+			}
 		}
 	}
 
