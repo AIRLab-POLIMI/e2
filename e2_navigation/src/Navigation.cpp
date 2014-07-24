@@ -38,9 +38,12 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 	action_completed_ = false;
 
 
-	userdetected_.detected = false;
-	userdetected_.angle = 0;
-	userdetected_.distance = 0;
+	guest_user_info_.detected = false;
+	guest_user_info_.angle = 0;
+	guest_user_info_.distance = 0;
+	guest_user_info_.user_left = true;
+	guest_user_info_.user_right = false;
+	guest_user_info_.user_lost = false;
 
 	initial_time_ = ros::Time::now();
 
@@ -56,6 +59,7 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 	//	Suscribers
 	face_sub_= nh_.subscribe("/com", 10,&Navigation::face_callback,this);
 	odom_sub_= nh_.subscribe("/odom", 10,&Navigation::odometry_callback,this);
+	sonar_sub_ = nh_.subscribe("/e2_sonar", 1,&Navigation::sonar_callback,this);
 
 	// Enable Services
 	abort_service_ = nh_.advertiseService(name+"/abort",&Navigation::abort_service,this);
@@ -151,14 +155,16 @@ void Navigation::ActionController()
 			//===============================================
 			//	Check if need to detect user
 			//================================================
-			ros::Duration timeout(DETECT_TIMEOUT+delay_detect);
+			ros::Duration timeout(DETECT_TIMEOUT);
 
-			if((ros::Time::now() - init_detect_time > timeout))
+			if(guest_user_info_.user_lost)
 			{
-				ROS_ERROR("[Navigation]:: Detection Timeout !");
-				user_detectTimer();
+				if(ros::Time::now() - init_detect_time > timeout)
+				{
+					ROS_ERROR("[Navigation]:: Detection Timeout !");
+					user_detectTimer();
+				}
 			}
-
 			//===============================================
 			//	Check Navigation Status
 			//================================================
@@ -190,7 +196,10 @@ void Navigation::ActionController()
 
 				while((ros::Time::now() - init_detection < timeout) && !user_recognized_)
 				{
-					irobot_->base_rotate(const_cast<char *>("LEFT"));	// Rotate robot base because he should be on the robot side
+					if(guest_user_info_.user_left)
+						irobot_->base_rotate(const_cast<char *>("LEFT"));	// Rotate robot base because he should be on the robot side
+					else
+						irobot_->base_rotate(const_cast<char *>("RIGHT"));	// Rotate robot base because he should be on the robot side
 
 					//Check user presence
 					user_detect(guest_name_);
@@ -241,11 +250,11 @@ void Navigation::ActionController()
 		{
 			user_detect("unknown");
 
-			if(userdetected_.detected)
+			if(guest_user_info_.detected)
 			{
 				ROS_ERROR("[Navigation]:: Ho trovato qualcosa !");
 
-				if(userdetected_.distance < 1.5)
+				if(guest_user_info_.distance < 1.5)
 				{
 					ROS_INFO("[Navigation]:: User in front of me !");
 					irobot_->neck_action(1,2); 	// happy face
@@ -256,7 +265,7 @@ void Navigation::ActionController()
 			}
 			else if(!path_to_user_ && user_recognized_)
 			{
-				ROS_INFO("[Navigation]:: User still distant (%f-%f)(%f-%f) !",userdetected_.distance,userdetected_.angle,irobot_->getDetectedUser().distance,irobot_->getDetectedUser().angle);
+				ROS_INFO("[Navigation]:: User still distant (%f-%f)(%f-%f) !",guest_user_info_.distance,guest_user_info_.angle,irobot_->getDetectedUser().distance,irobot_->getDetectedUser().angle);
 				nav_goto(0.4,irobot_->getDetectedUser().angle); // slow aproach
 				path_to_user_ = true; // Set following user path
 
@@ -267,7 +276,7 @@ void Navigation::ActionController()
 			{
 				if(path_to_user_)
 				{
-					ROS_INFO("[Navigation]:: Non posso avvicinarmi alla persona (dist %f).",userdetected_.distance);
+					ROS_INFO("[Navigation]:: Non posso avvicinarmi alla persona (dist %f).",guest_user_info_.distance);
 					path_to_user_ = false;
 				}
 				else
@@ -278,9 +287,9 @@ void Navigation::ActionController()
 			else if(strcmp(nav_status.c_str(),"SUCCEEDED")==0 )
 			{
 
-				if(userdetected_.detected && path_to_user_)
+				if(guest_user_info_.detected && path_to_user_)
 				{
-					if(userdetected_.distance < 1.5)
+					if(guest_user_info_.distance < 1.5)
 					{
 						ROS_ERROR("[Navigation]:: Sono davanti una persona !");
 
@@ -316,14 +325,14 @@ void Navigation::ActionController()
 	else if(approach_user_)
 	{
 
-		if(userdetected_.detected)
+		if(guest_user_info_.detected)
 		{
 			if(!path_planned_)
 			{
 				// if distance is lower than 1 meter or is not too far from center camera the robot stay on place
-				if(userdetected_.distance < 1.5)
+				if(guest_user_info_.distance < 1.5)
 				{
-					ROS_INFO("[Navigation]:: User at distance %f and %f deg from camera. No action Done ! ",userdetected_.distance,userdetected_.angle);
+					ROS_INFO("[Navigation]:: User at distance %f and %f deg from camera. No action Done ! ",guest_user_info_.distance,guest_user_info_.angle);
 					action_completed_ = true;
 				}else{
 
@@ -335,7 +344,7 @@ void Navigation::ActionController()
 			{
 				path_planned_ = false;
 			}
-			else if(strcmp(irobot_->base_getStatus().c_str(),"SUCCEEDED")==0 && userdetected_.distance < 1.5)
+			else if(strcmp(irobot_->base_getStatus().c_str(),"SUCCEEDED")==0 && guest_user_info_.distance < 1.5)
 			{
 				action_completed_ = true;
 			}else
@@ -376,6 +385,13 @@ void Navigation::ActionReset()
 	path_planned_  = false;
 	path_to_user_   = false;
 	user_recognized_ = false;
+
+	guest_user_info_.detected = false;
+	guest_user_info_.angle = 0;
+	guest_user_info_.distance = 0;
+	guest_user_info_.user_left = false;
+	guest_user_info_.user_right = false;
+	guest_user_info_.user_lost = false;
 
 	sleep(2);	//	Sleep a bit
 
@@ -598,9 +614,9 @@ void Navigation::getNavStatus()
 //=================================================================
 void Navigation::user_clear()
 {
-	userdetected_.detected = false;
-	userdetected_.angle = 0;
-	userdetected_.distance = 0;
+	guest_user_info_.detected = false;
+	guest_user_info_.angle = 0;
+	guest_user_info_.distance = 0;
 }
 
 //=================================================================
@@ -660,7 +676,10 @@ void Navigation::user_detectTimer()
 
 	while((ros::Time::now() - init_detection < timeout) && !user_recognized_)
 	{
-		irobot_->base_rotate(const_cast<char *>("LEFT"));	// Rotate robot base because he should be on the robot side
+		if(guest_user_info_.user_left)
+			irobot_->base_rotate(const_cast<char *>("LEFT"));	// Rotate robot base because he should be on the robot side
+		else
+			irobot_->base_rotate(const_cast<char *>("RIGHT"));	// Rotate robot base because he should be on the robot side
 
 		//Check user presence
 		user_detect(guest_name_);
@@ -894,11 +913,68 @@ void Navigation::face_callback(const user_tracker::ComConstPtr& msg)
 	float x = msg->comPoints.x;
 	float y = msg->comPoints.y;
 
-	userdetected_.detected = true;
-	userdetected_.angle = -(320 - x) * angle_pixel_kinect;
-	userdetected_.distance = msg->comPoints.z/1000; // convert in m
+	guest_user_info_.detected = true;
+	guest_user_info_.angle = -(320 - x) * angle_pixel_kinect;
+	guest_user_info_.distance = msg->comPoints.z/1000; // convert in m
 }
 
+//=====================================
+// Sonar CALLBACK - TODO
+//=====================================
+void Navigation::sonar_callback(const e2_sonar::Sonar::ConstPtr& msg)
+{
+	if(path_planned_)
+	{
+		// Sonar Sinistra: 5-4-6
+		// Sonar Destra: 1-2-0
+
+		// Frontal Data
+		if(msg->sonar3 > 0 && msg->sonar3 < 20 )
+		{
+			ROS_ERROR("[Navigation::Sonar]:: Frontal Obstacle !!!!!");
+			// DO SOMETHING
+
+		}
+		// Right Data
+		if((msg->sonar0 > 0 || msg->sonar1 > 0 || msg->sonar2 > 0) && guest_user_info_.user_right)
+		{
+			ROS_INFO("[Navigation::Sonar]:: Qualcosa a destra");
+
+			// Salvo i valori dei sonar
+			prev_sonar_0_ = msg->sonar0 ;
+			prev_sonar_1_ = msg->sonar1 ;
+			prev_sonar_2_ = msg->sonar2 ;
+
+			guest_user_info_.user_lost = false;
+			init_detect_time = ros::Time::now();
+		}
+		else if(guest_user_info_.user_right)
+		{
+			//ROS_ERROR("[Navigation::Sonar]:: User Lost by RIGHT sonar");
+			guest_user_info_.user_lost = true;
+		}
+
+		// Left Data
+		if((msg->sonar6 > 0 || msg->sonar5 > 0 || msg->sonar4 > 0) && guest_user_info_.user_left )
+		{
+			ROS_INFO("[Navigation::Sonar]:: Utente a sinistra");
+
+			// Salvo i valori dei sonar
+			prev_sonar_6_ = msg->sonar6 ;
+			prev_sonar_5_ = msg->sonar5 ;
+			prev_sonar_4_ = msg->sonar4 ;
+
+			guest_user_info_.user_lost = false;
+			init_detect_time = ros::Time::now();
+		}
+		else if(guest_user_info_.user_left)
+		{
+			//ROS_ERROR("[Navigation::Sonar]:: User Lost by LEFT sonar");
+			guest_user_info_.user_lost = true;
+		}
+	}
+
+}
 
 //=====================================
 // Kill everything and shutdown

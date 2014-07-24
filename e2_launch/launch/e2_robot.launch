@@ -20,7 +20,10 @@
   	
   	<!-- Kinect Motor-->
   	<node pkg="kinect_motor" name="kinect_motor" type="kinect_motor"/>
-    
+  	
+  	<!-- Sonar Module-->
+  	<node pkg="e2_sonar" name="e2_sonar" type="e2_sonar"/>
+  	    
     <!-- Brain Node-->
     <include file="$(find e2_launch)/launch/components/e2_brain.launch" />
 </launch>

@@ -39,6 +39,9 @@
 		<param name="marker_config" type="string" value="$(arg stand_fiera)" />
 	</node>
 
+  	<!-- Sonar Module-->
+  	<node pkg="e2_sonar" name="e2_sonar" type="e2_sonar"/>
+  	
 	<include file="$(find e2_launch)/launch/components/e2_brain.launch" />
 
     <!-- Rviz -->

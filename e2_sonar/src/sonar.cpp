@@ -10,7 +10,7 @@
 //Ros Libraries
 #include "ros/ros.h"
 #include "ros/package.h"
-#include "sensor_msgs/Range.h"
+#include "e2_sonar/Sonar.h"
 
 //Ros Messages
 
@@ -47,7 +47,7 @@ int main(int argc, char **argv)
 	
 	string device = string("/dev/ttyUSB0");
 	
-	ros::Publisher sonar_pub_ = nh.advertise<sensor_msgs::Range>("e2_sonar", 1000);
+	ros::Publisher sonar_pub_ = nh.advertise<e2_sonar::Sonar>("e2_sonar", 1000);
 
 	//Open Sonar
 	try
@@ -117,30 +117,32 @@ int main(int argc, char **argv)
 					{
 						meas_progress=0;
 						
+						e2_sonar::Sonar msg;
+						float sonar_data[6];
+
 						for (unsigned int i=0;i<7;i++)
 						{
 							//Get Data
 							float sonarRawData = readSonar->getMeasure(i);
 							
-							// Not usefull distance. Set to zero to data
+							// Delete info greater than 2 meters
 							if(sonarRawData > 200)
 								sonarRawData = 0.0;
 
 							ROS_INFO("[SONAR]::SonarData:%d  -  %f", i, sonarRawData);
+							sonar_data[i] = sonarRawData;
 
-							std::ostringstream stream;
-							stream << "sonar_" << i;
+						}
+						// Publish
+						msg.sonar0 = sonar_data[0];
+						msg.sonar1 = sonar_data[1];
+						msg.sonar2 = sonar_data[2];
+						msg.sonar3 = sonar_data[3];
+						msg.sonar4 = sonar_data[4];
+						msg.sonar5 = sonar_data[5];
+						msg.sonar6 = sonar_data[6];
 
-							sensor_msgs::Range msg;
-							msg.header.frame_id = stream.str();
-							msg.field_of_view= 0.1; // x-axis only
-							msg.min_range = 0;
-							msg.max_range= 6;
-							msg.range = sonarRawData/100;
-
-							sonar_pub_.publish(msg);
-
-						}					
+						sonar_pub_.publish(msg);
 					}
 				}
 			}
