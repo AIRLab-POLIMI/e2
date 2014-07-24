@@ -951,9 +951,9 @@ void Navigation::sonar_callback(const e2_sonar::Sonar::ConstPtr& msg)
 				guest_user_info_.user_lost = false;
 				init_detect_time = ros::Time::now();
 			}
-			else if(!guest_user_info_.user_lost)
+			else 
 			{
-				//ROS_ERROR("[Navigation::Sonar]:: User Lost by LEFT sonar");
+				ROS_ERROR("[Navigation::Sonar]:: User Lost by LEFT sonar");
 				guest_user_info_.user_lost = true;
 			}
 		}
@@ -972,9 +972,9 @@ void Navigation::sonar_callback(const e2_sonar::Sonar::ConstPtr& msg)
 				guest_user_info_.user_lost = false;
 				init_detect_time = ros::Time::now();
 			}
-			else if(!guest_user_info_.user_lost)
+			else 
 			{
-				//ROS_ERROR("[Navigation::Sonar]:: User Lost by RIGHT sonar");
+				ROS_ERROR("[Navigation::Sonar]:: User Lost by RIGHT sonar");
 				guest_user_info_.user_lost = true;
 			}
 		}

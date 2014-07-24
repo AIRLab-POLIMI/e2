@@ -29,13 +29,13 @@
 #include <stdlib.h>
 
 #define APPROACH_DISTANCE		0.5 					// Define distance where robot had to place once detected a user (m)
-#define DETECT_TIMEOUT	 		5						// Define the time before fire a detection request
+#define DETECT_TIMEOUT	 		3						// Define the time before fire a detection request
 #define ABORT_TIMEOUT 			300						// Navigation timeout
 #define WAIT_TIMEOUT			30						//	Min time the robot will wait in position before abort task
 #define WAIT_DISTANCE			1.5						//	Min distance the robot will stop to wait user
 #define WAIT_TIME				1						//	Time the robot wait in position
 #define DELAY_DETECT			10						// Add more 10 sec if user is found before check again
-#define USER_SONAR_DISTANCE		60
+#define USER_SONAR_DISTANCE		35
 
 typedef struct user_detected
 {

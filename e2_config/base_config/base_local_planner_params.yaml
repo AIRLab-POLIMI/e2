@@ -5,14 +5,14 @@ clearing_rotation_allowed: true
 TrajectoryPlannerROS:
    max_vel_x: 0.65
    min_vel_x: 0.2
-   max_vel_theta: 0.8
-   min_vel_theta: 0.2
-   min_in_place_vel_theta: 0.8
+   max_vel_theta: 1.0
+   min_vel_theta: -1.0
+   min_in_place_vel_theta: 1.0
 
    escape_vel: -0.2
    acc_lim_x: 0.5
    acc_lim_y: 2.5
-   acc_lim_th: 0.5
+   acc_lim_th: 0.8
 
    holonomic_robot: false
    yaw_goal_tolerance: 0.2 
@@ -25,17 +25,17 @@ TrajectoryPlannerROS:
    heading_lookahead: 0.325
    heading_scoring: false
    heading_scoring_timestep: 0.8
-   occdist_scale: 0.04
+   occdist_scale: 0.01
    oscillation_reset_dist: 0.05
    publish_cost_grid_pc: false
    prune_plan: true
 
-   sim_time: 1.7
+   sim_time: 1.3
    sim_granularity: 0.025
    angular_sim_granularity: 0.025
    vx_samples: 3
    vtheta_samples: 12
-   dwa: true
+   dwa: false
    simple_attractor: false
 
 
