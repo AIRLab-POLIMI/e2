@@ -929,7 +929,7 @@ void Navigation::velocity_callback(const geometry_msgs::Twist::ConstPtr& msg)
 	if(msg->linear.x  == 0 && msg->angular.z > 0)
 	{
 		rotating=true;
-		ROS_INFO("[Navigation]:: Robot is rotating....................in place");
+		ROS_DEBUG("[Navigation]:: Robot is rotating....................in place");
 	}
 	else
 		rotating=false;
@@ -959,11 +959,6 @@ void Navigation::sonar_callback(const e2_sonar::Sonar::ConstPtr& msg)
 			if((msg->sonar6 > 0 || msg->sonar5 > 0 || msg->sonar4 > 0) && ((msg->sonar6 < USER_SONAR_DISTANCE || msg->sonar5 < USER_SONAR_DISTANCE || msg->sonar4 < USER_SONAR_DISTANCE)) )
 			{
 				ROS_INFO("[Navigation::Sonar]:: Utente a sinistra");
-
-				// Salvo i valori dei sonar
-				prev_sonar_6_ = msg->sonar6 ;
-				prev_sonar_5_ = msg->sonar5 ;
-				prev_sonar_4_ = msg->sonar4 ;
 
 				guest_user_info_.user_lost = false;
 				init_detect_time = ros::Time::now();
