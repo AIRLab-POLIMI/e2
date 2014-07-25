@@ -929,6 +929,7 @@ void Navigation::velocity_callback(const geometry_msgs::Twist::ConstPtr& msg)
 	if(msg->linear.x  == 0 && msg->angular.z > 0)
 	{
 		rotating=true;
+		init_detect_time = ros::Time::now(); // reset detect time.
 		ROS_DEBUG("[Navigation]:: Robot is rotating....................in place");
 	}
 	else
@@ -986,15 +987,21 @@ void Navigation::sonar_callback(const e2_sonar::Sonar::ConstPtr& msg)
 			// Right Data
 			if((msg->sonar0 > 0 || msg->sonar1 > 0 || msg->sonar2 > 0) && (msg->sonar0 < USER_SONAR_DISTANCE || msg->sonar1 < USER_SONAR_DISTANCE || msg->sonar2 < USER_SONAR_DISTANCE))
 			{
-				ROS_INFO("[Navigation::Sonar]:: Utente a destra");
+				float diff_ = abs(msg->sonar2 - msg->sonar0 );
 
-				// Salvo i valori dei sonar
-				prev_sonar_0_ = msg->sonar0 ;
-				prev_sonar_1_ = msg->sonar1 ;
-				prev_sonar_2_ = msg->sonar2 ;
+				if(diff_ < 5)
+				{
+					ROS_INFO("[Navigation::Sonar]:: Fake data!!!! Maybe a Wall.");
+					guest_user_info_.user_lost = true;
+				}
+				else
+				{
 
-				guest_user_info_.user_lost = false;
-				init_detect_time = ros::Time::now();
+					ROS_INFO("[Navigation::Sonar]:: Utente a destra");
+
+					guest_user_info_.user_lost = false;
+					init_detect_time = ros::Time::now();
+				}
 			}
 			else 
 			{
