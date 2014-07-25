@@ -190,7 +190,7 @@ void Navigation::ActionController()
 					pass_count_++;
 				}
 			}
-			else if(strcmp(nav_status.c_str(),"SUCCEEDED")==0)
+			else if(strcmp(nav_status.c_str(),"SUCCEEDED")==0 && path_planned_)
 			{
 				//Sono arrivato a destinazione. C'è ancora la persona ? Controllo
 				ros::Time init_detection = ros::Time::now();
