@@ -246,7 +246,6 @@ void Navigation::ActionController()
 		{
 			irobot_->neck_action(1,1); 	// norm face
 			nav_random_path();			// Ramdom navigation
-
 			path_planned_ = true;
 		}// Once planned we need to recognize user's faces
 		else
@@ -308,7 +307,7 @@ void Navigation::ActionController()
 				}
 				else
 				{
-					ROS_ERROR("[Navigation]:: Sono arrivato ma la pesona non c'è restart!");
+					ROS_ERROR("[Navigation]:: Sono arrivato ma la persona non c'è restart!");
 					path_planned_ = false;
 					path_to_user_= false;
 				}
@@ -708,7 +707,7 @@ void Navigation::user_detectTimer()
 		user_recognized_=false;					//	User found no more interesting
 
 		// User is following increase dalay before next check
-		delay_detect +=DELAY_DETECT;
+		//delay_detect +=DELAY_DETECT;
 
 	}
 	else if(navigate_target)
