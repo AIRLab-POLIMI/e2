@@ -30,7 +30,6 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 	delay_detect = 0;
 
 	rotating = false;
-	moving = false;
 
 	find_user_ =  false;
 	navigate_target = false;
@@ -394,8 +393,6 @@ void Navigation::ActionReset()
 	guest_user_info_.detected = false;
 	guest_user_info_.angle = 0;
 	guest_user_info_.distance = 0;
-	guest_user_info_.user_left = false;
-	guest_user_info_.user_right = false;
 	guest_user_info_.user_lost = false;
 
 	sleep(2);	//	Sleep a bit
@@ -960,11 +957,23 @@ void Navigation::sonar_callback(const e2_sonar::Sonar::ConstPtr& msg)
 		if(guest_user_info_.user_left )
 		{
 			if((msg->sonar6 > 0 || msg->sonar5 > 0 || msg->sonar4 > 0) && ((msg->sonar6 < USER_SONAR_DISTANCE || msg->sonar5 < USER_SONAR_DISTANCE || msg->sonar4 < USER_SONAR_DISTANCE)) )
-			{
-				ROS_INFO("[Navigation::Sonar]:: Utente a sinistra");
+			{		
+				float diff_ = abs(msg->sonar6 - msg->sonar4 );
+			 	
+				if(diff_ < 5)
+				{
+					ROS_INFO("[Navigation::Sonar]:: Fake data!!!! Maybe a Wall.");
+					guest_user_info_.user_lost = true;
+				}
+				else
+				{
+				
+					ROS_INFO("[Navigation::Sonar]:: Utente a sinistra");
 
-				guest_user_info_.user_lost = false;
-				init_detect_time = ros::Time::now();
+					guest_user_info_.user_lost = false;
+					init_detect_time = ros::Time::now();
+				}
+
 			}
 			else 
 			{
