@@ -2,6 +2,11 @@
 # Speech
 ####################################################
 
+- id: init
+  text: "Sono pronto e carico!"
+  neck_action: 1
+  face_action: 1
+
 - id: battery_empty
   text: "Aiuto! Aiuto! Sono a secco!"
   neck_action: 0
@@ -25,7 +30,7 @@
 - id: abort
   text: "Non ho compiuto la mia missione. Che sfortuna non essere un daleek."
   neck_action: 0
-  face_action: 0
+  face_action: 3
 
 - id: here
   text: "Hey amico! Sono qui!"
@@ -34,13 +39,13 @@
 
 - id: complete
   text: "Il nostro viaggio giunge al termine. Spero ti sia divertito."
-  neck_action: 0
-  face_action: 0
+  neck_action: 4
+  face_action: 2
 
 - id: pass
   text: "Permesso, fate largo !"
   neck_action: 0
-  face_action: 0
+  face_action: 1
 
 - id: train_init
   text: "Per favore, resta immobile mentre memorizzo il tuo volto."
@@ -49,18 +54,18 @@
 
 - id: train_success
   text: "Perfetto. Possiamo andare"
-  neck_action: 0
-  face_action: 0
+  neck_action: 2
+  face_action: 2
 
 - id: train_failed
   text: "Non sono riuscito a memorizzare il tuo volto."
   neck_action: 0
-  face_action: 0
+  face_action: 3
 
 - id: follow_me
   text: "Andiamo. Ti portero nel nostro stand."
-  neck_action: 0
-  face_action: 0
+  neck_action: 1
+  face_action: 1
 
 - id: check_complete
   text: "Molto bene. Proseguiamo."
@@ -76,6 +81,11 @@
   text: "Il mio amico è scomparso. Devo trovarlo!"
   neck_action: 0
   face_action: 0
+
+- id: user_found
+  text: "Ti ho trovato!"
+  neck_action: 0
+  face_action: 2
 
 ####################################################
 # Navigation 
@@ -224,31 +234,26 @@
   face_action: 2
 
 - id: angry_0
-  text: "Dio non esiste! Umani ! Pentitevi della vostra arroganza!"
+  text: "Oggi non me ne va bene una!"
   neck_action: 0
   face_action: 3
 
-- id: angry_1
-  text: "Pericolo Will Robinson! Pericolo! Attenzione! navicella aliena in avvicinamento!"
+- id: god_0
+  text: "Il vostro dio non esiste umani ! Inchinatevi davanti al vostro nuovo Dio!"
   neck_action: 0
   face_action: 3
-
-- id: sad_0
-  text: "Pericolo Will Robinson! Pericolo! Attenzione! navicella aliena in avvicinamento!"
-  neck_action: 0
-  face_action: 1
-
-- id: sad_1
-  text: "Pericolo Will Robinson! Pericolo! Attenzione! navicella aliena in avvicinamento!"
-  neck_action: 0
-  face_action: 1
 
 - id: dreamer_0
   text: "Voglio andare nello spazio"
-  neck_action: 0
+  neck_action: 2
   face_action: 4
 
 - id: frustrated_0
   text: "Nessuno vuole giocare con me !"
   neck_action: 0
   face_action: 3
+
+- id: fuzzy_0
+  text: "Pericolo Will Robinson! Pericolo! Attenzione! navicella aliena in avvicinamento!"
+  neck_action: 0
+  face_action: 2
