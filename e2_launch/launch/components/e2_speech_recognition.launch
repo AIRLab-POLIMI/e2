@@ -1,6 +1,6 @@
 <launch>
   <node name="recognizer" pkg="pocketsphinx" type="recognizer.py" output="screen">
-    <param name="lm" value="$(find e2_config)/speech_kb/2048.lm"/>
-    <param name="dict" value="$(find e2_config)/speech_kb/2048.dic"/>
+    <param name="lm" value="$(find e2_config)/speech_kb/5520.lm"/>
+    <param name="dict" value="$(find e2_config)/speech_kb/5520.dic"/>
   </node>
 </launch>
