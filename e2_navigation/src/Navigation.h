@@ -12,7 +12,6 @@
 #define NAVIGATION_H_
 
 #include "RobotInterface.h"
-#include "yaml-operator.h"
 
 #include "std_srvs/Empty.h"
 #include "e2_msgs/Goto.h"
@@ -159,8 +158,8 @@ class Navigation
 
 		// Usefull to check the presence of a location or a string by name
 		bool marker_exist(string name);
-		string get_speech_by_name(string name);
-		string get_random_speech(string what);
+		Speech get_speech_by_name(string name);
+		Speech get_random_speech(string what);
 		MBGoal get_marker_by_name(string name);
 
 	    void nav_goto(string name);											// Navigate to known location

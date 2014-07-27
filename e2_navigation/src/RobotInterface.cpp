@@ -216,7 +216,7 @@ void RobotInterface::setRobotPose(Pose pose)
 //=================================================================
 // Make the robot talk
 //=================================================================
-void RobotInterface::robot_talk(string text, bool force)
+void RobotInterface::robot_talk(Speech speech, bool force)
 {
 	ros::Duration timeout(SPEECH_DELAY);
 
@@ -236,12 +236,15 @@ void RobotInterface::robot_talk(string text, bool force)
 			last_speech_=ros::Time::now();
 
 			goal.action_id = 1;
-			goal.text = text;
+			goal.text = speech.text;
+			goal.face_action = speech.face_action;
+			goal.neck_action = speech.neck_action;
+
 			ac_vc->sendGoal(goal, boost::bind(&RobotInterface::voice_callback, this, _1, _2),VoiceClient::SimpleActiveCallback(), VoiceClient::SimpleFeedbackCallback());
 
 			voiceFree_ = false;
 
-			ROS_INFO("[IRobot::Voice]:: %s", text.c_str());
+			ROS_INFO("[IRobot::Voice]:: %s", speech.text.c_str());
 
 		}
 		else

@@ -38,7 +38,7 @@ class RobotInterface
 		void kinect_action(float angle);																					// rotate kinect
 		void neck_action(int action, int sub_action);
 
-		void robot_talk(string text,bool force = false);
+		void robot_talk(Speech speech,bool force = false);
 		bool robot_train_user(string user_name);
 		bool robot_check_user(string user_name);
 

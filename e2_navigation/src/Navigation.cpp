@@ -813,7 +813,7 @@ bool Navigation::marker_exist(string name)
 //=================================================================
 // Retrieve text for a conversation using string id
 //=================================================================
-string Navigation::get_speech_by_name(string name)
+Speech Navigation::get_speech_by_name(string name)
 {
 	int i=0;
 	for (i=0; i < speech_size_ ; ++i)
@@ -822,13 +822,13 @@ string Navigation::get_speech_by_name(string name)
 			break;
 	}
 
-	return speechs_[i].text;
+	return speechs_[i];
 }
 
 //=================================================================
 // Retrieve text for a conversation using string id
 //=================================================================
-string Navigation::get_random_speech(string what)
+Speech Navigation::get_random_speech(string what)
 {
 	int i=0;
 	int topic_tot=0;
@@ -1119,7 +1119,8 @@ void operator >> (const YAML::Node& node, Speech& speech)
 {
 	node["id"] >> speech.id;
 	node["text"] >> speech.text;
-	node["duration"] >> speech.duration;
+	node["neck_action"] >> speech.neck_action;
+	node["face_action"] >> speech.face_action;
 }
 
 

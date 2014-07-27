@@ -31,6 +31,8 @@
 #include <face_recognition/FaceRecognitionFeedback.h>
 #include <face_recognition/FaceRecognitionActionResult.h>
 
+#include "yaml-operator.h"
+
 using namespace std;
 using namespace geometry_msgs;
 using namespace e2_voice;
