@@ -10,6 +10,7 @@
  *
  */
 #include "ros/ros.h"
+#include "ros/package.h"
 
 #include <e2_voice/VoiceAction.h>
 #include <e2_voice/VoiceGoal.h>
@@ -22,10 +23,6 @@
 
 #define ROS_NODE_RATE	5
 #define ROS_NODE_NAME	"e2_voice_node"
-
-//#define SPEECH_COMMAND "espeak"
-//#define SPEECH_PARAM " -s 150 -v it "
-//#define SPEECH_OPT "--stdout | paplay" 		// Fix bug with alsa and pulseaudio
 
 using namespace std;
 using namespace e2_neck_controller;
@@ -83,18 +80,46 @@ public:
 				}
 				break;
 			case 1:
+				// Add face expression
+				if(msg->face_action != 0 )
+				{
+					n_goal.action=1;
+					n_goal.sub_action=msg->face_action;
+					ac_nc->sendGoal(n_goal);
+					//ac_nc->waitForResult();
+				}
+				// Add neck action
+				if(msg->neck_action != 0)
+				{
+					n_goal.action=2;
+					n_goal.sub_action=msg->neck_action;
+					ac_nc->sendGoal(n_goal);
+					//ac_nc->waitForResult();
+				}
 
+				// Start Moving mouth
 				n_goal.action=1;
 				n_goal.sub_action=6;
 				ac_nc->sendGoal(n_goal);
 
-				ROS_INFO("["ROS_NODE_NAME"]:: %s ",msg->text.c_str());
-				//string command=SPEECH_COMMAND" "SPEECH_PARAM" '"+msg->text+"' "SPEECH_OPT ;
-				string command="pico2wave -l it-IT -w /tmp/e2.wav  '"+msg->text+"' && play /tmp/e2.wav  pitch -190 stretch 0.9 band 3000 500 treble 10 >/dev/null 2>&1";
-				system(command.c_str());
+				// Make robot talk
+				if(strcmp(msg->text.c_str(),"robin") == 0)
+				{
+					// So what ? Can't add a joke ?
+					ROS_INFO("["ROS_NODE_NAME"]:: Urca Urca ");
+					string command="mplayer "+ros::package::getPath("e2_config")+"/speak_config/robin.mp3";
+					system(command.c_str());
+				}
+				else
+				{
+					ROS_INFO("["ROS_NODE_NAME"]:: %s ",msg->text.c_str());
+					string command="pico2wave -l it-IT -w /tmp/e2.wav  '"+msg->text+"' && play /tmp/e2.wav  pitch -190 stretch 0.9 band 3000 500 treble 10 >/dev/null 2>&1";
+					system(command.c_str());
+				}
 				break;
 		}
 
+		// Stop Moving mouth
 		n_goal.action=1;
 		n_goal.sub_action=7;
 		ac_nc->sendGoal(n_goal);

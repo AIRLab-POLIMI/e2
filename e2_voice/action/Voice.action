@@ -1,6 +1,8 @@
 #goal definition
 uint8 action_id
 string text
+uint8 neck_action
+uint8 face_action
 ---
 #result definition
 uint8 action_id
