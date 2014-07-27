@@ -86,7 +86,7 @@ public:
 					n_goal.action=1;
 					n_goal.sub_action=msg->face_action;
 					ac_nc->sendGoal(n_goal);
-					//ac_nc->waitForResult();
+					ac_nc->waitForResult();
 				}
 				// Add neck action
 				if(msg->neck_action != 0)
@@ -94,7 +94,7 @@ public:
 					n_goal.action=2;
 					n_goal.sub_action=msg->neck_action;
 					ac_nc->sendGoal(n_goal);
-					//ac_nc->waitForResult();
+					ac_nc->waitForResult();
 				}
 
 				// Start Moving mouth
@@ -116,13 +116,31 @@ public:
 					string command="pico2wave -l it-IT -w /tmp/e2.wav  '"+msg->text+"' && play /tmp/e2.wav  pitch -190 stretch 0.9 band 3000 500 treble 10 >/dev/null 2>&1";
 					system(command.c_str());
 				}
+				// Back to normal face
+				if(msg->face_action != 0 )
+				{
+					n_goal.action=1;
+					n_goal.sub_action=1;
+					ac_nc->sendGoal(n_goal);
+					ac_nc->waitForResult();
+				}
+				// Back to straight neck position
+				if(msg->neck_action != 0)
+				{
+					n_goal.action=2;
+					n_goal.sub_action=1;
+					ac_nc->sendGoal(n_goal);
+					ac_nc->waitForResult();
+				}
+				// Stop Moving mouth
+				n_goal.action=1;
+				n_goal.sub_action=7;
+				ac_nc->sendGoal(n_goal);
+
 				break;
 		}
 
-		// Stop Moving mouth
-		n_goal.action=1;
-		n_goal.sub_action=7;
-		ac_nc->sendGoal(n_goal);
+
 
 		as_.setSucceeded();
 		ROS_INFO("["ROS_NODE_NAME"]:: Action completed");
