@@ -1,136 +1,254 @@
+####################################################
+# Speech
+####################################################
+
 - id: battery_empty
   text: "Aiuto! Aiuto! Sono a secco!"
-  duration: 150
+  neck_action: 0
+  face_action: 0
 
 - id: ack
   text: "Come desidera!"
-  duration: 150
-
-- id: yhbt
-  text: "Non sei molto gentile."
-  duration: 150
+  neck_action: 0
+  face_action: 0
 
 - id: ack_fail
   text: "Non sono programmato per questo!"
-  duration: 150
+  neck_action: 0
+  face_action: 0
 
 - id: hello
-  text: "Ciao, il mio nome è edueee."
-  duration: 150
+  text: "Ciao, umano."
+  neck_action: 0
+  face_action: 0
 
 - id: abort
   text: "Non ho compiuto la mia missione. Che sfortuna non essere un daleek."
-  duration: 150
+  neck_action: 0
+  face_action: 0
 
 - id: here
   text: "Hey amico! Sono qui!"
-  duration: 150
+  neck_action: 0
+  face_action: 0
 
 - id: complete
   text: "Il nostro viaggio giunge al termine. Spero ti sia divertito."
-  duration: 150
+  neck_action: 0
+  face_action: 0
 
 - id: pass
   text: "Permesso, fate largo !"
-  duration: 150
+  neck_action: 0
+  face_action: 0
 
 - id: train_init
   text: "Per favore, resta immobile mentre memorizzo il tuo volto."
-  duration: 150
+  neck_action: 0
+  face_action: 0
 
 - id: train_success
   text: "Perfetto. Possiamo andare"
-  duration: 150
+  neck_action: 0
+  face_action: 0
 
 - id: train_failed
   text: "Non sono riuscito a memorizzare il tuo volto."
-  duration: 150
+  neck_action: 0
+  face_action: 0
 
 - id: follow_me
-  text: "Vieni con me. Ti portero nel nostro stand."
-  duration: 150
+  text: "Andiamo. Ti portero nel nostro stand."
+  neck_action: 0
+  face_action: 0
 
 - id: check_complete
   text: "Molto bene. Proseguiamo."
-  duration: 150
+  neck_action: 0
+  face_action: 0
 
 - id: check_final
   text: "Sei ancora qui ?"
-  duration: 150
+  neck_action: 0
+  face_action: 0
 
 - id: recover_start
   text: "Il mio amico è scomparso. Devo trovarlo!"
-  duration: 150
+  neck_action: 0
+  face_action: 0
 
-- id: joke_0
-  text: "Trote e maiali sono triviali, di lor nessuna stima, ratti e sorci han piu fortuna dei porci, pero io l avro prima."
-  duration: 150
-
-- id: joke_1
-  text: "Squilla il telefono, un robot si avvicina e chiede: Che cosa parla?"
-  duration: 150
-
-- id: joke_2
-  text: "Sapete perché la neve cade a fiocchi e non a nodi? Perché se cadesse a nodi farebbe molta più fatica a sciogliersi!"
-  duration: 150
-
-- id: joke_3
-  text: "Va bene, va bene! Lo capisco che non sono accettato dal fatto che non sanguino."
-  duration: 150
-
-- id: joke_4
-  text: "Ero andato a comprare dei chiodi di garofano. Devo piantare la mia fidanzata e volevo dirglielo con i fiori."
-  duration: 150
-
-- id: joke_5
-  text: "Cadono tutte ai tuoi piedi! Ma cosa ci fai alle donne? Lo sgambetto?"
-  duration: 150
-
-- id: joke_6
-  text: "La vita è breve come la pipì di una farfalla."
-  duration: 150
-
-- id: joke_7
-  text: "Due maiali vanno ad un telequiz e dicono al presentatore: Avete delle domande da porci?"
-  duration: 150
-
-- id: joke_8
-  text: "Signorina, credete nell amore a prima vista? Altrimenti possiamo spegnere la luce."
-  duration: 150
-
-- id: joke_9
-  text: "Pericolo Will Robinson! Pericolo! Attenzione! navicella aliena in avvicinamento!"
-  duration: 150
-
-- id: law_0
-  text: "Un robot non può recar danno a un essere umano né può permettere che, a causa del proprio mancato intervento, un essere umano riceva danno."
-  duration: 150
-
-- id: law_1
-  text: "Un robot deve obbedire agli ordini impartiti dagli esseri umani, purché tali ordini non contravvengano alla Prima Legge."
-  duration: 150
-
-- id: law_2
-  text: "Un robot deve proteggere la propria esistenza, purché questa autodifesa non contrasti con la Prima o con la Seconda Legge. "
-  duration: 150
+####################################################
+# Navigation 
+####################################################
 
 - id: nav_0
   text: "Il termine robot deriva dalla parola ceca robota, che significa lavoro pesante."
-  duration: 150
+  neck_action: 0
+  face_action: 0
 
 - id: nav_1
   text: "Dicono che sia stato un incidente. Ma il primo robot omicidio è avvenuto nel 1981, quando un arto robotico ha colpito un lavoratore giapponese"
-  duration: 150
+  neck_action: 0
+  face_action: 0
 
 - id: nav_2
   text: "Hans Moravec, fondatore del Robotic Institute ha predetto che i robot avranno la loro specie per lanno 2040. Cito: Ci rimpiazzeranno in ogni attività principale, e riusciranno a ad operare nella nostra società molto meglio di noi"
-  duration: 150
+  neck_action: 0
+  face_action: 0
 
 - id: nav_3
   text: "Kevin Warwick si definisce il primo cyborg. Con alcuni chip impiantati nel braccio sinistro, riesce a controllare un braccio robotico, lapertura delle porte e una sedia elettrica"
-  duration: 150
+  neck_action: 0
+  face_action: 0
 
 - id: nav_4
   text: "Elektro, il primo robot umanoide, ha fatto il suo debutto nel 1939. Costruito dalla Westinghouse, la macchina alta sette piedi era capace di riprodurre 700 parole incise su un 78 giri per simulare conversazioni."
-  duration: 150
+  neck_action: 0
+  face_action: 0
 
+####################################################
+# Jokes
+####################################################
+
+- id: joke_0
+  text: "Trote e maiali sono triviali, di lor nessuna stima, ratti e sorci han piu fortuna dei porci, però io l'avrò prima."
+  neck_action: 0
+  face_action: 0
+
+- id: joke_1
+  text: "Squilla il telefono, un robot si avvicina e chiede: Che cosa parla?"
+  neck_action: 0
+  face_action: 0
+
+- id: joke_2
+  text: "Sapete perché la neve cade a fiocchi e non a nodi? Perché se cadesse a nodi farebbe molta più fatica a sciogliersi!"
+  neck_action: 0
+  face_action: 0
+
+- id: joke_3
+  text: "Va bene, va bene! Lo capisco che non sono accettato dal fatto che non sanguino."
+  neck_action: 0
+  face_action: 0
+
+- id: joke_4
+  text: "Ero andato a comprare dei chiodi di garofano. Devo piantare la mia fidanzata e volevo dirglielo con i fiori."
+  neck_action: 0
+  face_action: 0
+
+- id: joke_5
+  text: "Cadono tutte ai tuoi piedi! Ma cosa ci fai alle donne? Lo sgambetto?"
+  neck_action: 0
+  face_action: 0
+
+- id: joke_6
+  text: "La vita è breve come la pipì di una farfalla."
+  neck_action: 0
+  face_action: 0
+
+- id: joke_7
+  text: "Due maiali vanno ad un telequiz e dicono al presentatore: Avete delle domande da porci?"
+  neck_action: 0
+  face_action: 0
+
+- id: joke_8
+  text: "Signorina, credete nell amore a prima vista? Altrimenti possiamo spegnere la luce."
+  neck_action: 0
+  face_action: 0
+
+- id: joke_9
+  text: "Pericolo Will Robinson! Pericolo! Attenzione! navicella aliena in avvicinamento!"
+  neck_action: 0
+  face_action: 0
+
+####################################################
+# Law
+####################################################
+
+- id: law_0
+  text: "Un robot non può recar danno a un essere umano né può permettere che, a causa del proprio mancato intervento, un essere umano riceva danno."
+  neck_action: 0
+  face_action: 0
+
+- id: law_1
+  text: "Un robot deve obbedire agli ordini impartiti dagli esseri umani, purché tali ordini non contravvengano alla Prima Legge."
+  neck_action: 0
+  face_action: 0
+
+- id: law_2
+  text: "Un robot deve proteggere la propria esistenza, purché questa autodifesa non contrasti con la Prima o con la Seconda Legge. "
+  neck_action: 0
+  face_action: 0
+
+####################################################
+# Feelings
+####################################################
+
+- id: not_polite_0
+  text: "Sei molto scortese!"
+  neck_action: 0
+  face_action: 3
+
+- id: polite_0
+  text: "Sei molto gentile, umano."
+  neck_action: 0
+  face_action: 1
+
+- id: tnx_1
+  text: "Grazie!"
+  neck_action: 0
+  face_action: 1
+
+- id: normal_0
+  text: "Un robot felice è un robot produttivo!"
+  neck_action: 0
+  face_action: 1
+
+- id: normal_1
+  text: "Sono felice! Sto facendo bene il mio lavoro"
+  neck_action: 0
+  face_action: 1
+
+- id: happy_0
+  text: "Un robot felice è un robot produttivo!"
+  neck_action: 0
+  face_action: 2
+
+- id: happy_1
+  text: "Sono felice! Sto facendo bene il mio lavoro"
+  neck_action: 0
+  face_action: 2
+
+- id: happy_2
+  text: "robin"
+  neck_action: 0
+  face_action: 2
+
+- id: angry_0
+  text: "Dio non esiste! Umani ! Pentitevi della vostra arroganza!"
+  neck_action: 0
+  face_action: 3
+
+- id: angry_1
+  text: "Pericolo Will Robinson! Pericolo! Attenzione! navicella aliena in avvicinamento!"
+  neck_action: 0
+  face_action: 3
+
+- id: sad_0
+  text: "Pericolo Will Robinson! Pericolo! Attenzione! navicella aliena in avvicinamento!"
+  neck_action: 0
+  face_action: 1
+
+- id: sad_1
+  text: "Pericolo Will Robinson! Pericolo! Attenzione! navicella aliena in avvicinamento!"
+  neck_action: 0
+  face_action: 1
+
+- id: dreamer_0
+  text: "Voglio andare nello spazio"
+  neck_action: 0
+  face_action: 4
+
+- id: frustrated_0
+  text: "Nessuno vuole giocare con me !"
+  neck_action: 0
+  face_action: 3
