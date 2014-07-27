@@ -106,8 +106,7 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 	irobot_= new RobotInterface(en_neck,en_voice,en_train,en_kinect);
 
 	// Staigth neck and clear face
-	irobot_->neck_action(2,1);
-	irobot_->neck_action(1,1);
+	irobot_->robot_talk(get_speech_by_name("init"));
 	irobot_->kinect_action(15);
 }
 
@@ -128,7 +127,6 @@ void Navigation::ActionController()
 	if(strcasecmp(irobot_->get_battery_status(),"LOW") == 0)
 	{
 		ROS_ERROR("[Navigation]:: WARNING ! Battery Low, go to base to refill");
-
 		irobot_->robot_talk(get_speech_by_name("battery_empty"));
 		nav_goto(base_name_);
 	}
@@ -141,8 +139,7 @@ void Navigation::ActionController()
 		{
 			ROS_ERROR("[Navigation]:: Path planned. I'm going home !");
 
-			// Clear Face
-			irobot_->neck_action(1,1);
+			// Clear Kinect
 			irobot_->kinect_action(15);
 
 			// Start
@@ -176,9 +173,7 @@ void Navigation::ActionController()
 			{
 				if(pass_count_> 1 )
 				{
-					irobot_->neck_action(1,3); 	// Angry face
 					irobot_->robot_talk(get_speech_by_name("abort"),true);
-
 					ActionAbort();
 				}
 				else
@@ -216,17 +211,12 @@ void Navigation::ActionController()
 
 				if(user_recognized_)
 				{
-					irobot_->neck_action(2,4);	// Make a Bow
 					irobot_->robot_talk(get_speech_by_name("complete"),true);
- 					irobot_->neck_action(1,2);
-					
 					action_completed_ = true;
 				}
 				else
 				{
-					irobot_->neck_action(1,3); 	// angry face
 					irobot_->robot_talk(get_speech_by_name("abort"),true);
-
 					action_aborted_ = true;
 				}
 			}
@@ -244,7 +234,6 @@ void Navigation::ActionController()
 		// Plan a Random Path to find people
 		if(!path_planned_)
 		{
-			irobot_->neck_action(1,1); 	// norm face
 			nav_random_path();			// Ramdom navigation
 			path_planned_ = true;
 		}// Once planned we need to recognize user's faces
@@ -259,8 +248,7 @@ void Navigation::ActionController()
 				if(guest_user_info_.distance < 1.5)
 				{
 					ROS_INFO("[Navigation]:: User in front of me !");
-					irobot_->neck_action(1,2); 	// happy face
-
+					irobot_->robot_talk(get_speech_by_name("user_found"),true);
 					action_completed_ = true;
 				}
 
@@ -294,9 +282,8 @@ void Navigation::ActionController()
 					if(guest_user_info_.distance < 1.5)
 					{
 						ROS_ERROR("[Navigation]:: Sono davanti una persona !");
-
+						irobot_->robot_talk(get_speech_by_name("user_found"),true);
 						action_completed_ = true;
-						irobot_->neck_action(1,2); 	// happy face
 					}
 					else
 					{
@@ -311,14 +298,12 @@ void Navigation::ActionController()
 					path_planned_ = false;
 					path_to_user_= false;
 				}
-
 			}
-
 		}
 
+		// Clear user info
 		user_clear();
 		irobot_->clearDetectedUser();
-
 
 	}
 	/*==================================================================
@@ -326,7 +311,6 @@ void Navigation::ActionController()
 	==================================================================*/
 	else if(approach_user_)
 	{
-
 		if(guest_user_info_.detected)
 		{
 			if(!path_planned_)
@@ -408,8 +392,6 @@ void Navigation::NavigateTarget()
 {
 	ROS_ERROR("[Navigation]:: New navigation task started");
 
-	irobot_->neck_action(1,2); 	// happy face
-
 	if(irobot_->train_enabled)
 	{
 		irobot_->robot_talk(get_speech_by_name("train_init"));
@@ -417,12 +399,10 @@ void Navigation::NavigateTarget()
 		// Save new user face
 		if(irobot_->robot_train_user(guest_name_))
 		{
-			irobot_->neck_action(1,2);	// happy
 			irobot_->robot_talk(get_speech_by_name("train_success"),true);
 		}
 		else
 		{
-			irobot_->neck_action(1,3);	// angry
 			irobot_->robot_talk(get_speech_by_name("train_failed"),true);
 			ActionReset();
 			return;
@@ -435,11 +415,7 @@ void Navigation::NavigateTarget()
 	initial_time_ = ros::Time::now();
 	setUserDetection(true);
 	nav_wait();
-	irobot_->neck_action(2,2);	//	Invitation Left
 	nav_wait();
-
-	irobot_->neck_action(2,1);	//	Straight again
-	irobot_->neck_action(1,1);	//	Norm face
 
 	irobot_->robot_talk(get_speech_by_name("follow_me"),true);
 
