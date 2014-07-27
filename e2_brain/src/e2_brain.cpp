@@ -113,7 +113,9 @@ typedef struct
 
 	// The robot status express a emotional status of the robot. It can be normal,sad, happy, frustrated, dreamer, or angry
 	string status;
+	ros::Time init_time;
 	ros::Time last_interaction;
+
 }robot_status;
 
 
@@ -301,7 +303,9 @@ int main(int argc, char **argv)
 	robot.action_aborted = 0;
 	robot.action_completed = 0;
 	robot.status = "normal_";
-	robot.last_interaction  = ros::Time::now();
+
+	robot.init_time =  ros::Time::now();
+	robot.last_interaction  = robot.init_time ;
 
 	//RosLoop
 	ros::Rate r(ROS_NODE_RATE);
@@ -604,14 +608,20 @@ int main(int argc, char **argv)
 			if(robot.action_aborted == robot.action_completed)
 			{
 				robot.status = "normal_";
+				if((ros::Time::now() - robot.last_interaction < ros::Duration(20.0)))
+					robot.status = "fuzzy_";
 			}
 			else if (robot.action_completed > robot.action_aborted)
 			{
 				robot.status = "happy_";
+				if((robot.action_completed - robot.action_aborted) > 3)
+					robot.status = "god_";
 			}
 			else if (robot.action_aborted > robot.action_completed)
 			{
 				robot.status = "angry_";
+				if((robot.action_aborted  - robot.action_completed) > 3)
+					robot.status = "frustrated_";
 			}
 
 			//==================================================
