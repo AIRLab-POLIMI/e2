@@ -16,7 +16,9 @@ struct Speech
 {
 	string id;
 	string text;
-	int duration;
+	int neck_action;
+	int face_action;
+
 };
 
 void operator >> (const YAML::Node& node, Speech& speech);

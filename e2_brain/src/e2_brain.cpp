@@ -105,6 +105,18 @@ struct vectorStruct
 	vector<char> userMovesVect;
 };
 
+
+typedef struct
+{
+	int action_aborted;
+	int action_completed;
+
+	// The robot status express a emotional status of the robot. It can be normal,sad, happy, frustrated, dreamer, or angry
+	string status;
+	ros::Time last_interaction;
+}robot_status;
+
+
 //Global Scope
 //======================================================================
 //======================================================================
@@ -142,7 +154,6 @@ bool firstInteraction;
 Speech *speechs_;
 int speech_size_;
 
-// TODO VAriabili comportamento
 bool find_user;
 bool approach_user;
 bool check_user_interested;
@@ -192,9 +203,9 @@ char detectMeaningfulMove(vector<char>* vector);
 void initialize();
 void abort_call(const ros::TimerEvent& event);
 
-void robot_talk(string text);
-string get_speech_by_name(string name);
-string get_random_speech(string what);
+void robot_talk(Speech speech);
+Speech get_speech_by_name(string name);
+Speech get_random_speech(string what);
 void loadSpeakData(YAML::Node& doc);
 
 int getVectorOutputValue(vector<int>* vector);
@@ -210,6 +221,7 @@ bool stop_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response&
 StateMachine *sm;
 string stateMachineConfigFile;
 
+robot_status robot;
 ros::Timer abort_timeout;
 
 //Servers goal definitions
@@ -219,8 +231,9 @@ kinect_motor::KinectGoal kinectGoal;
 
 VoiceClient *voiceClient;
 
-// Main
+
 //======================================================================
+// Main
 //======================================================================
 int main(int argc, char **argv)
 {
@@ -274,8 +287,8 @@ int main(int argc, char **argv)
 		ROS_INFO("[e2_brain]:: Waiting for the navigation action server to come up");
 	while (!voiceClient->waitForServer(ros::Duration(5.0)))
 		ROS_INFO("[e2_brain]:: Waiting for the voice action server to come up");
-	//while (!kinectClient.waitForServer(ros::Duration(5.0)))
-	//	ROS_INFO("[e2_brain]:: Waiting for the kinect action server to come up");
+	while (!kinectClient.waitForServer(ros::Duration(5.0)))
+		ROS_INFO("[e2_brain]:: Waiting for the kinect action server to come up");
 
 	ROS_INFO("[e2_brain]::Servers connected ... [OK]");
 	
@@ -283,6 +296,12 @@ int main(int argc, char **argv)
 	kinectGoal.tilt = -100;
 	kinectClient.sendGoal(kinectGoal, &kinectDoneCallback, &kinectActiveCallback, &kinectFeedbackCallback);
 	kinectMotorFree = false;
+
+	// Initialize Robot Status
+	robot.action_aborted = 0;
+	robot.action_completed = 0;
+	robot.status = "normal_";
+	robot.last_interaction  = ros::Time::now();
 
 	//RosLoop
 	ros::Rate r(ROS_NODE_RATE);
@@ -521,6 +540,9 @@ int main(int argc, char **argv)
 							navigate_user = true;
 							approach_user = false;
 							check_user_interested = false;
+
+							robot.last_interaction = ros::Time::now();
+
 							abort_timeout.stop();
 						}
 						else
@@ -529,6 +551,9 @@ int main(int argc, char **argv)
 							// Initialize due to not interested user
 							initialize();
 							find_user = true;
+
+							robot.action_aborted++;
+
 							abort_timeout.stop();
 						}
 
@@ -568,6 +593,38 @@ int main(int argc, char **argv)
 			voiceGoal.text = phrases[temp].data;
 			voiceClient->sendGoal(voiceGoal, &voiceDoneCallback, &voiceActiveCallback, &voiceFeedbackCallback);
 		}
+
+		/*==================================================================
+			How do you feel E-2?
+		==================================================================*/
+		if(true)
+		{
+			string temp_status = robot.status;
+
+			if(robot.action_aborted == robot.action_completed)
+			{
+				robot.status = "normal_";
+			}
+			else if (robot.action_completed > robot.action_aborted)
+			{
+				robot.status = "happy_";
+			}
+			else if (robot.action_aborted > robot.action_completed)
+			{
+				robot.status = "angry_";
+			}
+
+			//==================================================
+			//	Do you wanna talk ?
+			//==================================================
+			if(strcmp(temp_status.c_str(),robot.status.c_str()) != 0)
+			{
+				robot_talk(get_random_speech(robot.status));
+				voiceClient->waitForResult();
+			}
+
+		}
+
 
 		ros::spinOnce();
 		r.sleep();
@@ -779,16 +836,21 @@ void getVoiceCommands(const std_msgs::String command)
 			return;
 		}
 
-		found = command.data.find("go hell");
+		found = command.data.find("tell law");
 		if (found!=std::string::npos)
 		{
-			ROS_ERROR("[e2_brain::Voice]:: System Overflow - YHBT ");
-			robot_talk(get_speech_by_name("yhbt"));
+			ROS_ERROR("[e2_brain::Voice]:: Laws ");
+
+			robot_talk(get_speech_by_name("law_0"));
+			voiceClient->waitForResult();
+			robot_talk(get_speech_by_name("law_1"));
+			voiceClient->waitForResult();
+			robot_talk(get_speech_by_name("law_2"));
 			voiceClient->waitForResult();
 			return;
 		}
 
-		found = command.data.find("stop");
+		found = command.data.find("abort");
 		if (found!=std::string::npos)
 		{
 			ROS_ERROR("[e2_brain::Voice]:: Mi Fermo!");
@@ -799,7 +861,53 @@ void getVoiceCommands(const std_msgs::String command)
 			return;
 		}
 
+		found = command.data.find("how are you");
+		if (found!=std::string::npos)
+		{
+			ROS_ERROR("[e2_brain::Voice]:: Robot Status");
 
+			robot_talk(get_random_speech(robot.status));
+			voiceClient->waitForResult();
+			return;
+		}
+
+		found = command.data.find("how do you feel");
+		if (found!=std::string::npos)
+		{
+			ROS_ERROR("[e2_brain::Voice]:: Robot Status");
+
+			robot_talk(get_random_speech(robot.status));
+			voiceClient->waitForResult();
+			return;
+		}
+
+		found = command.data.find("thank you");
+		if (found!=std::string::npos)
+		{
+			ROS_ERROR("[e2_brain::Voice]::Polite");
+
+			robot_talk(get_speech_by_name("polite_0"));
+			voiceClient->waitForResult();
+			return;
+		}
+
+		found = command.data.find("go hell");
+		if (found!=std::string::npos)
+		{
+			ROS_ERROR("[e2_brain::Voice]:: System Overflow - YHBT ");
+			robot_talk(get_speech_by_name("not_polite_0"));
+			voiceClient->waitForResult();
+			return;
+		}
+
+		found = command.data.find("hello");
+		if (found!=std::string::npos)
+		{
+			ROS_ERROR("[e2_brain::Voice]:: Ciao ");
+			robot_talk(get_speech_by_name("hello"));
+			voiceClient->waitForResult();
+			return;
+		}
 	}
 
 }
@@ -1127,20 +1235,25 @@ void navDoneCallback(const actionlib::SimpleClientGoalState& state,const e2_navi
 			check_user_interested=true;
 		}
 		else if(result->action_id == 3)
+		{
+			robot.action_completed++;
 			initialize();
+		}
 
 	}
 	else if(state.toString() == "ABORTED")
 	{
 		if(result->action_id == 3)
+		{
+			robot.action_aborted++;
 			initialize();
+		}
+
 	}
 }
 
-void navActiveCallback()
-{}
-void navFeedbackCallback(const e2_navigation::NavFeedbackConstPtr& feed)
-{}
+void navActiveCallback(){}
+void navFeedbackCallback(const e2_navigation::NavFeedbackConstPtr& feed){}
 
 //======================================================================
 // Kinect Callbacks
@@ -1163,20 +1276,13 @@ void voiceDoneCallback(const actionlib::SimpleClientGoalState& state,
 	sampleCounter = 40;
 	speakHandlerFree = true;
 }
-void voiceActiveCallback()
-{
-
-}
-void voiceFeedbackCallback(const e2_voice::VoiceFeedbackConstPtr& feed)
-{
-
-}
-
+void voiceActiveCallback(){}
+void voiceFeedbackCallback(const e2_voice::VoiceFeedbackConstPtr& feed){}
 
 //=================================================================
 // Retrieve text for a conversation using string id
 //=================================================================
-string get_speech_by_name(string name)
+Speech get_speech_by_name(string name)
 {
 	int i=0;
 	for (i=0; i < speech_size_ ; ++i)
@@ -1185,13 +1291,13 @@ string get_speech_by_name(string name)
 			break;
 	}
 
-	return speechs_[i].text;
+	return speechs_[i];
 }
 
 //=================================================================
 // Retrieve text for a conversation using string id
 //=================================================================
-string get_random_speech(string what)
+Speech get_random_speech(string what)
 {
 	int i=0;
 	int topic_tot=0;
@@ -1212,6 +1318,7 @@ string get_random_speech(string what)
 	return get_speech_by_name(out.str());
 
 }
+
 //=====================================
 // Load Speech data
 //=====================================
@@ -1227,22 +1334,24 @@ void operator >> (const YAML::Node& node, Speech& speech)
 {
 	node["id"] >> speech.id;
 	node["text"] >> speech.text;
-	node["duration"] >> speech.duration;
+	node["neck_action"] >> speech.neck_action;
+	node["face_action"] >> speech.face_action;
 }
 
 //=================================================================
 // Make the robot talk
 //=================================================================
-void robot_talk(string text)
+void robot_talk(Speech speech)
 {
 	if(speakHandlerFree)
 	{
 		speakHandlerFree = false;
 		//Define goal and send it to the server side
 		voiceGoal.action_id = 1;
-		voiceGoal.text = text;
+		voiceGoal.text = speech.text;
+		voiceGoal.face_action = speech.face_action;
+		voiceGoal.neck_action = speech.neck_action;
+
 		voiceClient->sendGoal(voiceGoal, &voiceDoneCallback, &voiceActiveCallback, &voiceFeedbackCallback);
 	}
-
-
 }
