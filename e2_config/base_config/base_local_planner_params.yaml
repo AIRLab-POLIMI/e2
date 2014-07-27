@@ -35,7 +35,7 @@ TrajectoryPlannerROS:
    angular_sim_granularity: 0.025
    vx_samples: 3
    vtheta_samples: 12
-   dwa: false
+   dwa: true
    simple_attractor: false
 
 
