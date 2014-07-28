@@ -1,7 +1,9 @@
 /*
 // Authors: cristianmandelli@gmail.com, deborahzamponi@gmail.com
+ *
 // Data: 15/10/2011
-//
+// Modified:28/07/2014 ripani.lorenzo@gmail.com
+ *
 // Description: This package use the XnOpenNi driver for Kinect to detect
 // AMX_USERS user into scene.
 // The publicated topics are:
@@ -24,6 +26,7 @@
 
 //Openni libreries
 #include <XnOpenNI.h>
+#include <XnCodecIDs.h>
 #include <XnCppWrapper.h>
 
 using std::string;
@@ -64,9 +67,6 @@ struct userData
 //Prototipi
 //==============================================================================
 //==============================================================================
-//Callback
-void XN_CALLBACK_TYPE User_NewUser(xn::UserGenerator& generator, XnUserID nId, void* pCookie);
-void XN_CALLBACK_TYPE User_LostUser(xn::UserGenerator& generator, XnUserID nId, void* pCookie);
 //tracking users
 void getBestUser(XnUserID usersArray [MAX_USERS], XnUInt16 nUsers, xn::UserGenerator& generator);
 //define ROI of user's head saved on pt1 and pt2
@@ -80,7 +80,11 @@ void compileMessages();
 //==============================================================================
 //Contest and generators
 xn::Context g_Context;
+xn::DepthGenerator g_DepthGenerator;
 xn::UserGenerator g_UserGenerator;
+
+XnBool g_bNeedPose   = FALSE;
+XnChar g_strPose[20] = "";
 
 //Controll
 XnStatus nRetVal;
@@ -101,6 +105,60 @@ int IDNearUser = -1;
 int *userPixels;
 
 
+void XN_CALLBACK_TYPE User_NewUser(xn::UserGenerator& generator, XnUserID nId, void* pCookie)
+{
+	//Initialization of user structure
+	userDataArray[nId].i = 0;
+	userDataArray[nId].fullQueue = false;
+	userDataArray[nId].userInRange = true;
+
+	ROS_INFO("New User %d", nId);
+	nUserDetected++;
+
+	if (g_bNeedPose)
+		g_UserGenerator.GetPoseDetectionCap().StartPoseDetection(g_strPose, nId);
+	else
+		g_UserGenerator.GetSkeletonCap().RequestCalibration(nId, TRUE);
+
+}
+
+void XN_CALLBACK_TYPE User_LostUser(xn::UserGenerator& generator, XnUserID nId, void* pCookie)
+{
+	ROS_INFO("Lost User %d", nId);
+	userDataArray[nId].userInRange = true;
+	nUserDetected--;
+}
+
+void XN_CALLBACK_TYPE UserCalibration_CalibrationStart(xn::SkeletonCapability& capability, XnUserID nId, void* pCookie) {
+	ROS_INFO("Calibration started for user %d", nId);
+}
+
+void XN_CALLBACK_TYPE UserCalibration_CalibrationEnd(xn::SkeletonCapability& capability, XnUserID nId, XnBool bSuccess, void* pCookie) {
+	if (bSuccess) {
+		ROS_INFO("Calibration complete, start tracking user %d", nId);
+		g_UserGenerator.GetSkeletonCap().StartTracking(nId);
+	}
+	else {
+		ROS_INFO("Calibration failed for user %d", nId);
+		if (g_bNeedPose)
+			g_UserGenerator.GetPoseDetectionCap().StartPoseDetection(g_strPose, nId);
+		else
+			g_UserGenerator.GetSkeletonCap().RequestCalibration(nId, TRUE);
+	}
+}
+
+void XN_CALLBACK_TYPE UserPose_PoseDetected(xn::PoseDetectionCapability& capability, XnChar const* strPose, XnUserID nId, void* pCookie) {
+    ROS_INFO("Pose %s detected for user %d", strPose, nId);
+    g_UserGenerator.GetPoseDetectionCap().StopPoseDetection(nId);
+    g_UserGenerator.GetSkeletonCap().RequestCalibration(nId, TRUE);
+}
+
+#define CHECK_RC(nRetVal, what)										\
+	if (nRetVal != XN_STATUS_OK)									\
+	{																\
+		ROS_ERROR("%s failed: %s", what, xnGetStatusString(nRetVal));\
+		return nRetVal;												\
+	}
 
 //Functions
 //==============================================================================
@@ -128,17 +186,54 @@ int main(int argc, char **argv)
 	//Ros and OpenNi initialization
 	ros::init(argc, argv, "user_tracker");
 	ros::NodeHandle nh;
+
 	string configFilename = ros::package::getPath("openni_tracker")+"/openni_tracker.xml";
 	nRetVal = g_Context.InitFromXmlFile(configFilename.c_str());
-	nRetVal = g_UserGenerator.Create(g_Context);
-	XnCallbackHandle hUserCallbacks;
-	g_UserGenerator.RegisterUserCallbacks(User_NewUser, User_LostUser, NULL, hUserCallbacks);
-	nRetVal = g_Context.StartGeneratingAll();
+	CHECK_RC(nRetVal, "InitFromXml");
+
+    nRetVal = g_Context.FindExistingNode(XN_NODE_TYPE_DEPTH, g_DepthGenerator);
+    CHECK_RC(nRetVal, "Find depth generator");
+
+    nRetVal = g_Context.FindExistingNode(XN_NODE_TYPE_USER, g_UserGenerator);
+    	if (nRetVal != XN_STATUS_OK) {
+    		nRetVal = g_UserGenerator.Create(g_Context);
+    		CHECK_RC(nRetVal, "Find user generator");
+    	}
+
+    XnCallbackHandle hUserCallbacks;
+    	g_UserGenerator.RegisterUserCallbacks(User_NewUser, User_LostUser, NULL, hUserCallbacks);
+
+    		XnCallbackHandle hCalibrationCallbacks;
+    		g_UserGenerator.GetSkeletonCap().RegisterCalibrationCallbacks(UserCalibration_CalibrationStart, UserCalibration_CalibrationEnd, NULL, hCalibrationCallbacks);
+
+    		if (g_UserGenerator.GetSkeletonCap().NeedPoseForCalibration()) {
+    			g_bNeedPose = TRUE;
+    			if (!g_UserGenerator.IsCapabilitySupported(XN_CAPABILITY_POSE_DETECTION)) {
+    				ROS_INFO("Pose required, but not supported");
+    				return 1;
+    			}
+
+    			XnCallbackHandle hPoseCallbacks;
+    			g_UserGenerator.GetPoseDetectionCap().RegisterToPoseCallbacks(UserPose_PoseDetected, NULL, NULL, hPoseCallbacks);
+
+    			g_UserGenerator.GetSkeletonCap().GetCalibrationPose(g_strPose);
+    		}
+
+    		g_UserGenerator.GetSkeletonCap().SetSkeletonProfile(XN_SKEL_PROFILE_ALL);
+
+    		nRetVal = g_Context.StartGeneratingAll();
+    		CHECK_RC(nRetVal, "StartGenerating");
+
 
 	//User's CoM messages
 	ros::Publisher pubCoM = nh.advertise<user_tracker::Com>("com", 1000);
 
 	ros::Rate r(5);
+
+    ros::NodeHandle pnh("~");
+    string frame_id("openni_depth_frame");
+    pnh.getParam("camera_frame_id", frame_id);
+
 	while(ros::ok())	//ROS LOOP
 	{
 		//Update all data
@@ -190,7 +285,7 @@ int main(int argc, char **argv)
 		//if(waitKey(30) >= 0) break;
 		//waitKey(0);
 		
-  	ros::spinOnce();
+		ros::spinOnce();
 		r.sleep();
 	
 	}
@@ -309,27 +404,4 @@ void compileMessages()
 	coms.headPoint.x = (float)nearestUserData.headROIpt1.x;
 	coms.headPoint.y = (float)nearestUserData.headROIpt1.y;
 	
-}
-
-//==============================================================================
-//==============================================================================
-void XN_CALLBACK_TYPE User_NewUser(xn::UserGenerator& generator, XnUserID nId, void* pCookie)
-{
-	//Initialization of user structure
-	userDataArray[nId].i = 0;
-	userDataArray[nId].fullQueue = false;
-	userDataArray[nId].userInRange = true;
-	
-	ROS_INFO("New User %d", nId);
-	nUserDetected++;
-}
-
-
-//==============================================================================
-//==============================================================================
-void XN_CALLBACK_TYPE User_LostUser(xn::UserGenerator& generator, XnUserID nId, void* pCookie)
-{
-	ROS_INFO("Lost User %d", nId);
-	userDataArray[nId].userInRange = true;
-	nUserDetected--;
 }

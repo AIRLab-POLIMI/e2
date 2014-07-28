@@ -288,10 +288,10 @@ int main(int argc, char **argv)
 	//Wait for servers
 	while (!navClient.waitForServer(ros::Duration(5.0)))
 		ROS_INFO("[e2_brain]:: Waiting for the navigation action server to come up");
-	while (!voiceClient->waitForServer(ros::Duration(5.0)))
-		ROS_INFO("[e2_brain]:: Waiting for the voice action server to come up");
-	while (!kinectClient.waitForServer(ros::Duration(5.0)))
-		ROS_INFO("[e2_brain]:: Waiting for the kinect action server to come up");
+	//while (!voiceClient->waitForServer(ros::Duration(5.0)))
+	//	ROS_INFO("[e2_brain]:: Waiting for the voice action server to come up");
+	//while (!kinectClient.waitForServer(ros::Duration(5.0)))
+	//	ROS_INFO("[e2_brain]:: Waiting for the kinect action server to come up");
 
 	ROS_INFO("[e2_brain]::Servers connected ... [OK]");
 	
@@ -609,8 +609,8 @@ int main(int argc, char **argv)
 			if(robot.action_aborted == robot.action_completed)
 			{
 				robot.status = "normal_";
-				if((ros::Time::now() - robot.last_interaction > ros::Duration(120.0)))
-					robot.status = "fuzzy_";
+				//if((ros::Time::now() - robot.last_interaction > ros::Duration(120.0)))
+				//	robot.status = "fuzzy_";
 			}
 			else if (robot.action_completed > robot.action_aborted)
 			{

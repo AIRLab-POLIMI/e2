@@ -410,13 +410,8 @@ void Navigation::NavigateTarget()
 	// Save current position as first user detection position
 	initial_time_ = ros::Time::now();
 	setUserDetection(true);
-	nav_wait();
-	nav_wait();
 
 	irobot_->robot_talk(get_speech_by_name("follow_me"),true);
-
-	nav_wait();
-
 }
 
 //=================================================================
