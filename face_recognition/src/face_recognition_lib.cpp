@@ -136,10 +136,10 @@ public:
 CvRect FaceRecognitionLib::detectFaceInImage(const IplImage *inputImg, const CvHaarClassifierCascade* cascade)
 {
 	const CvSize minFeatureSize = cvSize(20, 20);
-	const int flags = CV_HAAR_FIND_BIGGEST_OBJECT | CV_HAAR_DO_ROUGH_SEARCH;
-	const float search_scale_factor = 1.1f;
-	//const int flags = CV_HAAR_DO_CANNY_PRUNING;
-	//const float search_scale_factor = 1.2f;
+	//const int flags = CV_HAAR_FIND_BIGGEST_OBJECT | CV_HAAR_DO_ROUGH_SEARCH;
+	//const float search_scale_factor = 1.1f;
+	const int flags = CV_HAAR_DO_CANNY_PRUNING;
+	const float search_scale_factor = 1.2f;
 	IplImage *detectImg;
 	IplImage *greyImg = 0;
 	CvMemStorage* storage;

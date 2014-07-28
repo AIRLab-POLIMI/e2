@@ -240,7 +240,7 @@ void Navigation::ActionController()
 			path_planned_ = true;
 			path_to_user_ = false;
 		}// Once planned we need to recognize user's faces
-		else if(user_recognized_ && !path_to_user_)
+		else if(user_recognized_ )
 		{
 			ROS_ERROR("[Navigation]:: Ho trovato qualcosa !");
 
@@ -250,12 +250,13 @@ void Navigation::ActionController()
 				irobot_->robot_talk(get_speech_by_name("user_found"),true);
 				action_completed_ = true;
 			}
-			else if(!path_to_user_)
+			else
 			{
 				ROS_INFO("[Navigation]:: Vado dallo zio ! (%f-%f)",irobot_->getDetectedUser().distance,irobot_->getDetectedUser().angle);
 
-				nav_goto(irobot_->getDetectedUser().distance - 0.45,irobot_->getDetectedUser().angle); // slow aproach
+				nav_goto(0.45,irobot_->getDetectedUser().angle); // slow aproach
 				path_to_user_ = true; // Set following user path
+				nav_wait();
 			}
 
 			string nav_status = irobot_->base_getStatus();
