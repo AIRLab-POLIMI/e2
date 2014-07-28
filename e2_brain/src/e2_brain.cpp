@@ -256,6 +256,7 @@ int main(int argc, char **argv)
 
 	//Services
 	ros::ServiceServer start_service = nh.advertiseService("e2_brain/start",start_callback);
+	ros::ServiceServer stop_service = nh.advertiseService("e2_brain/abort",stop_callback);
 	// Abort Timer
 	abort_timeout = nh.createTimer(ros::Duration(120),abort_call,true,false); // Timer per annullare l'operazione
 
@@ -608,7 +609,7 @@ int main(int argc, char **argv)
 			if(robot.action_aborted == robot.action_completed)
 			{
 				robot.status = "normal_";
-				if((ros::Time::now() - robot.last_interaction < ros::Duration(20.0)))
+				if((ros::Time::now() - robot.last_interaction > ros::Duration(120.0)))
 					robot.status = "fuzzy_";
 			}
 			else if (robot.action_completed > robot.action_aborted)
@@ -1215,7 +1216,7 @@ int getVectorOutputValue(vector<int>* vector)
 //TODO - CALLBACKS NAVIGATION
 bool start_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
 {
-	initialize();
+	//initialize();
 	find_user = true;
 	return true;
 }
@@ -1225,6 +1226,7 @@ bool stop_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response&
 
 	//TODO - reset navigation
 	initialize();
+	robot.action_aborted++;
 	return true;
 }
 

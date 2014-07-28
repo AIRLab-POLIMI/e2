@@ -46,6 +46,7 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 	guest_user_info_.user_left = true;
 	guest_user_info_.user_right = false;
 	guest_user_info_.user_lost = false;
+	guest_user_info_.kinect_detect_time = ros::Time::now();
 
 	initial_time_ = ros::Time::now();
 
@@ -230,35 +231,31 @@ void Navigation::ActionController()
 	==================================================================*/
 	else if(find_user_) //TODO
 	{
+		user_detect("unknown");
 
 		// Plan a Random Path to find people
 		if(!path_planned_)
 		{
 			nav_random_path();			// Ramdom navigation
 			path_planned_ = true;
+			path_to_user_ = false;
 		}// Once planned we need to recognize user's faces
-		else
+		else if(user_recognized_ && !path_to_user_)
 		{
-			user_detect("unknown");
+			ROS_ERROR("[Navigation]:: Ho trovato qualcosa !");
 
-			if(guest_user_info_.detected)
+			if(irobot_->getDetectedUser().distance < 1.5 && guest_user_info_.detected)
 			{
-				ROS_ERROR("[Navigation]:: Ho trovato qualcosa !");
-
-				if(guest_user_info_.distance < 1.5)
-				{
-					ROS_INFO("[Navigation]:: User in front of me !");
-					irobot_->robot_talk(get_speech_by_name("user_found"),true);
-					action_completed_ = true;
-				}
-
+				ROS_INFO("[Navigation]:: User in front of me !");
+				irobot_->robot_talk(get_speech_by_name("user_found"),true);
+				action_completed_ = true;
 			}
-			else if(!path_to_user_ && user_recognized_)
+			else if(!path_to_user_)
 			{
-				ROS_INFO("[Navigation]:: User still distant (%f-%f)(%f-%f) !",guest_user_info_.distance,guest_user_info_.angle,irobot_->getDetectedUser().distance,irobot_->getDetectedUser().angle);
-				nav_goto(0.4,irobot_->getDetectedUser().angle); // slow aproach
-				path_to_user_ = true; // Set following user path
+				ROS_INFO("[Navigation]:: Vado dallo zio ! (%f-%f)",irobot_->getDetectedUser().distance,irobot_->getDetectedUser().angle);
 
+				nav_goto(irobot_->getDetectedUser().distance - 0.45,irobot_->getDetectedUser().angle); // slow aproach
+				path_to_user_ = true; // Set following user path
 			}
 
 			string nav_status = irobot_->base_getStatus();
@@ -266,7 +263,7 @@ void Navigation::ActionController()
 			{
 				if(path_to_user_)
 				{
-					ROS_INFO("[Navigation]:: Non posso avvicinarmi alla persona (dist %f).",guest_user_info_.distance);
+					ROS_INFO("[Navigation]:: Non posso avvicinarmi alla persona (dist %f).",irobot_->getDetectedUser().distance);
 					path_to_user_ = false;
 				}
 				else
@@ -276,12 +273,11 @@ void Navigation::ActionController()
 			}
 			else if(strcmp(nav_status.c_str(),"SUCCEEDED")==0 )
 			{
-
-				if(guest_user_info_.detected && path_to_user_)
+				if(user_recognized_ && path_to_user_)
 				{
-					if(guest_user_info_.distance < 1.5)
+					if(irobot_->getDetectedUser().distance < 1.5)
 					{
-						ROS_ERROR("[Navigation]:: Sono davanti una persona !");
+						ROS_ERROR("[Navigation]:: Sono davanti alla persona !");
 						irobot_->robot_talk(get_speech_by_name("user_found"),true);
 						action_completed_ = true;
 					}
@@ -294,7 +290,7 @@ void Navigation::ActionController()
 				}
 				else
 				{
-					ROS_ERROR("[Navigation]:: Sono arrivato ma la persona non c'è restart!");
+					ROS_ERROR("[Navigation]:: Sono arrivato ma non ho trovato nessuno. Ricomincio!");
 					path_planned_ = false;
 					path_to_user_= false;
 				}
@@ -304,7 +300,6 @@ void Navigation::ActionController()
 		// Clear user info
 		user_clear();
 		irobot_->clearDetectedUser();
-
 	}
 	/*==================================================================
 		Navigate to approach a user detected TODO
@@ -894,6 +889,8 @@ void Navigation::face_callback(const user_tracker::ComConstPtr& msg)
 	guest_user_info_.detected = true;
 	guest_user_info_.angle = -(320 - x) * angle_pixel_kinect;
 	guest_user_info_.distance = msg->comPoints.z/1000; // convert in m
+
+	guest_user_info_.kinect_detect_time = ros::Time::now();
 }
 //=====================================
 // Velocity CALLBACK
@@ -916,7 +913,7 @@ void Navigation::velocity_callback(const geometry_msgs::Twist::ConstPtr& msg)
 //=====================================
 void Navigation::sonar_callback(const e2_sonar::Sonar::ConstPtr& msg)
 {
-	if(path_planned_ && !rotating)
+	if(path_planned_ && !rotating && navigate_target)
 	{
 		// Sonar Sinistra: 5-4-6
 		// Sonar Destra: 1-2-0
@@ -939,7 +936,7 @@ void Navigation::sonar_callback(const e2_sonar::Sonar::ConstPtr& msg)
 				if(diff_ < 5)
 				{
 					ROS_INFO("[Navigation::Sonar]:: Fake data!!!! Maybe a Wall.");
-					guest_user_info_.user_lost = true;
+					//guest_user_info_.user_lost = true;
 				}
 				else
 				{
@@ -967,7 +964,7 @@ void Navigation::sonar_callback(const e2_sonar::Sonar::ConstPtr& msg)
 				if(diff_ < 5)
 				{
 					ROS_INFO("[Navigation::Sonar]:: Fake data!!!! Maybe a Wall.");
-					guest_user_info_.user_lost = true;
+					//guest_user_info_.user_lost = true;
 				}
 				else
 				{

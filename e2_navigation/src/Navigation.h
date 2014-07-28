@@ -41,6 +41,8 @@ typedef struct user_detected
 	bool detected;
 	float angle;		// angle respect center of camera
 	float distance;  	// center respect center of camera
+	ros::Time kinect_detect_time;
+
 
 	bool user_left;
 	bool user_right;
