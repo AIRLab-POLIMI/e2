@@ -41,6 +41,7 @@ typedef struct user_detected
 	bool detected;
 	float angle;		// angle respect center of camera
 	float distance;  	// center respect center of camera
+	int user_id;
 	Pose pose;
 	ros::Time kinect_detect_time;
 
@@ -95,6 +96,7 @@ class Navigation
 
 		bool abort;							// to quit loop
 		bool rotating;
+		bool moving;
 
 		user_detected guest_user_info_;
 

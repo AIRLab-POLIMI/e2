@@ -464,4 +464,6 @@ void compileMessages()
 	coms.headPoint.x = (float)nearestUserData.headROIpt1.x;
 	coms.headPoint.y = (float)nearestUserData.headROIpt1.y;
 	
+	coms.id = nearestUserData.userID;
+
 }

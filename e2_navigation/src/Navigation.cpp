@@ -30,6 +30,7 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 	delay_detect = 0;
 
 	rotating = false;
+	moving=false;
 
 	find_user_ =  false;
 	navigate_target = false;
@@ -143,12 +144,14 @@ void Navigation::ActionController()
 			// Clear Kinect
 			irobot_->kinect_action(15);
 
+			// Go Home....Bzzzz
+			nav_wait();
+			nav_goto(target_name_);
+			path_planned_ = true;
+
 			// Start
 			init_detect_time = ros::Time::now();
 
-			// Go Home....Bzzzz
-			nav_goto(target_name_);
-			path_planned_ = true;
 		}
 		else if(path_planned_)
 		{
@@ -238,58 +241,74 @@ void Navigation::ActionController()
 			path_planned_ = true;
 			path_to_user_ = false;
 		}// Once planned we need to recognize user's faces
-		else if(guest_user_info_.detected)
+		else if(guest_user_info_.detected && !moving)
 		{
 			ROS_ERROR("[Navigation]:: Ho trovato qualcuno !");
 
 
-			ROS_INFO("[Navigation]:: Vado dallo zio ! (%f)",guest_user_info_.distance);
-
-			MBGoal goal;
-			goal.target_pose.pose.position.x = guest_user_info_.pose.position.x;
-			goal.target_pose.pose.position.y = guest_user_info_.pose.position.y;
-			goal.target_pose.pose.orientation.z = guest_user_info_.pose.orientation.z;
-			goal.target_pose.pose.orientation.w = guest_user_info_.pose.orientation.w;
-			nav_goto(goal);
-
-			path_to_user_ = true; // Set following user path
-			nav_wait();
-
-			string nav_status = irobot_->base_getStatus();
-			if(strcmp(nav_status.c_str(),"ABORTED")==0)
+			if(guest_user_info_.distance > 1.2)
 			{
-				if(path_to_user_)
-				{
-					ROS_INFO("[Navigation]:: Non posso avvicinarmi alla persona (dist %f).",irobot_->getDetectedUser().distance);
-					path_to_user_ = false;
-				}
-				else
-				{
-					path_planned_ = false;
-				}
+				ROS_INFO("[Navigation]:: Vado dallo zio ! (%f)",guest_user_info_.distance);
+				float distance = guest_user_info_.distance - 1.2;
+				nav_goto(distance,guest_user_info_.angle);
+
+				path_to_user_ = true; // Set following user path
+
 			}
-			else if(strcmp(nav_status.c_str(),"SUCCEEDED")==0 )
+			else if(guest_user_info_.distance > 0 )
 			{
-				if(guest_user_info_.detected)
-				{
-					if(guest_user_info_.distance < 1.5 )
-					{
-						ROS_INFO("[Navigation]:: User in front of me !");
-						irobot_->robot_talk(get_speech_by_name("user_found"),true);
-						action_completed_ = true;
-					}
-					else
-					{
-						ROS_ERROR("[Navigation]:: Sono arrivato ma la pesona è lontana!");
-						path_to_user_ = false;
-					}
-				}
-				else
-				{
-					ROS_ERROR("[Navigation]:: Sono arrivato ma non ho trovato nessuno. Ricomincio!");
-					path_planned_ = false;
-					path_to_user_= false;
-				}
+				irobot_->cancell_all_goal();
+				ROS_INFO("[Navigation]:: User in front of me !");
+				irobot_->robot_talk(get_speech_by_name("user_found"),true);
+				action_completed_ = true;
+
+			}else{
+				ROS_ERROR("Altro");
+			}
+		}
+
+		string nav_status = irobot_->base_getStatus();
+		if(strcmp(nav_status.c_str(),"ABORTED")==0)
+		{
+			if(path_to_user_)
+			{
+				ROS_ERROR("[Navigation]:: Non posso avvicinarmi alla persona (dist %f).",guest_user_info_.distance);
+				path_to_user_ = false;
+			}
+			else
+			{
+				ROS_ERROR("[Navigation]:: Obstacle free nav. Restart.");
+				path_planned_ = false;
+			}
+		}
+		else if(strcmp(nav_status.c_str(),"SUCCEEDED")==0 )
+		{
+			if(guest_user_info_.detected)
+			{
+			//	if(guest_user_info_.distance < 1.5 )
+			//	{
+					irobot_->cancell_all_goal();
+					ROS_INFO("[Navigation]:: User in front of me !");
+					irobot_->robot_talk(get_speech_by_name("user_found"),true);
+					action_completed_ = true;
+			//	}
+			//	else
+			//	{
+			//		ROS_ERROR("[Navigation]:: Sono arrivato ma la pesona è lontana!");
+			//		path_to_user_ = false;
+			//	}
+			}
+			else if(guest_user_info_.detected && guest_user_info_.distance < 1.5)
+			{
+				irobot_->cancell_all_goal();
+				ROS_INFO("[Navigation]:: User in front of me !");
+				irobot_->robot_talk(get_speech_by_name("user_found"),true);
+				action_completed_ = true;			}
+			else
+			{
+				ROS_ERROR("[Navigation]:: Sono arrivato ma non ho trovato nessuno. Ricomincio!");
+				path_planned_ = false;
+				path_to_user_= false;
 			}
 		}
 
@@ -328,6 +347,7 @@ void Navigation::ActionController()
 				path_planned_= false;
 		}
 	}
+	moving = false;
 }
 
 //=================================================================
@@ -877,24 +897,71 @@ void Navigation::face_callback(const user_tracker::ComConstPtr& msg)
 	// Get user position
 	tf::StampedTransform transform;
 
-	try{
-		listener_.lookupTransform("/map", "/user_head", ros::Time(0), transform);
-		guest_user_info_.pose.position.x = transform.getOrigin().x();
-		guest_user_info_.pose.position.y = transform.getOrigin().y();
-		guest_user_info_.pose.position.z = 0.0;
+	std::stringstream out_frame;
+	out_frame << "user_head_" << (int)msg->id;
+	//ROS_INFO("%s",out_frame.str().c_str());
 
-		guest_user_info_.pose.orientation.z = transform.getRotation().getZ();
-		guest_user_info_.pose.orientation.w = transform.getRotation().getW();
+	if(find_user_)
+	{
+		if(moving && !path_to_user_)
+		{
+			irobot_->cancell_all_goal();
+
+			try
+			{
+				listener_.lookupTransform("/openni_depth_frame",out_frame.str(), ros::Time(0), transform);
+
+				guest_user_info_.detected = true;
+
+				guest_user_info_.pose.position.x = transform.getOrigin().x();
+				guest_user_info_.pose.position.y = transform.getOrigin().y();
+				guest_user_info_.pose.position.z = 0.0;
+
+				guest_user_info_.pose.orientation.z = transform.getRotation().getZ();
+				guest_user_info_.pose.orientation.w = transform.getRotation().getW();
+
+				double x = transform.getOrigin().x();
+				double y = transform.getOrigin().y();
+				double dist = sqrt(x*x + y*y);
+
+				guest_user_info_.distance = dist;
+				const float angle_pixel_kinect = 0.07125;
+				guest_user_info_.angle = -(320 - msg->comPoints.x) * angle_pixel_kinect;
+
+			}
+			catch (tf::TransformException ex){
+				//ROS_ERROR("%s",ex.what());
+				//Trasform still not availabe, consider as not detected
+				guest_user_info_.detected = false;
+			}
+		}
+		else
+		{
+			try{
+				listener_.lookupTransform("/openni_depth_frame",out_frame.str(), ros::Time(0), transform);
+				guest_user_info_.pose.position.x = transform.getOrigin().x();
+				guest_user_info_.pose.position.y = transform.getOrigin().y();
+				guest_user_info_.pose.position.z = 0.0;
+
+				guest_user_info_.pose.orientation.z = transform.getRotation().getZ();
+				guest_user_info_.pose.orientation.w = transform.getRotation().getW();
+
+				double x = transform.getOrigin().x();
+				double y = transform.getOrigin().y();
+				double dist = sqrt(x*x + y*y);
+
+				guest_user_info_.distance = dist;
+				const float angle_pixel_kinect = 0.07125;
+				guest_user_info_.angle = -(320 - msg->comPoints.x) * angle_pixel_kinect;
+
+			}
+			catch (tf::TransformException ex){
+				//ROS_ERROR("%s",ex.what());
+				//Trasform still not availabe, consider as not detected
+				guest_user_info_.detected = false;
+			}
+		}
 	}
-	catch (tf::TransformException ex){
-		ROS_ERROR("%s",ex.what());
-	}
-
-	double x = transform.getOrigin().x();
-	double y = transform.getOrigin().y();
-	double dist = sqrt(x*x + y*y);
-
-	guest_user_info_.distance = dist;
 
 }
 //=====================================
@@ -902,6 +969,7 @@ void Navigation::face_callback(const user_tracker::ComConstPtr& msg)
 //=====================================
 void Navigation::velocity_callback(const geometry_msgs::Twist::ConstPtr& msg)
 {
+	moving=true;
 
 	if(msg->linear.x  == 0 && msg->angular.z > 0)
 	{
@@ -911,6 +979,7 @@ void Navigation::velocity_callback(const geometry_msgs::Twist::ConstPtr& msg)
 	}
 	else
 		rotating=false;
+
 }
 
 //=====================================

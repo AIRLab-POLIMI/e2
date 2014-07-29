@@ -63,7 +63,7 @@
   face_action: 3
 
 - id: follow_me
-  text: "Andiamo. Ti portero nel nostro stand."
+  text: "Andiamo!"
   neck_action: 1
   face_action: 1
 

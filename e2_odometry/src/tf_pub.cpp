@@ -36,6 +36,7 @@ int main(int argc, char** argv)
 		broadcaster.sendTransform(tf::StampedTransform(tf::Transform(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0.0, 0.0, KINECT_Z)),ros::Time::now(),"base_link", "kinect_visionSensor"));
 		broadcaster.sendTransform(tf::StampedTransform(tf::Transform(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0.0, 0.0, KINECT_Z)),ros::Time::now(),"base_link", "laser_scan"));
 		broadcaster.sendTransform(tf::StampedTransform(tf::Transform(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0.0, 0.0, KINECT_Z)),ros::Time::now(),"base_link", "camera_link"));
+		broadcaster.sendTransform(tf::StampedTransform(tf::Transform(tf::Quaternion(0, 0, 0, 1), tf::Vector3(0.0, 0.0, KINECT_Z)),ros::Time::now(),"base_link", "openni_depth_frame"));
 
 		// WHEEL
 		broadcaster.sendTransform(tf::StampedTransform(tf::Transform(tf::Quaternion(0, 0, 0, 1), tf::Vector3(WHEEL_X, WHEEL_Y, WHEEL_Z)),ros::Time::now(),"base_link", "rightWheel"));

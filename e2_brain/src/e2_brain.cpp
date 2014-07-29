@@ -258,7 +258,7 @@ int main(int argc, char **argv)
 	ros::ServiceServer start_service = nh.advertiseService("e2_brain/start",start_callback);
 	ros::ServiceServer stop_service = nh.advertiseService("e2_brain/abort",stop_callback);
 	// Abort Timer
-	abort_timeout = nh.createTimer(ros::Duration(120),abort_call,true,false); // Timer per annullare l'operazione
+	//abort_timeout = nh.createTimer(ros::Duration(120),abort_call,true,false); // Timer per annullare l'operazione
 
 	
 	//Inizializza le variabili di sistema allo stato iniziale
@@ -498,8 +498,8 @@ int main(int argc, char **argv)
 					else
 						user_interested = false;
 				}
-				else
-					abort_timeout.start();
+				//else
+				//abort_timeout.start();
 
 				//Clear vector
 				dataVectors.userDistanceVect.clear();
@@ -548,7 +548,7 @@ int main(int argc, char **argv)
 
 							robot.last_interaction = ros::Time::now();
 
-							abort_timeout.stop();
+							//abort_timeout.stop();
 						}
 						else
 						{
@@ -559,7 +559,7 @@ int main(int argc, char **argv)
 
 							robot.action_aborted++;
 
-							abort_timeout.stop();
+							//abort_timeout.stop();
 						}
 
 					}
@@ -596,6 +596,9 @@ int main(int argc, char **argv)
 			//Define goal and send it to the server side
 			voiceGoal.action_id = 1;
 			voiceGoal.text = phrases[temp].data;
+			voiceGoal.neck_action = 0;
+			voiceGoal.face_action = 1;
+
 			voiceClient->sendGoal(voiceGoal, &voiceDoneCallback, &voiceActiveCallback, &voiceFeedbackCallback);
 		}
 
@@ -691,7 +694,7 @@ void initialize()
 	else
 		ROS_INFO("[e2_brain]:: State machine from configuration file ... [OK]");
 
-	abort_timeout.stop();
+	//abort_timeout.stop();
 
 }
 
