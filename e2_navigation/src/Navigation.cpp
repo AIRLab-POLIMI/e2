@@ -60,7 +60,7 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 	nh_.param("speech_config", speech_config, ros::package::getPath("e2_config")+"/speak_config/speech_config.yaml");
 
 	//	Suscribers
-	face_sub_= nh_.subscribe("/com", 10,&Navigation::face_callback,this);
+	face_sub_= nh_.subscribe("/com", 100,&Navigation::face_callback,this);
 	odom_sub_= nh_.subscribe("/odom", 10,&Navigation::odometry_callback,this);
 	cmd_vel_sub_ = nh_.subscribe("/cmd_vel", 10,&Navigation::velocity_callback,this);
 	sonar_sub_ = nh_.subscribe("/e2_sonar", 1,&Navigation::sonar_callback,this);
@@ -231,8 +231,6 @@ void Navigation::ActionController()
 	==================================================================*/
 	else if(find_user_) //TODO
 	{
-		user_detect("unknown");
-
 		// Plan a Random Path to find people
 		if(!path_planned_)
 		{
@@ -240,24 +238,22 @@ void Navigation::ActionController()
 			path_planned_ = true;
 			path_to_user_ = false;
 		}// Once planned we need to recognize user's faces
-		else if(user_recognized_ )
+		else if(guest_user_info_.detected)
 		{
-			ROS_ERROR("[Navigation]:: Ho trovato qualcosa !");
+			ROS_ERROR("[Navigation]:: Ho trovato qualcuno !");
 
-			if(irobot_->getDetectedUser().distance < 1.5 && guest_user_info_.detected)
-			{
-				ROS_INFO("[Navigation]:: User in front of me !");
-				irobot_->robot_talk(get_speech_by_name("user_found"),true);
-				action_completed_ = true;
-			}
-			else
-			{
-				ROS_INFO("[Navigation]:: Vado dallo zio ! (%f-%f)",irobot_->getDetectedUser().distance,irobot_->getDetectedUser().angle);
 
-				nav_goto(0.45,irobot_->getDetectedUser().angle); // slow aproach
-				path_to_user_ = true; // Set following user path
-				nav_wait();
-			}
+			ROS_INFO("[Navigation]:: Vado dallo zio ! (%f)",guest_user_info_.distance);
+
+			MBGoal goal;
+			goal.target_pose.pose.position.x = guest_user_info_.pose.position.x;
+			goal.target_pose.pose.position.y = guest_user_info_.pose.position.y;
+			goal.target_pose.pose.orientation.z = guest_user_info_.pose.orientation.z;
+			goal.target_pose.pose.orientation.w = guest_user_info_.pose.orientation.w;
+			nav_goto(goal);
+
+			path_to_user_ = true; // Set following user path
+			nav_wait();
 
 			string nav_status = irobot_->base_getStatus();
 			if(strcmp(nav_status.c_str(),"ABORTED")==0)
@@ -274,11 +270,11 @@ void Navigation::ActionController()
 			}
 			else if(strcmp(nav_status.c_str(),"SUCCEEDED")==0 )
 			{
-				if(user_recognized_ && path_to_user_)
+				if(guest_user_info_.detected)
 				{
-					if(irobot_->getDetectedUser().distance < 1.5)
+					if(guest_user_info_.distance < 1.5 )
 					{
-						ROS_ERROR("[Navigation]:: Sono davanti alla persona !");
+						ROS_INFO("[Navigation]:: User in front of me !");
 						irobot_->robot_talk(get_speech_by_name("user_found"),true);
 						action_completed_ = true;
 					}
@@ -287,7 +283,6 @@ void Navigation::ActionController()
 						ROS_ERROR("[Navigation]:: Sono arrivato ma la pesona è lontana!");
 						path_to_user_ = false;
 					}
-
 				}
 				else
 				{
@@ -876,17 +871,31 @@ void Navigation::odometry_callback(const nav_msgs::Odometry::ConstPtr& msg)
 //=====================================
 void Navigation::face_callback(const user_tracker::ComConstPtr& msg)
 {
-	//ROS_INFO("[USER INFO]:: Face[x,y,z]: %f--%f--%f", msg->comPoints.x,msg->comPoints.y,msg->comPoints.z);
-
-	const float angle_pixel_kinect = 0.07125;
-	float x = msg->comPoints.x;
-	float y = msg->comPoints.y;
-
 	guest_user_info_.detected = true;
-	guest_user_info_.angle = -(320 - x) * angle_pixel_kinect;
-	guest_user_info_.distance = msg->comPoints.z/1000; // convert in m
-
 	guest_user_info_.kinect_detect_time = ros::Time::now();
+
+	// Get user position
+	tf::StampedTransform transform;
+
+	try{
+		listener_.lookupTransform("/map", "/user_head", ros::Time(0), transform);
+		guest_user_info_.pose.position.x = transform.getOrigin().x();
+		guest_user_info_.pose.position.y = transform.getOrigin().y();
+		guest_user_info_.pose.position.z = 0.0;
+
+		guest_user_info_.pose.orientation.z = transform.getRotation().getZ();
+		guest_user_info_.pose.orientation.w = transform.getRotation().getW();
+	}
+	catch (tf::TransformException ex){
+		ROS_ERROR("%s",ex.what());
+	}
+
+	double x = transform.getOrigin().x();
+	double y = transform.getOrigin().y();
+	double dist = sqrt(x*x + y*y);
+
+	guest_user_info_.distance = dist;
+
 }
 //=====================================
 // Velocity CALLBACK

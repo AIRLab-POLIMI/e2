@@ -4,6 +4,9 @@ project(user_tracker)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+
+find_package(orocos_kdl REQUIRED)
+
 find_package(catkin REQUIRED COMPONENTS
   cv_bridge
   geometry_msgs
@@ -11,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   message_generation
+  tf
 )
 
 ## System dependencies are found with CMake's conventions
@@ -96,7 +100,7 @@ find_library(Nite_LIBRARY
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES user_tracker
-  CATKIN_DEPENDS cv_bridge geometry_msgs image_transport roscpp std_msgs message_runtime
+  CATKIN_DEPENDS cv_bridge geometry_msgs image_transport roscpp std_msgs message_runtime tf
 #  DEPENDS system_lib
 )
 
@@ -110,7 +114,11 @@ catkin_package(
 include_directories(
   ${catkin_INCLUDE_DIRS}
   ${OpenNI_INCLUDEDIR}
-)
+  ${orocos_kdl_INCLUDE_DIRS})
+
+link_directories(${catkin_LIBRARY_DIRS})  
+link_directories(${orocos_kdl_LIBRARY_DIRS})
+
 
 ## Declare a cpp library
 # add_library(user_tracker
@@ -127,6 +135,7 @@ include_directories(
 ## Specify libraries to link a library or executable target against
  target_link_libraries(user_tracker
   ${catkin_LIBRARIES}
+  ${orocos_kdl_LIBRARIES}
   ${OpenNI_LIBRARIES}
  )
 

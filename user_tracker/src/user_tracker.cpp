@@ -29,6 +29,9 @@
 #include <XnCodecIDs.h>
 #include <XnCppWrapper.h>
 
+#include <tf/transform_broadcaster.h>
+#include <kdl/frames.hpp>
+
 using std::string;
 
 #define MAX_USERS 10  /*  If you need to modify this constant you MUST mofify 
@@ -160,6 +163,63 @@ void XN_CALLBACK_TYPE UserPose_PoseDetected(xn::PoseDetectionCapability& capabil
 		return nRetVal;												\
 	}
 
+
+void publishTransform(XnUserID const& user, XnSkeletonJoint const& joint, string const& frame_id, string const& child_frame_id) {
+    static tf::TransformBroadcaster br;
+
+    XnSkeletonJointPosition joint_position;
+    g_UserGenerator.GetSkeletonCap().GetSkeletonJointPosition(user, joint, joint_position);
+    double x = -joint_position.position.X / 1000.0;
+    double y = joint_position.position.Y / 1000.0;
+    double z = joint_position.position.Z / 1000.0;
+
+    XnSkeletonJointOrientation joint_orientation;
+    g_UserGenerator.GetSkeletonCap().GetSkeletonJointOrientation(user, joint, joint_orientation);
+
+    XnFloat* m = joint_orientation.orientation.elements;
+    KDL::Rotation rotation(m[0], m[1], m[2],
+    					   m[3], m[4], m[5],
+    					   m[6], m[7], m[8]);
+    double qx, qy, qz, qw;
+    rotation.GetQuaternion(qx, qy, qz, qw);
+
+    char child_frame_no[128];
+    snprintf(child_frame_no, sizeof(child_frame_no), "%s_%d", child_frame_id.c_str(), user);
+
+    tf::Transform transform;
+    transform.setOrigin(tf::Vector3(x, y, z));
+    transform.setRotation(tf::Quaternion(qx, -qy, -qz, qw));
+
+    // #4994
+    tf::Transform change_frame;
+    change_frame.setOrigin(tf::Vector3(0, 0, 0));
+    tf::Quaternion frame_rotation;
+    frame_rotation.setEulerZYX(1.5708, 0, 1.5708);
+    change_frame.setRotation(frame_rotation);
+
+    transform = change_frame * transform;
+
+    br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), frame_id, child_frame_no));
+}
+
+void publishTransforms(const std::string& frame_id) {
+    XnUserID users[15];
+    XnUInt16 users_count = 15;
+    g_UserGenerator.GetUsers(users, users_count);
+
+    for (int i = 0; i < users_count; ++i) {
+        XnUserID user = users[i];
+        if (!g_UserGenerator.GetSkeletonCap().IsTracking(user))
+            continue;
+
+
+        publishTransform(user, XN_SKEL_HEAD,           frame_id, "user_head");
+        publishTransform(user, XN_SKEL_NECK,           frame_id, "user_neck");
+        publishTransform(user, XN_SKEL_TORSO,          frame_id, "user_torso");
+
+    }
+}
+
 //Functions
 //==============================================================================
 //==============================================================================
@@ -228,7 +288,7 @@ int main(int argc, char **argv)
 	//User's CoM messages
 	ros::Publisher pubCoM = nh.advertise<user_tracker::Com>("com", 1000);
 
-	ros::Rate r(5);
+	ros::Rate r(30);
 
     ros::NodeHandle pnh("~");
     string frame_id("openni_depth_frame");
@@ -275,8 +335,7 @@ int main(int argc, char **argv)
 				//Compile messages
 				compileMessages();
 				
-				ROS_INFO("Sended Message:  Best User COM(%d,%d,%d)", 
-						(int)coms.comPoints.x, (int)coms.comPoints.y, (int)coms.comPoints.z);
+				ROS_DEBUG("Sended Message:  Best User COM(%d,%d,%d)",(int)coms.comPoints.x, (int)coms.comPoints.y, (int)coms.comPoints.z);
 				//Send messages
 				pubCoM.publish(coms);	
 			}
@@ -284,6 +343,7 @@ int main(int argc, char **argv)
 		
 		//if(waitKey(30) >= 0) break;
 		//waitKey(0);
+		publishTransforms(frame_id);
 		
 		ros::spinOnce();
 		r.sleep();
@@ -354,7 +414,7 @@ void getUserHeadROI(XnUserID nId, xn::UserGenerator& generator)
 void getBestUser(XnUserID usersArray [MAX_USERS], XnUInt16 nUsers, xn::UserGenerator& generator)
 {
 	for (int i = 0; i<MAX_USERS; i++)
-		ROS_INFO("UserTrovati %d", usersArray[i]);
+		ROS_DEBUG("UserTrovati %d", usersArray[i]);
 
 	//Find the nearest user
 	userData temp;

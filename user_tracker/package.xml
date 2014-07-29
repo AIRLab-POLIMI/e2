@@ -34,6 +34,12 @@
   <run_depend>message_runtime</run_depend>
   <run_depend>std_msgs</run_depend>
 
+  <build_depend>orocos_kdl</build_depend>
+  <build_depend>tf</build_depend>
+
+  <run_depend>orocos_kdl</run_depend>
+  <run_depend>tf</run_depend>
+
   <!-- The export tag contains other, unspecified, tags -->
   <export>
     <cpp cflags="-I/usr/include/ni"/>
