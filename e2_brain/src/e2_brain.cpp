@@ -438,7 +438,7 @@ int main(int argc, char **argv)
 			/*==================================================================
 								INTEREST DETECTION - Vision data analysis
 			==================================================================*/
-			if(visionDataAnalyze)
+			if(visionDataAnalyze && navHandlerFree)
 			{
 				int t = 1;
 				if(!firstInteraction)
@@ -583,7 +583,7 @@ int main(int argc, char **argv)
 			Do you need to say something E-2?
 		==================================================================*/
 		//Speaking
-		if(activationAPI.apiCode[SPEAK] == 1)
+		if(activationAPI.apiCode[SPEAK] == 1 && navHandlerFree)
 		{
 			activationAPI.apiCode[SPEAK] = -1;
 			speakHandlerFree = false;
@@ -1287,7 +1287,7 @@ void kinectFeedbackCallback(const kinect_motor::KinectFeedbackConstPtr& feed){}
 void voiceDoneCallback(const actionlib::SimpleClientGoalState& state,
 											 const e2_voice::VoiceResultConstPtr& result)
 {
-	ROS_INFO("[e2_brain]::Speak done [exit status %s]",result->result.c_str());
+	//ROS_INFO("[e2_brain]::Speak done [exit status %s]",result->result.c_str());
 	sampleCounter = 40;
 	speakHandlerFree = true;
 }
