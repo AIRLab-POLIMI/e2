@@ -47,6 +47,7 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 	guest_user_info_.user_left = true;
 	guest_user_info_.user_right = false;
 	guest_user_info_.user_lost = false;
+	guest_user_info_.valid_pose = false;
 	guest_user_info_.kinect_detect_time = ros::Time::now();
 
 	initial_time_ = ros::Time::now();
@@ -276,7 +277,7 @@ void Navigation::ActionController()
 		}
 		else if(strcmp(nav_status.c_str(),"SUCCEEDED")==0 )
 		{
-			if(guest_user_info_.detected && guest_user_info_.valid_pose && guest_user_info_.distance <= FACE_ANALYSIS_DISTANCE )
+			if(guest_user_info_.detected && guest_user_info_.distance <= FACE_ANALYSIS_DISTANCE )
 			{
 				ROS_INFO("[Navigation]:: User in front of me !");
 
@@ -373,6 +374,7 @@ void Navigation::ActionReset()
 	guest_user_info_.detected = false;
 	guest_user_info_.angle = 0;
 	guest_user_info_.distance = 0;
+	guest_user_info_.valid_pose = false;
 	guest_user_info_.user_lost = false;
 
 	sleep(2);	//	Sleep a bit
