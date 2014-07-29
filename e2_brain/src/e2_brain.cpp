@@ -364,9 +364,9 @@ int main(int argc, char **argv)
 			{
 				ROS_ERROR("[e2_brain]:: NEED TO APPROACH!!!!!!!! Manual request, %d distance",userDistance);
 
-				navGoal.action_id = 2;
+				//navGoal.action_id = 2;
 				//navClient.sendGoal(navGoal, &navDoneCallback, &navActiveCallback, &navFeedbackCallback);
-				//navHandlerFree = false;
+				navHandlerFree = false;
 				userPositionDataReady = false;
 				userDistance = 9999;
 			}
@@ -548,18 +548,17 @@ int main(int argc, char **argv)
 
 							robot.last_interaction = ros::Time::now();
 
-							//abort_timeout.stop();
 						}
 						else
 						{
 							ROS_ERROR("[e2_brain]:: User NOT INTERESTED !");
 							// Initialize due to not interested user
 							initialize();
-							find_user = true;
+							sleep(2);
 
+							find_user = true;
 							robot.action_aborted++;
 
-							//abort_timeout.stop();
 						}
 
 					}
@@ -1219,15 +1218,13 @@ int getVectorOutputValue(vector<int>* vector)
 //TODO - CALLBACKS NAVIGATION
 bool start_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
 {
-	//initialize();
+	initialize();
 	find_user = true;
 	return true;
 }
 
 bool stop_callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
 {
-
-	//TODO - reset navigation
 	initialize();
 	robot.action_aborted++;
 	return true;

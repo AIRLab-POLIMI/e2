@@ -19,36 +19,34 @@
 #include "e2_msgs/Talk.h"
 #include "e2_msgs/NeckAction.h"
 #include "e2_msgs/MotorAngle.h"
-
 #include "e2_sonar/Sonar.h"
-
 #include <user_tracker/Com.h>
 #include <tf/transform_listener.h>
 
 #include <stdlib.h>
 
-#define APPROACH_DISTANCE		0.5	 					// Define distance where robot had to place once detected a user (m)
-#define DETECT_TIMEOUT	 		3.5						// Define the time before fire a detection request
-#define ABORT_TIMEOUT 			300						// Navigation timeout
-#define WAIT_TIMEOUT			30						//	Min time the robot will wait in position before abort task
-#define WAIT_DISTANCE			1.5						//	Min distance the robot will stop to wait user
-#define WAIT_TIME			1						//	Time the robot wait in position
-#define DELAY_DETECT			10						// Add more 10 sec if user is found before check again
-#define USER_SONAR_DISTANCE		45
+#define DETECT_TIMEOUT	 			3.5		// Define the time before fire a detection request if lose sonar connection
+#define WAIT_DISTANCE				1.5		//	Min distance the robot will stop to wait user
+#define WAIT_TIME					1		//	Time the robot wait in position
+#define USER_SONAR_DISTANCE			45		// Distance to be considered as user detection (cm)
+#define FACE_ANALYSIS_DISTANCE		1.5		// Distance to start facial analysis
 
 typedef struct user_detected
 {
 	bool detected;
+
+	// User TRacker variables
 	float angle;		// angle respect center of camera
 	float distance;  	// center respect center of camera
-	int user_id;
+
+	// User Pose info
 	Pose pose;
+	bool valid_pose;
 	ros::Time kinect_detect_time;
 
-
+	// Sonar Variables
 	bool user_left;
 	bool user_right;
-
 	bool user_lost;
 }user_detected;
 
@@ -66,16 +64,14 @@ class Navigation
 		// Navigation functions
 	    void ActionController(); 												// Navigation controller loop
 
-	    void NavigateTarget();							 						// Start a new navigation task
-	    void LookingUser();														// Start looking for user in the ambient
+	    void NavigateTarget();							 					// Start a new navigation task
+	    void LookingUser();													// Start looking for user in the ambient
 	    void ApproachUser();
 
 	    void ActionAbort(); 													// Kill a current action
-	    void ActionReset();														// Reset navigation status
-	    bool isActionAborted();													// Check if an action is aborted
+	    void ActionReset();													// Reset navigation status
+	    bool isActionAborted();												// Check if an action is aborted
 	    bool isActionCompleted();												// Check if an action is completed
-
-	    void getNavStatus(); 													// Print navigation info in console
 
 		// Define services
 		bool abort_service(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
@@ -95,10 +91,10 @@ class Navigation
 	private:
 
 		bool abort;							// to quit loop
-		bool rotating;
-		bool moving;
+		bool rotating;						// define if robot is rotating in place
+		bool moving;						// define if robot is moving
 
-		user_detected guest_user_info_;
+		user_detected guest_user_info_;		// info coming from tracking system
 
 		ros::NodeHandle nh_;
 		ros::Rate r_;
@@ -119,6 +115,7 @@ class Navigation
 		ros::ServiceServer goto_service_;
 		ros::ServiceServer talk_service_;
 		ros::ServiceServer neck_service_;
+
 		ros::ServiceServer navigate_target_service_;
 		ros::ServiceServer approach_user_service_;
 		ros::ServiceServer find_user_service_;
@@ -145,14 +142,6 @@ class Navigation
 	    bool action_aborted_;
 	    bool action_completed_;
 
-	    float prev_sonar_0_;
-	    float prev_sonar_1_;
-	    float prev_sonar_2_;
-	    float prev_sonar_3_;
-	    float prev_sonar_4_;
-	    float prev_sonar_5_;
-	    float prev_sonar_6_;
-
 	    tf::TransformListener listener_;
 
 		void setUserDetection(bool status);	// Set new position for user detection
@@ -169,17 +158,16 @@ class Navigation
 
 	    void nav_goto(string name);											// Navigate to known location
 	    void nav_goto(MBGoal goal);											// Navigate to known location
-	    void nav_goto(float distance,float angle);					// Navigate to new position given angle and distance
-	    void nav_goto_detected_user(t_user user);				//	go to the last position of detected user
-	    bool nav_is_goal_reached();											//	check if navigatation goal is reached
-	    void nav_random_path();													//	Create a random navigation path
+	    void nav_goto(float distance,float angle);							// Navigate to new position given angle and distance
+	    bool nav_is_goal_reached();											// Check if navigatation goal is reached
+	    void nav_random_path();												// Create a random navigation path
 	    void nav_wait();
 
 	    void user_wait();
-		void user_detect(string user_name); 								// Detect user face and check if it's the last trained person
-		void user_recover(string user_name);							// Recover User following the path of last position detection
-		void user_detectTimer();							// Timer to be fired after timeout
-		void user_clear();									// Delete user data
+		void user_detect(string user_name); 									// Detect user face and check if it's the last trained person
+		void user_recover(string user_name);									// Recover User following the path of last position detection
+		void user_detectTimer();												// Timer to be fired after timeout
+		void user_clear();														// Delete user data
 
 };
 
