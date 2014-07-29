@@ -30,7 +30,7 @@
 #include <message_filters/time_synchronizer.h>
 #include <sensor_msgs/image_encodings.h>
 
-#define RATE 10 // Hz
+#define RATE 30 // Hz
 
 using namespace std;
 using namespace sensor_msgs;

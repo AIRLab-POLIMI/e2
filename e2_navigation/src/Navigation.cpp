@@ -241,10 +241,9 @@ void Navigation::ActionController()
 			path_planned_ = true;
 			path_to_user_ = false;
 		}// Once planned we need to recognize user's faces
-		else if(guest_user_info_.detected && !moving)
+		else if(guest_user_info_.detected)
 		{
 			ROS_ERROR("[Navigation]:: Ho trovato qualcuno !");
-
 
 			if(guest_user_info_.distance > 1.2)
 			{
@@ -298,12 +297,6 @@ void Navigation::ActionController()
 			//		path_to_user_ = false;
 			//	}
 			}
-			else if(guest_user_info_.detected && guest_user_info_.distance < 1.5)
-			{
-				irobot_->cancell_all_goal();
-				ROS_INFO("[Navigation]:: User in front of me !");
-				irobot_->robot_talk(get_speech_by_name("user_found"),true);
-				action_completed_ = true;			}
 			else
 			{
 				ROS_ERROR("[Navigation]:: Sono arrivato ma non ho trovato nessuno. Ricomincio!");
@@ -905,7 +898,6 @@ void Navigation::face_callback(const user_tracker::ComConstPtr& msg)
 	{
 		if(moving && !path_to_user_)
 		{
-			irobot_->cancell_all_goal();
 
 			try
 			{
