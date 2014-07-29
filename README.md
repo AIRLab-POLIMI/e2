@@ -1,14 +1,16 @@
-Collection of packages for the development of e2, an exhibition robot created by Airlab[http://airwiki.elet.polimi.it/index.php/AIRWiki]
+Collection of packages for the development of e2[http://airlab.elet.polimi.it/index.php/E2GoHome], an exhibition robot created by Airlab the Artificial intelligence Lab of the Politecnico di Milano.
+The stack contains simulation environments for the V-Rep simulator, and the packages for facial analysis, moving in the space , track people and behaviour handling.
 
 Installation 
 --------------------------------- 
-To correctly install this packages, you'll need a working installation of ROS (>= hydro) [http://wiki.ros.org/ROS/Installation].
+To correctly install these packages, you'll need a working installation of ROS (>= hydro) [http://wiki.ros.org/ROS/Installation].
 
-To completely exploit this packages is required
+To completely exploit the stack are required
 
   * ROS (>=hydro)
   * ros-hydro-navigation
   * ros-hydro-openni-tracker
+  * ros-hydro-pocketshinx
   * ros-actionlib
   * ros-hydro-openni-launch 
   * pico2wave (robot voice)
@@ -49,12 +51,11 @@ $ roslaunch e2_launch e2_robot.launch
 Here are some service you can invoke to make some test
 
 # ROBOT INTERACTION - Complete on real robot only
-$ rosservice call /e2_brain/start
+$ rosservice call /e2_brain/start    # Will make the robot start finding people and interacting with them
+$ rosservice call /e2_brain/abort    # Abort current action
 
-# Navigation TEST - To test in simulation
+# Navigation TEST - To test in simulation - Avoid facial analysis
 $ rosservice call /e2_nav/nav_abort
-$ rosservice call /e2_nav/nav_auto
-$ rosservice call /e2_nav/nav_goto
 $ rosservice call /e2_nav/nav_start
 $ rosservice call /e2_nav/test_detect
 $ rosservice call /e2_nav/test_kinect_motor
@@ -62,7 +63,5 @@ $ rosservice call /e2_nav/test_neck
 $ rosservice call /e2_nav/test_train
 $ rosservice call /e2_nav/test_voice
 
-
 # A video of the robot can be found at link:
-
-coming soon...
+http://airlab.elet.polimi.it/index.php/E2GoHome
