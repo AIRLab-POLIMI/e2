@@ -939,6 +939,7 @@ void Navigation::sonar_callback(const e2_sonar::Sonar::ConstPtr& msg)
 				{
 					ROS_INFO("[Navigation::Sonar]:: Fake data!!!! Maybe a Wall.");
 					guest_user_info_.user_lost = true;
+					init_detect_time = ros::Time::now();
 				}
 				else
 				{
@@ -966,6 +967,7 @@ void Navigation::sonar_callback(const e2_sonar::Sonar::ConstPtr& msg)
 				{
 					ROS_INFO("[Navigation::Sonar]:: Fake data!!!! Maybe a Wall.");
 					guest_user_info_.user_lost = true;
+					init_detect_time = ros::Time::now();
 				}
 				else
 				{

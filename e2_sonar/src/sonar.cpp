@@ -62,7 +62,7 @@ int main(int argc, char **argv)
 		exit(-1);
 	}
 
-  ros::Rate r(200);
+  ros::Rate r(50);
 	while(ros::ok())	//ROS LOOP
   {
 		if(!readSonar)
