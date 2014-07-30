@@ -244,8 +244,8 @@ void Navigation::ActionController()
 		}
 		else if(guest_user_info_.detected && guest_user_info_.valid_pose)
 		{
-			irobot_->cancell_all_goal();
-			nav_wait();
+			if(!path_to_user_)
+				irobot_->cancell_all_goal();
 
 			ROS_ERROR("[Navigation]:: Ho trovato qualcuno !");
 
@@ -257,6 +257,8 @@ void Navigation::ActionController()
 
 				nav_goto(distance,guest_user_info_.angle);
 				path_to_user_ = true; // Set following user path
+				nav_wait();
+				nav_wait();
 			}
 
 		}
@@ -873,7 +875,10 @@ void Navigation::face_callback(const user_tracker::ComConstPtr& msg)
 			guest_user_info_.valid_pose = true;
 
 			guest_user_info_.distance = dist;
-			guest_user_info_.angle = -(320 - msg->comPoints.x) * angle_pixel_kinect;
+			//guest_user_info_.angle = -(320 - msg->comPoints.x) * angle_pixel_kinect;
+			double angle = asin(-y/dist);
+			guest_user_info_.angle = 180 * angle / M_PI; 
+			ROS_ERROR("Agle %f",guest_user_info_.angle);
 		}
 		catch (tf::TransformException ex){
 			//ROS_ERROR("%s",ex.what());

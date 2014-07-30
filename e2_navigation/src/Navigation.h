@@ -29,7 +29,7 @@
 #define WAIT_DISTANCE				1.5		//	Min distance the robot will stop to wait user
 #define WAIT_TIME					1		//	Time the robot wait in position
 #define USER_SONAR_DISTANCE			45		// Distance to be considered as user detection (cm)
-#define FACE_ANALYSIS_DISTANCE		1.5		// Distance to start facial analysis
+#define FACE_ANALYSIS_DISTANCE		1.2		// Distance to start facial analysis
 
 typedef struct user_detected
 {
