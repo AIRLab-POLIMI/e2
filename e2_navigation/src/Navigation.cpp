@@ -78,18 +78,13 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 	navigate_target_service_ = nh_.advertiseService(name+"/navigate_target",&Navigation::navigate_target_service,this);
 
 
-	// Load Stand positions in memory
-	YAML::Node doc_marker,doc_speech;
-	ifstream fin(marker_config.c_str());
-	YAML::Parser parser(fin);
-	parser.GetNextDocument(doc_marker);
-	loadMarkerData(doc_marker);
-
 	// Load speech data
-	ifstream fin_speech(speech_config.c_str());
-	YAML::Parser parser_speech(fin_speech);
-	parser_speech.GetNextDocument(doc_speech);
+	YAML::Node doc_speech = YAML::LoadFile(speech_config.c_str());
 	loadSpeakData(doc_speech);
+
+	// Load stand data
+	YAML::Node doc_marker = YAML::LoadFile(marker_config.c_str());
+	loadMarkerData(doc_marker);
 
 	marker_size_=doc_marker.size();
 	speech_size_=doc_speech.size();
@@ -707,6 +702,7 @@ void Navigation::setUserDetection(bool status)
 		user_recognized_ = false;
 }
 
+
 //=================================================================
 // Retrieve a marker position by its name
 //=================================================================
@@ -792,9 +788,19 @@ Speech Navigation::get_random_speech(string what)
 void Navigation::loadMarkerData(YAML::Node& doc)
 {
 	markers_ = new Marker [doc.size()];
-	// Load Markers from map file
-	for(unsigned i=0;i<doc.size();i++)
-		doc[i] >> markers_[i];
+
+	int i=0;
+	for(YAML::const_iterator it=doc.begin();it != doc.end();++it) {
+		std::string key = it->first.as<std::string>();
+		markers_[i] = it->second.as<Marker>();
+
+		ROS_ERROR("CARICO   %s",key.c_str());
+		ROS_INFO("id           = %d",markers_[i].id);
+		ROS_INFO("name         = %s",markers_[i].name.c_str());
+		ROS_INFO("position     = %f / %f / %f",markers_[i].position.x,markers_[i].position.y,markers_[i].position.z);
+		ROS_INFO("orientation  = %f / %f ",markers_[i].orientation.z,markers_[i].orientation.w);
+		i++;
+	}
 }
 
 //=====================================
@@ -803,9 +809,19 @@ void Navigation::loadMarkerData(YAML::Node& doc)
 void Navigation::loadSpeakData(YAML::Node& doc)
 {
 	speechs_ = new Speech [doc.size()];
-	// Load Markers from map file
-	for(unsigned i=0;i<doc.size();i++)
-		doc[i] >> speechs_[i];
+
+	int i=0;
+	for(YAML::const_iterator it=doc.begin();it != doc.end();++it) {
+		std::string key = it->first.as<std::string>();
+		speechs_[i] = it->second.as<Speech>();
+
+		//ROS_ERROR("CARICO   %s",key.c_str());
+		//ROS_INFO("id   = %s",speechs_[i].id.c_str());
+		//ROS_INFO("text = %s",speechs_[i].text.c_str());
+		//ROS_INFO("n_a  = %d",speechs_[i].neck_action);
+		//ROS_INFO("f_a  = %d",speechs_[i].face_action);
+		i++;
+	}
 }
 
 
@@ -1066,6 +1082,7 @@ bool Navigation::talk_service(e2_msgs::Talk::Request& request, e2_msgs::Talk::Re
 	return true;
 }
 
+/*
 //=====================================
 // Common operator for yaml file reading
 //=====================================
@@ -1097,5 +1114,5 @@ void operator >> (const YAML::Node& node, Speech& speech)
 	node["neck_action"] >> speech.neck_action;
 	node["face_action"] >> speech.face_action;
 }
-
+*/
 

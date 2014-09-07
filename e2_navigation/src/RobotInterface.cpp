@@ -35,24 +35,24 @@ RobotInterface::RobotInterface(bool enable_neck,bool enable_voice,bool enable_tr
 	ac_vc = new VoiceClient("e2_voice_node",true);
 	ac_kn = new KinectClient("kinect_motor", true);
 
-	while (!ac_mb->waitForServer(ros::Duration(5.0)))
-		ROS_INFO("[IRobot]:: Waiting for the move_base action server to come up");
+//	while (!ac_mb->waitForServer(ros::Duration(5.0)))
+//		ROS_INFO("[IRobot]:: Waiting for the move_base action server to come up");
 
-	while (!ac_fr->waitForServer(ros::Duration(5.0)))
-		ROS_INFO("[IRobot]:: Waiting for the face_recognition action server to come up");
+//	while (!ac_fr->waitForServer(ros::Duration(5.0)))
+//		ROS_INFO("[IRobot]:: Waiting for the face_recognition action server to come up");
 
-	if(voice_enabled)
-		while (!ac_vc->waitForServer(ros::Duration(5.0)))
-			ROS_INFO("[IRobot]:: Waiting for the voice action server to come up");
+//	if(voice_enabled)
+//		while (!ac_vc->waitForServer(ros::Duration(5.0)))
+//			ROS_INFO("[IRobot]:: Waiting for the voice action server to come up");
 
 
-	if(neck_enabled)
-		while (!ac_nc->waitForServer(ros::Duration(5.0)))
-			ROS_INFO("[IRobot]:: Waiting for the neck_controller action server to come up");
+//	if(neck_enabled)
+//		while (!ac_nc->waitForServer(ros::Duration(5.0)))
+//			ROS_INFO("[IRobot]:: Waiting for the neck_controller action server to come up");
 
-	if(kinect_enabled)
-		while (!ac_kn->waitForServer(ros::Duration(5.0)))
-			ROS_INFO("[IRobot]:: Waiting for the kinect action server to come up");
+//	if(kinect_enabled)
+//		while (!ac_kn->waitForServer(ros::Duration(5.0)))
+//			ROS_INFO("[IRobot]:: Waiting for the kinect action server to come up");
 
 	ROS_INFO("[IRobot]:: Base ready");
 

@@ -41,7 +41,7 @@ public:
 
 		ac_nc = new NeckClient("e2_neck_controller",true);
 
-		while (!ac_nc->waitForServer(ros::Duration(5.0)))
+		//while (!ac_nc->waitForServer(ros::Duration(5.0)))
 			ROS_INFO("["ROS_NODE_NAME"]:: Waiting for the neck_controller action server to come up");
 
 		ROS_INFO("["ROS_NODE_NAME"]:: Node ready");

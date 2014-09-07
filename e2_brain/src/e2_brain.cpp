@@ -15,7 +15,9 @@
 #include <string.h>
 #include <iostream>
 #include <sstream>
+#include <string>
 #include <fstream>
+
 //ROS
 #include "ros/ros.h"
 #include "ros/package.h"
@@ -270,13 +272,10 @@ int main(int argc, char **argv)
 	loadSpeakConfigFile(speakConfigFile);
 	
 	string speech_config = ros::package::getPath("e2_config")+"/speak_config/speech_config.yaml";
-	// Load Stand positions in memory
-	YAML::Node doc_speech;
-	ifstream fin_speech(speech_config.c_str());
-	YAML::Parser parser_speech(fin_speech);
-	parser_speech.GetNextDocument(doc_speech);
-	loadSpeakData(doc_speech);
+	YAML::Node doc_speech = YAML::LoadFile(speech_config.c_str());
 	speech_size_=doc_speech.size();
+	loadSpeakData(doc_speech);
+
 
 	ROS_ERROR("[e2_brain]:: Loaded Speech Config %s with %d conversations", speech_config.c_str(),(int)doc_speech.size());
 
@@ -286,8 +285,8 @@ int main(int argc, char **argv)
 	KinectClient kinectClient("kinect_motor", true);
 	
 	//Wait for servers
-	while (!navClient.waitForServer(ros::Duration(5.0)))
-		ROS_INFO("[e2_brain]:: Waiting for the navigation action server to come up");
+	//while (!navClient.waitForServer(ros::Duration(5.0)))
+	//	ROS_INFO("[e2_brain]:: Waiting for the navigation action server to come up");
 	//while (!voiceClient->waitForServer(ros::Duration(5.0)))
 	//	ROS_INFO("[e2_brain]:: Waiting for the voice action server to come up");
 	//while (!kinectClient.waitForServer(ros::Duration(5.0)))
@@ -635,9 +634,7 @@ int main(int argc, char **argv)
 				robot_talk(get_random_speech(robot.status));
 				voiceClient->waitForResult();
 			}
-
 		}
-
 
 		ros::spinOnce();
 		r.sleep();
@@ -1337,18 +1334,21 @@ Speech get_random_speech(string what)
 void loadSpeakData(YAML::Node& doc)
 {
 	speechs_ = new Speech [doc.size()];
-	// Load Markers from map file
-	for(unsigned i=0;i<doc.size();i++)
-		doc[i] >> speechs_[i];
+
+	int i=0;
+	for(YAML::const_iterator it=doc.begin();it != doc.end();++it) {
+		std::string key = it->first.as<std::string>();
+		speechs_[i] = it->second.as<Speech>();
+
+		//ROS_ERROR("CARICO   %s",key.c_str());
+		//ROS_INFO("id   = %s",speechs_[i].id.c_str());
+		//ROS_INFO("text = %s",speechs_[i].text.c_str());
+		//ROS_INFO("n_a  = %d",speechs_[i].neck_action);
+		//ROS_INFO("f_a  = %d",speechs_[i].face_action);
+		i++;
+	}
 }
 
-void operator >> (const YAML::Node& node, Speech& speech)
-{
-	node["id"] >> speech.id;
-	node["text"] >> speech.text;
-	node["neck_action"] >> speech.neck_action;
-	node["face_action"] >> speech.face_action;
-}
 
 //=================================================================
 // Make the robot talk
