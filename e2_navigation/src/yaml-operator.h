@@ -127,7 +127,3 @@ struct convert<Speech> {
 
 }
 
-
-
-
-void operator >> (const YAML::Node& node, Marker& marker);
