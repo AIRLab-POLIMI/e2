@@ -100,7 +100,7 @@ find_library(Nite_LIBRARY
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES head_analyzer
+#  LIBRARIES ann
   CATKIN_DEPENDS cv_bridge geometry_msgs image_transport roscpp std_msgs user_tracker message_runtime ann
 #  DEPENDS system_lib
 )
