@@ -794,11 +794,11 @@ void Navigation::loadMarkerData(YAML::Node& doc)
 		std::string key = it->first.as<std::string>();
 		markers_[i] = it->second.as<Marker>();
 
-		ROS_ERROR("CARICO   %s",key.c_str());
-		ROS_INFO("id           = %d",markers_[i].id);
-		ROS_INFO("name         = %s",markers_[i].name.c_str());
-		ROS_INFO("position     = %f / %f / %f",markers_[i].position.x,markers_[i].position.y,markers_[i].position.z);
-		ROS_INFO("orientation  = %f / %f ",markers_[i].orientation.z,markers_[i].orientation.w);
+		//ROS_ERROR("CARICO   %s",key.c_str());
+		//ROS_INFO("id           = %d",markers_[i].id);
+		//ROS_INFO("name         = %s",markers_[i].name.c_str());
+		//ROS_INFO("position     = %f / %f / %f",markers_[i].position.x,markers_[i].position.y,markers_[i].position.z);
+		//ROS_INFO("orientation  = %f / %f ",markers_[i].orientation.z,markers_[i].orientation.w);
 		i++;
 	}
 }
