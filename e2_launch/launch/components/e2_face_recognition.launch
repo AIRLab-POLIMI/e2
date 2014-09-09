@@ -2,7 +2,7 @@
   <!-- Parameters -->
   <arg name="camera_sim" value="/camera/image_raw" />
   <arg name="camera_usb" value="/usb_cam/image_raw" />
-  <arg name="camera_kinect" value="/camera/rgb/image_raw" />
+  <arg name="camera_kinect" value="/camera/rgb/image_mono" />
   <arg name="camera_depth" value="/camera/depth/image_raw" />
    
   <!-- Recognition Nodes -->

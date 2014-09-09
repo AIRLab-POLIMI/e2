@@ -9,7 +9,7 @@
  *  Created on: 15/mar/2014
  *
  */
-#define ROS_NODE_RATE	10
+#define ROS_NODE_RATE	20
 #define ROS_NODE_NAME	"e2_nav_messages"
 
 #define SMOOTH_MESSAGES 4

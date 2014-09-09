@@ -53,16 +53,16 @@ public:
 	{
 		ros::NodeHandle nh("~");
 
-		cvNamedWindow("rgb");
+		//cvNamedWindow("rgb");
 		//cvNamedWindow("depth", CV_WINDOW_AUTOSIZE);
 		cvInitFont(&font, CV_FONT_HERSHEY_PLAIN, 1.0, 4.0, 2, 2, CV_AA);
 
 		goal_id_ = -99;
 
 		textColor = CV_RGB(0,255,255); 								// light blue text
-		confidence_value = 0.77;											//a face recognized with confidence value higher than the confidence_value threshold is accepted as valid.
+		confidence_value = 0.80;											//a face recognized with confidence value higher than the confidence_value threshold is accepted as valid.
 		show_screen_flag = false;											//if output screen is shown
-		add_face_number = 20;												//a parameter for the "add_face_images" goal which determines the number of training images for a new face (person) to be acquired from the video stream
+		add_face_number = 30;												//a parameter for the "add_face_images" goal which determines the number of training images for a new face (person) to be acquired from the video stream
 		person_number = 0;														//the number of persons in the training file (train.txt)
 
 		as_.start();																		//starting the actionlib server

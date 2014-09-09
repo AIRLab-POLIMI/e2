@@ -7,17 +7,17 @@ Marker:
 Marker:
   id: 1
   name: target
-  position: [11.2477,  5.457, 0]
+  position: [11.2477,  -5.457, 0]
   orientation: [0.013, 0.999]
 
 Marker:
   id: 2
   name: random_1
-  position: [3.352, 0.853, 0]
+  position: [6.4, -1.853, 0]
   orientation: [0.723, 0.69]
 
 Marker:
   id: 3
   name: random_2
-  position: [1.995,  4.6248, 0]
+  position: [1.995,  1.08, 0]
   orientation: [ 0.69, 0.7197]

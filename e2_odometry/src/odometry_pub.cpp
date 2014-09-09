@@ -20,7 +20,7 @@
 #include "r2p/EncoderStamped.h"
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 
-#define ROS_NODE_RATE	100
+#define ROS_NODE_RATE	80
 #define ROS_NODE_NAME	"odometry_pub"
 
 // Tweak for velocity update. Better result

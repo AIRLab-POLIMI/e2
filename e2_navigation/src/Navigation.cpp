@@ -52,7 +52,7 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 
 	initial_time_ = ros::Time::now();
 
-    nh_.param<bool>("en_auto", find_user_, true);
+    	nh_.param<bool>("en_auto", find_user_, true);
 	nh_.param<bool>("en_neck", en_neck, true);
 	nh_.param<bool>("en_voice", en_voice, true);
 	nh_.param<bool>("en_train", en_train, true);
@@ -105,7 +105,7 @@ Navigation::Navigation(string name, int rate) :	nh_("~"), r_(rate)
 
 	// Staigth neck and clear face
 	irobot_->robot_talk(get_speech_by_name("init"));
-	irobot_->kinect_action(15);
+	irobot_->kinect_action(5);
 }
 
 Navigation::~Navigation()
@@ -133,12 +133,14 @@ void Navigation::ActionController()
 	==================================================================*/
 	else if(navigate_target)
 	{
+		irobot_->kinect_action(5);
+
 		if(!path_planned_)
 		{
 			ROS_ERROR("[Navigation]:: Path planned. I'm going home !");
 
 			// Clear Kinect
-			irobot_->kinect_action(15);
+			irobot_->kinect_action(5);
 
 			// Go Home....Bzzzz
 			nav_wait();
@@ -233,7 +235,7 @@ void Navigation::ActionController()
 		if(!path_planned_)
 		{
 			// Plan a Random Path to find people
-			//nav_random_path();
+			nav_random_path();
 			path_planned_ = true;
 			path_to_user_ = false;
 		}
@@ -406,7 +408,7 @@ void Navigation::NavigateTarget()
 	}
 
 	navigate_target = true;
-
+	path_planned_ = false;
 	// Save current position as first user detection position
 	initial_time_ = ros::Time::now();
 	setUserDetection(true);
