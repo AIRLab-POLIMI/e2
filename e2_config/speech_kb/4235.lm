@@ -1,0 +1,92 @@
+Language model created by QuickLM on Tue Sep  9 11:41:36 EDT 2014
+Copyright (c) 1996-2010 Carnegie Mellon University and Alexander I. Rudnicky
+
+The model is in standard ARPA format, designed by Doug Paul while he was at MITRE.
+
+The code that was used to produce this language model is available in Open Source.
+Please visit http://www.speech.cs.cmu.edu/tools/ for more information
+
+The (fixed) discount mass is 0.5. The backoffs are computed using the ratio method.
+This model based on a corpus of 9 sentences and 18 words
+
+\data\
+ngram 1=18
+ngram 2=26
+ngram 3=25
+
+\1-grams:
+-1.0095 </s> -0.3010
+-1.0095 <s> -0.2563
+-1.9638 A -0.2963
+-1.9638 ABORT -0.2563
+-1.9638 ARE -0.2915
+-1.9638 DO -0.2915
+-1.0095 E_TWO -0.2563
+-1.9638 FELL -0.2563
+-1.9638 FIND -0.2963
+-1.9638 HELLO -0.2563
+-1.6628 HOW -0.2915
+-1.9638 JOKE -0.2563
+-1.9638 LAW -0.2563
+-1.9638 PEOPLE -0.2563
+-1.9638 SOMETHING -0.2563
+-1.4867 TELL -0.2866
+-1.9638 THANK -0.2563
+-1.6628 YOU -0.2511
+
+\2-grams:
+-0.3010 <s> E_TWO 0.0000
+-0.3010 A JOKE 0.0000
+-0.3010 ABORT </s> -0.3010
+-0.3010 ARE YOU -0.1761
+-0.3010 DO YOU -0.1761
+-1.2553 E_TWO ABORT 0.0000
+-1.2553 E_TWO FIND 0.0000
+-1.2553 E_TWO HELLO 0.0000
+-0.9542 E_TWO HOW 0.0000
+-0.7782 E_TWO TELL 0.0000
+-1.2553 E_TWO THANK 0.0000
+-0.3010 FELL </s> -0.3010
+-0.3010 FIND PEOPLE 0.0000
+-0.3010 HELLO </s> -0.3010
+-0.6021 HOW ARE 0.0000
+-0.6021 HOW DO 0.0000
+-0.3010 JOKE </s> -0.3010
+-0.3010 LAW </s> -0.3010
+-0.3010 PEOPLE </s> -0.3010
+-0.3010 SOMETHING </s> -0.3010
+-0.7782 TELL A 0.0000
+-0.7782 TELL LAW 0.0000
+-0.7782 TELL SOMETHING 0.0000
+-0.3010 THANK </s> -0.3010
+-0.6021 YOU </s> -0.3010
+-0.6021 YOU FELL 0.0000
+
+\3-grams:
+-1.2553 <s> E_TWO ABORT
+-1.2553 <s> E_TWO FIND
+-1.2553 <s> E_TWO HELLO
+-0.9542 <s> E_TWO HOW
+-0.7782 <s> E_TWO TELL
+-1.2553 <s> E_TWO THANK
+-0.3010 A JOKE </s>
+-0.3010 ARE YOU </s>
+-0.3010 DO YOU FELL
+-0.3010 E_TWO ABORT </s>
+-0.3010 E_TWO FIND PEOPLE
+-0.3010 E_TWO HELLO </s>
+-0.6021 E_TWO HOW ARE
+-0.6021 E_TWO HOW DO
+-0.7782 E_TWO TELL A
+-0.7782 E_TWO TELL LAW
+-0.7782 E_TWO TELL SOMETHING
+-0.3010 E_TWO THANK </s>
+-0.3010 FIND PEOPLE </s>
+-0.3010 HOW ARE YOU
+-0.3010 HOW DO YOU
+-0.3010 TELL A JOKE
+-0.3010 TELL LAW </s>
+-0.3010 TELL SOMETHING </s>
+-0.3010 YOU FELL </s>
+
+\end\

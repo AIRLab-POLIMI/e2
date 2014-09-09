@@ -822,7 +822,7 @@ void getVoiceCommands(const std_msgs::String command)
 			return;
 		}
 
-		found = command.data.find("tell joke");
+		found = command.data.find("joke");
 		if (found!=std::string::npos)
 		{
 			ROS_ERROR("[e2_brain::Voice]:: Racconto una barzelletta!");
@@ -833,7 +833,7 @@ void getVoiceCommands(const std_msgs::String command)
 			return;
 		}
 
-		found = command.data.find("tell news");
+		found = command.data.find("news");
 		if (found!=std::string::npos)
 		{
 			ROS_ERROR("[e2_brain::Voice]:: Racconto una notizia!");
@@ -846,7 +846,7 @@ void getVoiceCommands(const std_msgs::String command)
 			return;
 		}
 
-		found = command.data.find("tell law");
+		found = command.data.find("law");
 		if (found!=std::string::npos)
 		{
 			ROS_ERROR("[e2_brain::Voice]:: Laws ");
