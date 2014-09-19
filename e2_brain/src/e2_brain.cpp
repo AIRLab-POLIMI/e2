@@ -165,6 +165,8 @@ bool navigate_user;
 
 bool user_interested;
 
+bool demo;
+
 vector<phraseData> phrases;
 userStruct userData;
 apiCode activationAPI;
@@ -600,6 +602,13 @@ int main(int argc, char **argv)
 			voiceClient->sendGoal(voiceGoal, &voiceDoneCallback, &voiceActiveCallback, &voiceFeedbackCallback);
 		}
 
+		if(demo)
+		{
+			robot_talk(get_random_speech("joke_"));
+			voiceClient->waitForResult();
+			sleep(5);
+		}
+
 		/*==================================================================
 			How do you feel E-2?
 		==================================================================*/
@@ -669,6 +678,7 @@ void initialize()
 	firstInteraction = true;
 
 
+	demo = false;
 	find_user = false;
 	approach_user = false;
 	check_user_interested = false;
