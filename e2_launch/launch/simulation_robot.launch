@@ -4,7 +4,7 @@
 	<param name="use_sim_time" value="false" />
 	
   	<arg name="map_fiera" value="$(find e2_config)/map/sim_fiera/fiera_final.yaml" /> 
-  	<arg name="stand_fiera" value="$(find e2_config)/map_config/sim_marker_config.yaml" />
+  	<arg name="stand_fiera" value="$(find e2_config)/map/sim_fiera/sim_marker_config.yaml" />
   	  
 	<!-- Publish odom -->
   	<node pkg="e2_simulator" type="e2_fake_odom" name="e2_fake_odom"/> 

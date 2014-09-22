@@ -242,21 +242,27 @@ void Navigation::ActionController()
 		else if(guest_user_info_.detected && guest_user_info_.valid_pose)
 		{
 			if(!path_to_user_)
+			{
 				irobot_->cancell_all_goal();
+				// Wait to avoid kill next plan
+				nav_wait();
+				nav_wait();
+			}
 
 			ROS_ERROR("[Navigation]:: Ho trovato qualcuno !");
 
 			if(guest_user_info_.distance >= FACE_ANALYSIS_DISTANCE)
 			{
-				ROS_INFO("[Navigation]:: Vado dallo zio ! (%f)",guest_user_info_.distance);
+				ROS_INFO("[Navigation]:: Vado dalla persona a %f m",guest_user_info_.distance);
 
 				float distance = guest_user_info_.distance - FACE_ANALYSIS_DISTANCE;
 
 				nav_goto(distance,guest_user_info_.angle);
 				path_to_user_ = true; // Set following user path
-				nav_wait();
-				nav_wait();
+
 			}
+			else if(guest_user_info_.distance > 0)
+				action_completed_ = true;
 
 		}
 

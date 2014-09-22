@@ -1,10 +1,10 @@
 <launch>
 	<!-- Parameters -->
  	<arg name="map_airlab" value="$(find e2_config)/map/airlab/map.yaml" />
- 	<arg name="stand_airlab" value="$(find e2_config)/map_config/airlab_marker_config.yaml" />
+ 	<arg name="stand_airlab" value="$(find e2_config)/map/airlab/airlab_marker_config.yaml" />
  	
  	<arg name="map_test" value="$(find e2_config)/map/test_space/map.yaml" />
- 	<arg name="stand_test" value="$(find e2_config)/map_config/test_marker_config.yaml" />
+ 	<arg name="stand_test" value="$(find e2_config)/map/test_space/test_marker_config.yaml" />
  	  
 	<!-- Run the map server -->
     	<node name="map_server" pkg="map_server" type="map_server" args="$(arg map_test)"/>

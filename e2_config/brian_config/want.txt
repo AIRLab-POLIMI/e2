@@ -1,5 +1,0 @@
-Go_To_User 			= ( AND ( P UserDetected ) (NOT ( OR ( P UserTooFar)  ( OR ( P UserTooNear) ( P UserInRange) ) ) ) );
-
-Centering_User =  ( AND ( P UserDetected) (NOT (P UserReached)) );
-
-Interaction_Distance = ( OR ( P UserTooFar)  ( OR ( P UserTooNear) ( P UserInRange) ) );

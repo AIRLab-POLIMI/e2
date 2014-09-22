@@ -1,4 +1,0 @@
-(UserTooNear) => (TanSpeed SLOW_BACK);
-(UserInRange) => (TanSpeed STEADY);
-(UserTooFar) => (TanSpeed SLOW_FORWARD);
-

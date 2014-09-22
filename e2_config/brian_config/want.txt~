@@ -1,3 +1,0 @@
-Go_To_User 			= ( P UserDetected );
-
-Centering_User =  ( AND ( P UserDetected) (NOT (P UserReached)) );

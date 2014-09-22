@@ -12,7 +12,7 @@ TrajectoryPlannerROS:
    escape_vel: -0.2
    acc_lim_x: 0.8
    acc_lim_y: 2.5
-   acc_lim_th: 0.8
+   acc_lim_theta: 0.8
 
    holonomic_robot: false
    yaw_goal_tolerance: 0.2 
@@ -20,7 +20,7 @@ TrajectoryPlannerROS:
    latch_xy_goal_tolerance: true
    gdist_scale: 0.8
    pdist_scale: 0.6
-   meter_scoring: false
+   meter_scoring: true
 
    heading_lookahead: 0.325
    heading_scoring: false

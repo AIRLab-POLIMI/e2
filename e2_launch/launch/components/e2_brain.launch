@@ -6,6 +6,6 @@
   	<node name="head_analyzer" pkg="head_analyzer" type="head_analyzer" respawn="true" />
 			
 	<!-- Speech Recognizer -->
-        <include file="$(find e2_launch)/launch/components/e2_speech_recognition.launch" />
+    <include file="$(find e2_launch)/launch/components/e2_speech_recognition.launch" />
 	
 </launch>

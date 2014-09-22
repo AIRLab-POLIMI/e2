@@ -1,6 +1,0 @@
-(UserReached) => (RotSpeed STEADY);
-(UserCentered) => (RotSpeed STEADY);
-(UserLeft) => (RotSpeed TURN_LEFT);
-(UserNearLeft) => (RotSpeed TURN_SLOW_LEFT);
-(UserRight) => (RotSpeed TURN_RIGHT);
-(UserNearRight) => (RotSpeed TURN_SLOW_RIGHT);

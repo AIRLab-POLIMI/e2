@@ -1,2 +1,0 @@
-( TanSpeed TANSPEED )
-( RotSpeed ROTSPEED )
