@@ -40,7 +40,7 @@ def joy_cb(msg):
 		gear = 0
 
 	setpoint['x'] = msg.axes[1] * setpoint_scale['x'] * gear_ratio[gear]['x']
-	setpoint['y'] = msg.axes[0] * setpoint_scale['y'] * gear_ratio[gear]['y']
+	#setpoint['y'] = msg.axes[0] * setpoint_scale['y'] * gear_ratio[gear]['y']
 	setpoint['w'] = msg.axes[3] * setpoint_scale['w'] * gear_ratio[gear]['w']
 	
 def main():
@@ -64,7 +64,12 @@ def main():
 			restart = False
 			
 		print setpoint
-		pubVelocity.publish(Velocity(setpoint['x'], setpoint['y'], setpoint['w']))
+
+		if setpoint['x'] != 0:
+			pubVelocity.publish(Velocity(setpoint['x'], setpoint['y'], setpoint['w']))
+		elif setpoint['w'] != 0:
+			pubVelocity.publish(Velocity(setpoint['x'], setpoint['y'], setpoint['w']))
+
 		r.sleep()
 
 	# Stop the robot

@@ -3,6 +3,9 @@
 	<!-- Load Navigation Joystick -->
 	<include file="$(find triskar)/launch/teleop_joy.launch" />	
 	
+	<!-- Nav Messages converter for triskar base -->	
+    <node name="e2_nav_messages" pkg="e2_nav_messages" type="e2_nav_messages_node"/>
+    	
 	<!-- Load Odometry data -->
 	<include file="$(find e2_launch)/launch/components/e2_odometry.launch" /> 
 	

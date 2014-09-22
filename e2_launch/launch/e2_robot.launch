@@ -1,5 +1,8 @@
 <launch>
 	
+	<!-- Load Navigation Joystick -->
+	<include file="$(find triskar)/launch/teleop_joy.launch" />	
+	
     <!-- Kinect launch and scanner info -->
 	<include file="$(find e2_launch)/launch/components/e2_scanner.launch" />
 
