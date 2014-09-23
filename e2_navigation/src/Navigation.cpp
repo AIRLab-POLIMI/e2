@@ -229,7 +229,7 @@ void Navigation::ActionController()
 	/*==================================================================
 		Start Navigating in auto mode looking for user
 	==================================================================*/
-	else if(find_user_) //TODO
+	else if(find_user_)
 	{
 
 		if(!path_planned_)
@@ -288,7 +288,7 @@ void Navigation::ActionController()
 
 				irobot_->cancell_all_goal();
 
-				irobot_->robot_talk(get_speech_by_name("user_found"),true);
+				irobot_->robot_talk(get_speech_by_name("hello"),true);
 				action_completed_ = true;
 
 			}
@@ -404,6 +404,13 @@ void Navigation::NavigateTarget()
 		if(irobot_->robot_train_user(guest_name_))
 		{
 			irobot_->robot_talk(get_speech_by_name("train_success"),true);
+
+			navigate_target = true;
+			path_planned_ = false;
+
+			// Save current position as first user detection position
+			initial_time_ = ros::Time::now();
+			setUserDetection(true);
 		}
 		else
 		{
@@ -412,14 +419,6 @@ void Navigation::NavigateTarget()
 			return;
 		}
 	}
-
-	navigate_target = true;
-	path_planned_ = false;
-	// Save current position as first user detection position
-	initial_time_ = ros::Time::now();
-	setUserDetection(true);
-
-	irobot_->robot_talk(get_speech_by_name("follow_me"),true);
 }
 
 //=================================================================
@@ -597,7 +596,6 @@ void Navigation::user_wait()
 			ros::spinOnce();
 			r_.sleep();
 		}
-
 	}
 }
 

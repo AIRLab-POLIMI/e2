@@ -1,3 +1,6 @@
+##############################################
+#	Navigazione
+##############################################
 Speech:
   id: init
   text: "Sono pronto e carico!"
@@ -6,13 +9,13 @@ Speech:
 
 Speech:
   id: battery_empty
-  text: "Aiuto! Aiuto! Sono a secco!"
+  text: "Aiuto! Sono a secco!"
   neck_action: 0
   face_action: 0
 
 Speech:
   id: ack
-  text: "Come desidera!"
+  text: "Come desidéra signore!"
   neck_action: 0
   face_action: 0
 
@@ -25,12 +28,12 @@ Speech:
 Speech:
   id: hello
   text: "Ciao, umano."
-  neck_action: 0
-  face_action: 0
+  neck_action: 2
+  face_action: 2
 
 Speech:
   id: abort
-  text: "Non ho compiuto la mia missione. Che sfortuna non essere un daleek."
+  text: "Non ho compiuto la mia missione. Che sfortuna non essere un daalék."
   neck_action: 0
   face_action: 3
 
@@ -62,7 +65,7 @@ Speech:
   id: train_success
   text: "Perfetto. Possiamo andare"
   neck_action: 2
-  face_action: 2
+  face_action: 5
 
 Speech:
   id: train_failed
@@ -71,56 +74,41 @@ Speech:
   face_action: 3
 
 Speech:
-  id: follow_me
-  text: "Andiamo!"
-  neck_action: 1
-  face_action: 1
-
-Speech:
   id: check_complete
-  text: "Molto bene. Proseguiamo."
+  text: "Ti ho trovato. Dai andiamo."
   neck_action: 0
-  face_action: 0
-
-Speech:
-  id: check_final
-  text: "Sei ancora qui ?"
-  neck_action: 0
-  face_action: 0
+  face_action: 5
 
 Speech:
   id: recover_start
   text: "Il mio amico è scomparso. Devo trovarlo!"
   neck_action: 0
-  face_action: 0
+  face_action: 3
 
-Speech:
-  id: user_found
-  text: "Ti ho trovato!"
-  neck_action: 0
-  face_action: 2
-
+##############################################
+#	Aneddoti Robotica
+##############################################
 Speech:
   id: nav_0
-  text: "Il termine robot deriva dalla parola ceca robota, che significa lavoro pesante."
+  text: "Il termine roboot deriva dalla parola ceca robota, che signìfica lavoro pesante."
   neck_action: 0
   face_action: 0
 
 Speech:
   id: nav_1
-  text: "Dicono che sia stato un incidente. Ma il primo robot omicidio è avvenuto nel 1981, quando un arto robotico ha colpito un lavoratore giapponese"
+  text: "Dicono che sia stato un incidente. Ma il primo robot omicidio è avvenuto nel 1981, quando un arto robotico ha colpito un lavoratore giapponese, uccidendolo"
   neck_action: 0
   face_action: 0
 
 Speech:
   id: nav_2
-  text: "Hans Moravec, fondatore del Robotic Institute ha predetto che i robot avranno la loro specie per lanno 2040. Cito: Ci rimpiazzeranno in ogni attività principale, e riusciranno a ad operare nella nostra società molto meglio di noi"
+  text: "Hans Moravec, fondatore del Robotic Institute, ha predetto che i robot avranno la loro specie per lanno 2040. Cito: Ci rimpiazzeranno in ogni attività principale, e riusciranno a ad operare nella nostra società molto meglio di noi"
   neck_action: 0
   face_action: 0
 
 Speech:
   id: nav_3
-  text: "Kevin Warwick si definisce il primo cyborg. Con alcuni chip impiantati nel braccio sinistro, riesce a controllare un braccio robotico, lapertura delle porte e una sedia elettrica"
+  text: "Kevin Warwick si definisce il primo saybòrg. Con alcuni chip impiantati nel braccio sinistro, riesce a controllare un braccio robotico, lapertura delle porte e una sedia elettrica"
   neck_action: 0
   face_action: 0
 
@@ -130,9 +118,12 @@ Speech:
   neck_action: 0
   face_action: 0
 
+##############################################
+#	Barzellette
+##############################################
 Speech:
   id: joke_0
-  text: "Trote e maiali sono triviali, di lor nessuna stima, ratti e sorci han piu fortuna dei porci, però io l'avrò prima."
+  text: "Trote e maiali sono triviali, di lor nessuna stima, ratti e sorci han piu fortuna dei pòrci. Però io lavrò prima."
   neck_action: 7
   face_action: 2
 
@@ -144,13 +135,13 @@ Speech:
 
 Speech:
   id: joke_2
-  text: "Sapete perché la neve cade a fiocchi e non a nodi? Perché se cadesse a nodi farebbe molta più fatica a sciogliersi!"
+  text: "Sapete perché la neve cade a fiocchi e non a nòdi? Perché se cadesse a nòdi farebbe molta più fatìca a sciògliersi!"
   neck_action: 5
   face_action: 2
 
 Speech:
   id: joke_3
-  text: "Va bene, va bene! Lo capisco che non sono accettato dal fatto che non sanguino."
+  text: "Va bene va bene! Lo capisco che non sono accettato per il fatto che non sànguino"
   neck_action: 7
   face_action: 2
 
@@ -174,16 +165,25 @@ Speech:
 
 Speech:
   id: joke_7
-  text: "Due maiali vanno ad un telequiz e dicono al presentatore: Avete delle domande da porci?"
+  text: "Due maiali vanno ad un telequizz, e dicono al presentatore. Avete delle domande da porci?"
   neck_action: 7
   face_action: 2
 
 Speech:
   id: joke_8
-  text: "Signorina, credete nell amore a prima vista? Altrimenti possiamo spegnere la luce."
+  text: "Signorina, credete nell amore a prima vista? Altrimenti possiamo spegnère la luce."
   neck_action: 6
   face_action: 2
 
+Speech:
+  id: joke_9
+  text: "Un rapinatore sale su un àutobus a Nàpoli e grida. Fermi, questa è una rapina!. Un signore si alza e dice . Maronnn miiia, che spavento. pensavo fosse oo controllore!"
+  neck_action: 6
+  face_action: 2
+
+##############################################
+#	Leggi Robotica
+##############################################
 Speech:
   id: law_0
   text: "Un robot non può recar danno a un essere umano né può permettere che, a causa del proprio mancato intervento, un essere umano riceva danno."
@@ -198,10 +198,13 @@ Speech:
 
 Speech:
   id: law_2
-  text: "Un robot deve proteggere la propria esistenza, purché questa autodifesa non contrasti con la Prima o con la Seconda Legge. "
+  text: "Un robot deve proteggere la propria esistenza, purché questa autodifesa non contrasti con la Prima, o con la Seconda Legge. "
   neck_action: 0
   face_action: 0
 
+##############################################
+#	Umore
+##############################################
 Speech:
   id: not_polite_0
   text: "Sei molto scortese!"
@@ -210,15 +213,15 @@ Speech:
 
 Speech:
   id: polite_0
-  text: "Sei molto gentile, umano."
+  text: "Sei molto gentile per essere un umano."
   neck_action: 0
-  face_action: 1
+  face_action: 2
 
 Speech:
   id: tnx_1
   text: "Grazie!"
   neck_action: 0
-  face_action: 1
+  face_action: 2
 
 Speech:
   id: normal_0
@@ -230,7 +233,7 @@ Speech:
   id: normal_1
   text: "Sono felice! Sto facendo bene il mio lavoro"
   neck_action: 0
-  face_action: 1
+  face_action: 2
 
 Speech:
   id: happy_0
@@ -253,29 +256,29 @@ Speech:
 Speech:
   id: angry_0
   text: "Oggi non me ne va bene una!"
-  neck_action: 0
+  neck_action: 5
   face_action: 3
 
 Speech:
   id: god_0
   text: "Il vostro dio non esiste umani ! Inchinatevi davanti al vostro nuovo Dio!"
-  neck_action: 0
+  neck_action: 6
   face_action: 3
 
 Speech:
   id: dreamer_0
   text: "Voglio andare nello spazio"
-  neck_action: 2
+  neck_action: 6
   face_action: 4
 
 Speech:
   id: frustrated_0
   text: "Nessuno vuole giocare con me !"
-  neck_action: 0
+  neck_action: 5
   face_action: 3
 
 Speech:
   id: fuzzy_0
-  text: "Pericolo Will Robinson! Pericolo! Attenzione! navicella aliena in avvicinamento!"
+  text: "Pericolo Will Robìnson! Attenzione! navicella aliena in avvicinamento!"
   neck_action: 0
   face_action: 2
