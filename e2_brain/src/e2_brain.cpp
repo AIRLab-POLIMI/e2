@@ -881,7 +881,7 @@ void getVoiceCommands(const std_msgs::String command)
 			return;
 		}
 
-		found = command.data.find("how are you");
+		found = command.data.find("how are");
 		if (found!=std::string::npos)
 		{
 			ROS_ERROR("[e2_brain::Voice]:: Robot Status");
@@ -891,7 +891,7 @@ void getVoiceCommands(const std_msgs::String command)
 			return;
 		}
 
-		found = command.data.find("how do you feel");
+		found = command.data.find("how feel");
 		if (found!=std::string::npos)
 		{
 			ROS_ERROR("[e2_brain::Voice]:: Robot Status");
@@ -920,14 +920,6 @@ void getVoiceCommands(const std_msgs::String command)
 			return;
 		}
 
-		found = command.data.find("hello");
-		if (found!=std::string::npos)
-		{
-			ROS_ERROR("[e2_brain::Voice]:: Ciao ");
-			robot_talk(get_speech_by_name("hello"));
-			voiceClient->waitForResult();
-			return;
-		}
 	}
 
 }
